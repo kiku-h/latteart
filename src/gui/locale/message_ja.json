@@ -40,7 +40,7 @@
   "replay": {
     "done-title": "履歴再生の終了",
     "done-run-operations": "履歴再生が終了しました。",
-    "done-run-operations-because-skipped": "「記録の一時停止」により記録されなかった操作があるため、履歴再生を中止しました。",
+    "done-capture-operations": "履歴の記録再生が終了しました。記録したテスト結果を比較しますか？",
     "run-operations-canceled": "履歴再生を中止しました。"
   },
   "navigate": {
@@ -87,7 +87,14 @@
     "delete-test-result": "テスト結果の削除",
     "delete-test-result-title": "テスト結果の削除",
     "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
-    "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "compare-test-result": "テスト結果の比較",
+    "compare-test-result-title": "テスト結果の比較",
+    "compare-test-result-message": "テスト結果を比較してよろしいですか？",
+    "comparing-test-result": "テスト結果を比較中",
+    "compare-test-result-is-same": "テスト結果の比較が完了しました。テスト結果に差異はありません。\n詳細はダウンロードファイルをご確認ください。",
+    "compare-test-result-is-different": "テスト結果の比較が完了しました。テスト結果に差異があります。\n詳細はダウンロードファイルをご確認ください。",
+    "compare-test-result-not-exist": "比較するテスト結果がありません。"
   },
   "import-export-dialog": {
     "import-title": "データインポート",
@@ -166,6 +173,12 @@
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
     "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+  },
+  "replay-option": {
+    "start-replay": "履歴を再生する",
+    "replay-capture": "操作を記録する",
+    "test-result-name": "テスト結果名",
+    "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
   },
   "test-option": {
     "start-testing": "テストを始める",
@@ -454,6 +467,7 @@
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
       "capture_failed": "操作の記録中にエラーが発生しました。",
+      "invalid_operation": "無効な操作が含まれているため、履歴再生を中止しました。",
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
@@ -471,6 +485,7 @@
       "save_test_scripts_no_operation_error": "テストスクリプトの生成を中止しました。ユーザによる操作が記録されていません",
       "update_test_result_failed": "テスト結果の更新に失敗しました。テスト結果ファイルの書き込み権限もしくはディスク容量をご確認ください。",
       "delete_test_result_failed": "テスト結果の削除に失敗しました。",
+      "compare_test_result_failed": "テスト結果の比較に失敗しました。",
       "add_note_failed": "気づきの追加に失敗しました。",
       "delete_note_failed": "気づきの削除に失敗しました。",
       "edit_note_failed": "気づきの編集に失敗しました。",

@@ -56,6 +56,11 @@ export interface OperationHistoryState {
      * Test result name.
      */
     name: string;
+
+    /**
+     * Test result source.
+     */
+    source: string;
   };
 
   /**
@@ -289,6 +294,7 @@ const state: OperationHistoryState = {
     repositoryUrl: "",
     id: "",
     name: "",
+    source: "",
   },
   config: {
     screenDefinition: {

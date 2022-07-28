@@ -30,6 +30,7 @@ import { UpdateWindowHandlesAction } from "@/lib/captureControl/actions/UpdateWi
 import { RepositoryContainerImpl } from "@/lib/eventDispatcher/RepositoryContainer";
 import { ReadDeviceSettingAction } from "@/lib/operationHistory/actions/setting/ReadDeviceSettingAction";
 import { SaveDeviceSettingAction } from "@/lib/operationHistory/actions/setting/SaveDeviceSettingAction";
+import { TimestampImpl } from "@/lib/common/Timestamp";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -197,42 +198,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   },
 
   /**
-   * Replay operations.
-   * @param context Action context.
-   * @param payload.operations Operations.
-   */
-  async replayOperations(
-    context,
-    payload: { operations: Operation[] }
-  ): Promise<string | undefined> {
-    context.commit("setIsReplaying", { isReplaying: true });
-
-    const reply =
-      await context.rootState.clientSideCaptureServiceDispatcher.runOperations(
-        context.state.config,
-        payload.operations
-      );
-
-    context.commit("setIsReplaying", { isReplaying: false });
-
-    if (reply.error) {
-      const errorMessage = context.rootGetters.message(
-        `error.capture_control.${reply.error.code}`
-      );
-      throw new Error(errorMessage);
-    }
-    return reply.data;
-  },
-
-  /**
-   * Stop replaying operations.
-   * @param context Action context.
-   */
-  async forceQuitReplay(context) {
-    context.rootState.clientSideCaptureServiceDispatcher.forceQuitRunningOperation();
-  },
-
-  /**
    * Switch capturing window.
    * @param context Action context.
    * @param payload.to Destination window handle.
@@ -283,19 +248,90 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context.rootState.clientSideCaptureServiceDispatcher.resumeCapturing();
   },
 
+  async replayOperations(context, payload: { operations: Operation[] }) {
+    const recordedWindowHandles = payload.operations
+      .map((operation) => {
+        return operation.windowHandle;
+      })
+      .filter((windowHandle, index, array) => {
+        return array.indexOf(windowHandle) === index;
+      });
+
+    const replayWindowHandles: string[] = [];
+
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1000);
+    });
+
+    for (const [index, operation] of payload.operations.entries()) {
+      if (index > 0) {
+        const previous = new TimestampImpl(
+          payload.operations[index - 1].timestamp
+        );
+        const current = new TimestampImpl(payload.operations[index].timestamp);
+
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, current.diff(previous));
+        });
+      }
+
+      const availableWindows =
+        context.state.capturingWindowInfo.availableWindows;
+      for (const availableWindow of availableWindows) {
+        if (!replayWindowHandles.includes(availableWindow.value)) {
+          replayWindowHandles.push(availableWindow.value);
+        }
+      }
+
+      const replayTargetOperation = (() => {
+        if (operation.type !== "switch_window") {
+          return operation;
+        }
+
+        const handleKey = recordedWindowHandles.indexOf(operation.input);
+
+        if (handleKey === -1) {
+          return operation;
+        }
+
+        const switchHandleId = replayWindowHandles[handleKey];
+        return Operation.createFromOtherOperation({
+          other: operation,
+          overrideParams: { input: switchHandleId },
+        });
+      })();
+
+      if (payload.operations[index + 1]?.type === "screen_transition") {
+        await context.rootState.clientSideCaptureServiceDispatcher.runOperationAndScreenTransition(
+          replayTargetOperation
+        );
+      } else if (replayTargetOperation.type !== "screen_transition") {
+        await context.rootState.clientSideCaptureServiceDispatcher.runOperation(
+          replayTargetOperation
+        );
+      }
+    }
+    context.dispatch("endCapture");
+  },
+
   /**
    * Start capture.
    * @param context Action context.
    * @param payload.url Target URL.
    * @param payload.config Capture config.
    * @param payload.callbacks.onChangeNumberOfWindows
-   *            The callback when the number of opened windows on the test target browser.
+   * The callback when the number of opened windows on the test target browser.
    */
   async startCapture(
     context,
     payload: {
       url: string;
       config: CaptureConfig;
+      operations?: Operation[];
       callbacks: {
         onChangeNumberOfWindows: () => void;
       };
@@ -305,6 +341,10 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       payload.config,
       context.state.config
     );
+
+    const replayOption = (context.rootState as any).captureControl.replayOption;
+
+    const isReplaying = (context.rootState as any).captureControl.isReplaying;
 
     try {
       const reply =
@@ -358,12 +398,21 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                   }
                 );
               }
+
+              if (isReplaying) {
+                const operations = payload.operations;
+                context.dispatch("replayOperations", { operations });
+              }
             },
             onGetOperation: async (capturedOperation: CapturedOperation) => {
               if (capturedOperation.type === "switch_window") {
                 context.commit("setCurrentWindow", {
                   currentWindow: capturedOperation.input,
                 });
+              }
+
+              if (!replayOption.replayCaptureMode && isReplaying) {
+                return;
               }
 
               await context.dispatch(
@@ -377,6 +426,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             onGetScreenTransition: async (
               capturedScreenTransition: CapturedScreenTransition
             ) => {
+              if (!replayOption.replayCaptureMode && isReplaying) {
+                return;
+              }
               const capturedOperation = {
                 input: "",
                 type: "screen_transition",
@@ -448,18 +500,32 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             onResume: () => {
               context.commit("setPaused", { isPaused: false });
             },
-          }
+          },
+          isReplaying
         );
 
       if (reply.error) {
+        let errorCode: string;
+        if (isReplaying) {
+          errorCode =
+            reply.error.code === "unknown_error"
+              ? "run_operations_failed"
+              : reply.error.code;
+        } else {
+          errorCode =
+            reply.error.code === "unknown_error"
+              ? "capture_failed"
+              : reply.error.code;
+        }
         const errorMessage = context.rootGetters.message(
-          `error.capture_control.${reply.error.code}`
+          `error.capture_control.${errorCode}`
         );
         throw new Error(errorMessage);
       }
     } finally {
       context.dispatch("endCapture");
 
+      context.commit("setIsReplaying", { isReplaying: false });
       context.commit("setCapturing", { isCapturing: false });
       context.commit("setPaused", { isPaused: false });
       context.commit("setCurrentWindow", { currentWindow: "" });

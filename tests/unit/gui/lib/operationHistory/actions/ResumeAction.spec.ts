@@ -34,6 +34,7 @@ describe("ResumeAction", () => {
         const expectedTestResult: TestResult = {
           id: "id",
           name: "name",
+          source: "source",
           startTimeStamp: 0,
           endTimeStamp: 0,
           initialUrl: "url",
@@ -69,6 +70,7 @@ describe("ResumeAction", () => {
           testResultInfo: {
             id: expectedTestResult.id,
             name: expectedTestResult.name,
+            source: expectedTestResult.source,
           },
         });
 

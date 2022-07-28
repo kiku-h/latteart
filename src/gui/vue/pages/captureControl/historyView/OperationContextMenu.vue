@@ -246,20 +246,28 @@ export default class OperationContextMenu extends Vue {
         value: this.operationInfo.sequence,
       }),
       onClick: async () => {
+        this.$store.commit("captureControl/setIsReplaying", {
+          isReplaying: true,
+        });
         const extractOperations = operations.slice(
           0,
           this.operationInfo.sequence
         );
         try {
-          const successMessage = await this.$store.dispatch(
-            "captureControl/replayOperations",
-            {
-              operations: extractOperations,
-            }
-          );
+          await this.$store.dispatch("captureControl/startCapture", {
+            url: extractOperations[0].url,
+            config: this.$store.state.operationHistory.config,
+            operations: extractOperations,
+            callbacks: {
+              onChangeNumberOfWindows: () => {
+                /* Do nothing */
+              },
+            },
+          });
+
           this.informationMessageDialogOpened = true;
           this.informationMessage = this.$store.getters.message(
-            `replay.${successMessage}`
+            `replay.done-run-operations`
           );
         } catch (error) {
           if (!(error instanceof Error)) {
@@ -277,19 +285,27 @@ export default class OperationContextMenu extends Vue {
         value: this.operationInfo.sequence,
       }),
       onClick: async () => {
+        this.$store.commit("captureControl/setIsReplaying", {
+          isReplaying: true,
+        });
         const extractOperations = operations.slice(
           this.operationInfo.sequence - 1
         );
         try {
-          const successMessage = await this.$store.dispatch(
-            "captureControl/replayOperations",
-            {
-              operations: extractOperations,
-            }
-          );
+          await this.$store.dispatch("captureControl/startCapture", {
+            url: extractOperations[0].url,
+            config: this.$store.state.operationHistory.config,
+            operations: extractOperations,
+            callbacks: {
+              onChangeNumberOfWindows: () => {
+                /* Do nothing */
+              },
+            },
+          });
+
           this.informationMessageDialogOpened = true;
           this.informationMessage = this.$store.getters.message(
-            `replay.${successMessage}`
+            `replay.done-run-operations`
           );
         } catch (error) {
           if (!(error instanceof Error)) {
@@ -316,17 +332,25 @@ export default class OperationContextMenu extends Vue {
           value2: to,
         }),
         onClick: async () => {
+          this.$store.commit("captureControl/setIsReplaying", {
+            isReplaying: true,
+          });
           const extractOperations = operations.slice(from - 1, to);
           try {
-            const successMessage = await this.$store.dispatch(
-              "captureControl/replayOperations",
-              {
-                operations: extractOperations,
-              }
-            );
+            await this.$store.dispatch("captureControl/startCapture", {
+              url: extractOperations[0].url,
+              config: this.$store.state.operationHistory.config,
+              operations: extractOperations,
+              callbacks: {
+                onChangeNumberOfWindows: () => {
+                  /* Do nothing */
+                },
+              },
+            });
+
             this.informationMessageDialogOpened = true;
             this.informationMessage = this.$store.getters.message(
-              `replay.${successMessage}`
+              `replay.done-run-operations`
             );
           } catch (error) {
             if (!(error instanceof Error)) {

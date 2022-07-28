@@ -219,6 +219,7 @@ export default class RecordButton extends Vue {
           await this.$store.dispatch("operationHistory/createTestResult", {
             initialUrl: this.url,
             name: this.testResultName,
+            source: "",
           });
         } else {
           const tmpUrl = this.url;

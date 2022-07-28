@@ -162,6 +162,7 @@ export interface TestResult {
   startTimeStamp: number;
   endTimeStamp: number;
   initialUrl: string;
+  source?: string;
   testSteps: {
     id: string;
     operation: TestStepOperation;
@@ -172,3 +173,5 @@ export interface TestResult {
   coverageSources: CoverageSource[];
   inputElementInfos: InputElementInfo[];
 }
+
+export type TestResultSummary = Pick<TestResult, "id" | "name" | "source">;
