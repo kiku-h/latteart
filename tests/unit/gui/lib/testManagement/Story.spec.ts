@@ -27,6 +27,7 @@ describe("Storyの", () => {
       sessions: [session],
       status: "",
       id: "",
+      index: 0,
       testMatrixId: "",
       testTargetId: "",
       viewPointId: "",
