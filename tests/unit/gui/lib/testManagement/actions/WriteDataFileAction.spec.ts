@@ -73,8 +73,8 @@ describe("WriteDataActionの", () => {
       };
       const stories: Story[] = [
         {
-          id: "s1",
           index: 0,
+          id: "s1",
           status: "",
           sessions: [],
           testMatrixId: "",
