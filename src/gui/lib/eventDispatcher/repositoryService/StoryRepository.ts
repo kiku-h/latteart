@@ -16,42 +16,31 @@
 
 import { RESTClient } from "../RESTClient";
 import {
+  createConnectionRefusedFailure,
+  createRepositoryAccessFailure,
   RepositoryAccessResult,
   RepositoryAccessSuccess,
-  createRepositoryAccessFailure,
-  createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
+import { Story } from "@/lib/testManagement/types";
 
-export class ImportTestResultRepository {
+export class StoryRepository {
   constructor(private restClient: RESTClient) {}
 
-  /**
-   * Import test result.
-   * @param source.importFileUrl Source import file url.
-   * @param dest.testResultId Destination local test result id.
-   * @param dest.shouldSaveTemporary Whether to save temporary.
-   */
-  public async postTestResult(
-    source: { testResultFile: { data: string; name: string } },
-    dest?: { testResultId?: string }
-  ): Promise<RepositoryAccessResult<{ testResultId: string }>> {
+  public async patchStory(
+    id: string,
+    body: {
+      status?: string;
+    }
+  ): Promise<RepositoryAccessResult<Story>> {
     try {
-      const body = {
-        source,
-        dest,
-      };
-
-      const response = await this.restClient.httpPost(
-        `/imports/test-results`,
-        body
-      );
+      const response = await this.restClient.httpPatch(`/stories/${id}`, body);
 
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as { testResultId: string },
+        data: response.data as Story,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

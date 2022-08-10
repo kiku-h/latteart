@@ -14,39 +14,35 @@
  * limitations under the License.
  */
 
-import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import {
-  ActionResult,
   ActionFailure,
+  ActionResult,
   ActionSuccess,
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
+import { Story } from "../types";
 
-const SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY =
-  "error.capture_control.save_device_settings_failed";
+export class UpdateStoryAction {
+  public async updateStory(
+    payload: {
+      id: string;
+      status?: string;
+    },
+    repositoryContainer: Pick<RepositoryContainer, "storyRepository">
+  ): Promise<ActionResult<Story>> {
+    const storyResult = await repositoryContainer.storyRepository.patchStory(
+      payload.id,
+      {
+        status: payload.status,
+      }
+    );
 
-export class SaveDeviceSettingAction {
-  constructor(
-    private repositoryContainer: Pick<
-      RepositoryContainer,
-      "localStorageSettingRepository"
-    >
-  ) {}
-
-  public async saveDeviceSettings(
-    deviceSettings: DeviceSettings
-  ): Promise<ActionResult<DeviceSettings>> {
-    const putDeviceSettingsResult =
-      await this.repositoryContainer.localStorageSettingRepository.putDeviceSettings(
-        deviceSettings
-      );
-
-    if (putDeviceSettingsResult.isFailure()) {
+    if (storyResult.isFailure()) {
       return new ActionFailure({
-        messageKey: SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY,
+        messageKey: storyResult.error.message ?? "",
       });
     }
 
-    return new ActionSuccess(putDeviceSettingsResult.data);
+    return new ActionSuccess(storyResult.data);
   }
 }

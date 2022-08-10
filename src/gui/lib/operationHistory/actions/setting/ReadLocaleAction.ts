@@ -21,37 +21,24 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY =
-  "error.test_management.get_import_project_list_failed";
+const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
 
-export class GetImportProjectListAction {
+export class ReadLocaleAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
-      "importProjectRepository" | "serviceUrl"
+      "localStorageSettingRepository"
     >
   ) {}
 
-  public async getImportProjects(): Promise<
-    ActionResult<Array<{ url: string; name: string }>>
-  > {
-    const getProjectsResult =
-      await this.repositoryContainer.importProjectRepository.getProjects();
+  public async readLocale(): Promise<ActionResult<string>> {
+    const getLocaleResult =
+      await this.repositoryContainer.localStorageSettingRepository.getLocale();
 
-    if (getProjectsResult.isFailure()) {
-      return new ActionFailure({
-        messageKey: GET_IMPORT_PROJECT_LIST_FAILED_MESSAGE_KEY,
-      });
+    if (getLocaleResult.isFailure()) {
+      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    const serviceUrl = this.repositoryContainer.serviceUrl;
-    const data = getProjectsResult.data.map(({ url, name }) => {
-      return {
-        url: `${serviceUrl}/${url}`,
-        name,
-      };
-    });
-
-    return new ActionSuccess(data);
+    return new ActionSuccess(getLocaleResult.data);
   }
 }

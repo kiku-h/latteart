@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import DeviceSettings from "@/lib/common/settings/DeviceSettings";
 import {
   ActionResult,
   ActionFailure,
@@ -22,31 +21,33 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY =
-  "error.capture_control.save_device_settings_failed";
+const IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.import_test_result_failed";
 
-export class SaveDeviceSettingAction {
+export class ImportTestResultAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
-      "localStorageSettingRepository"
+      "importTestResultRepository"
     >
   ) {}
 
-  public async saveDeviceSettings(
-    deviceSettings: DeviceSettings
-  ): Promise<ActionResult<DeviceSettings>> {
-    const putDeviceSettingsResult =
-      await this.repositoryContainer.localStorageSettingRepository.putDeviceSettings(
-        deviceSettings
+  public async import(
+    source: { testResultFile: { data: string; name: string } },
+    dest?: { testResultId?: string }
+  ): Promise<ActionResult<{ testResultId: string }>> {
+    const postTestResultResult =
+      await this.repositoryContainer.importTestResultRepository.postTestResult(
+        source,
+        dest
       );
 
-    if (putDeviceSettingsResult.isFailure()) {
+    if (postTestResultResult.isFailure()) {
       return new ActionFailure({
-        messageKey: SAVE_DEVICE_SETTING_FAILED_MESSAGE_KEY,
+        messageKey: IMPORT_TEST_RESULT_FAILED_MESSAGE_KEY,
       });
     }
 
-    return new ActionSuccess(putDeviceSettingsResult.data);
+    return new ActionSuccess(postTestResultResult.data);
   }
 }
