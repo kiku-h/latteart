@@ -57,10 +57,6 @@
 </template>
 
 <script lang="ts">
-import {
-  RepositoryContainer,
-  RepositoryContainerImpl,
-} from "@/lib/eventDispatcher/RepositoryContainer";
 import { Operation } from "@/lib/operationHistory/Operation";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
@@ -151,15 +147,7 @@ export default class ReplayHistoryButton extends Vue {
     (async () => {
       try {
         const initialUrl = this.operations[0].url;
-        const currentRepositoryInfo = (() => {
-          const currentRepository: RepositoryContainer =
-            this.$store.state.repositoryContainer;
 
-          return {
-            url: currentRepository.serviceUrl,
-            isRemote: currentRepository.isRemote,
-          };
-        })();
         const sourceTestResultId =
           this.$store.state.operationHistory.testResultInfo.id;
 
@@ -173,18 +161,6 @@ export default class ReplayHistoryButton extends Vue {
             : this.operations;
 
         if (this.isReplayCaptureMode) {
-          // switch to local
-          this.$store.commit(
-            "setRepositoryContainer",
-            {
-              repositoryContainer: new RepositoryContainerImpl({
-                url: this.$store.state.localRepositoryServiceUrl,
-                isRemote: false,
-              }),
-            },
-            { root: true }
-          );
-
           await this.$store.dispatch("operationHistory/resetHistory");
 
           await this.$store.dispatch("operationHistory/createTestResult", {
@@ -206,34 +182,7 @@ export default class ReplayHistoryButton extends Vue {
         });
 
         if (this.isReplayCaptureMode) {
-          // switch to before repository
-          this.$store.commit(
-            "setRepositoryContainer",
-            {
-              repositoryContainer: new RepositoryContainerImpl(
-                currentRepositoryInfo
-              ),
-            },
-            { root: true }
-          );
-
-          if (currentRepositoryInfo.isRemote) {
-            const localTestResultId =
-              this.$store.state.operationHistory.testResultInfo.id;
-            const remoteTestResultId = "";
-
-            this.uploadHistory(
-              currentRepositoryInfo.isRemote,
-              { localId: localTestResultId, remoteId: remoteTestResultId },
-              async (testResultId: string) => {
-                await this.$store.dispatch("operationHistory/resume", {
-                  testResultId,
-                });
-              }
-            );
-          } else {
-            this.compareHistory(currentRepositoryInfo.isRemote);
-          }
+          this.compareHistory();
         } else {
           this.informationMessageDialogOpened = true;
           this.informationMessage = this.$store.getters.message(
@@ -255,65 +204,11 @@ export default class ReplayHistoryButton extends Vue {
     this.$store.dispatch("captureControl/endCapture");
   }
 
-  private uploadHistory(
-    isRemote: boolean,
-    testResult: { localId: string; remoteId?: string },
-    postOperation: (testResultId: string) => Promise<void>
-  ): void {
+  private compareHistory(): void {
     this.confirmDialogTitle = this.$store.getters.message("replay.done-title");
     this.confirmDialogMessage = this.$store.getters.message(
-      "remote-access.register-confirm"
+      "replay.done-capture-operations"
     );
-
-    this.confirmDialogAccept = () => {
-      this.confirmDialogOpened = false;
-
-      (async () => {
-        this.$store.dispatch("openProgressDialog", {
-          message: this.$store.getters.message(
-            "remote-access.registering-testresults"
-          ),
-        });
-
-        try {
-          const newTestResultId = await this.$store.dispatch(
-            "operationHistory/uploadTestResultsToRemote",
-            {
-              localTestResultId: testResult.localId,
-              remoteTestResultId: testResult.remoteId,
-            }
-          );
-
-          await postOperation(newTestResultId);
-
-          await this.$store.dispatch("operationHistory/deleteLocalTestResult", {
-            testResultId: testResult.localId,
-          });
-        } catch (error) {
-          if (error instanceof Error) {
-            this.errorDialogMessage = error.message;
-            this.errorDialogOpened = true;
-          } else {
-            throw error;
-          }
-        } finally {
-          this.$store.dispatch("closeProgressDialog");
-        }
-
-        this.compareHistory(isRemote);
-      })();
-    };
-
-    this.confirmDialogOpened = true;
-  }
-
-  private compareHistory(isRemote: boolean): void {
-    this.confirmDialogTitle = isRemote
-      ? this.$store.getters.message("history-view.compare-test-result-title")
-      : this.$store.getters.message("replay.done-title");
-    this.confirmDialogMessage = isRemote
-      ? this.$store.getters.message("history-view.compare-test-result-message")
-      : this.$store.getters.message("replay.done-capture-operations");
 
     this.confirmDialogAccept = async () => {
       this.confirmDialogOpened = false;
