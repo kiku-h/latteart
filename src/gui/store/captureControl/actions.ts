@@ -195,11 +195,9 @@ const actions: ActionTree<CaptureControlState, RootState> = {
    * @param context Action context.
    * @param payload.operations Operations.
    */
-  async runOperations(
+  async replayOperations(
     context,
-    payload: {
-      operations: Operation[];
-    }
+    payload: { operations: Operation[] }
   ): Promise<boolean> {
     const initialUrl = payload.operations[0].url;
 
@@ -307,7 +305,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context.rootState.clientSideCaptureServiceDispatcher.resumeCapturing();
   },
 
-  async replayOperations(context, payload: { operations: Operation[] }) {
+  async runOperations(context, payload: { operations: Operation[] }) {
     const recordedWindowHandles = payload.operations
       .map((operation) => {
         return operation.windowHandle;
@@ -460,7 +458,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
               if (isReplaying) {
                 const operations = payload.operations;
-                context.dispatch("replayOperations", { operations });
+                context.dispatch("runOperations", { operations });
               }
             },
             onGetOperation: async (capturedOperation: CapturedOperation) => {

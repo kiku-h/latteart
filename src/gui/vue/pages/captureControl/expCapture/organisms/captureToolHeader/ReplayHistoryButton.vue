@@ -143,7 +143,7 @@ export default class ReplayHistoryButton extends Vue {
     (async () => {
       try {
         const isReplayCaptureMode = await this.$store.dispatch(
-          "captureControl/runOperations",
+          "captureControl/replayOperations",
           {
             operations: this.operations,
           }
