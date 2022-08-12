@@ -146,9 +146,7 @@ export default class ReplayHistoryButton extends Vue {
           operations: this.operations,
         });
 
-        if (
-          this.$store.state.captureControl.replayOperations.replayCaptureMode
-        ) {
+        if (this.$store.state.captureControl.replayOption.replayCaptureMode) {
           this.compareHistory();
         } else {
           this.informationMessageDialogOpened = true;
