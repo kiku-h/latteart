@@ -198,7 +198,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   async replayOperations(
     context,
     payload: { operations: Operation[] }
-  ): Promise<boolean> {
+  ): Promise<void> {
     const initialUrl = payload.operations[0].url;
 
     const sourceTestResultId = (context.rootState as any).operationHistory
@@ -242,8 +242,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         },
       },
     });
-
-    return replayOption.replayCaptureMode;
   },
 
   /**
