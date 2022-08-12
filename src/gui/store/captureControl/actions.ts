@@ -199,49 +199,54 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: { operations: Operation[] }
   ): Promise<void> {
-    const initialUrl = payload.operations[0].url;
+    context.commit("setIsReplaying", { isReplaying: true });
+    try {
+      const initialUrl = payload.operations[0].url;
 
-    const sourceTestResultId = (context.rootState as any).operationHistory
-      .testResultInfo.id;
+      const sourceTestResultId = (context.rootState as any).operationHistory
+        .testResultInfo.id;
 
-    const pauseCapturingIndex = payload.operations.findIndex((operation) => {
-      return operation.type === "pause_capturing";
-    });
-
-    const operations =
-      pauseCapturingIndex > 0
-        ? payload.operations.slice(0, pauseCapturingIndex)
-        : payload.operations;
-
-    const replayOption = context.state.replayOption;
-
-    if (replayOption.replayCaptureMode) {
-      await context.dispatch("operationHistory/resetHistory", null, {
-        root: true,
+      const pauseCapturingIndex = payload.operations.findIndex((operation) => {
+        return operation.type === "pause_capturing";
       });
-      await context.dispatch(
-        "operationHistory/createTestResult",
-        {
-          initialUrl,
-          name: `${replayOption.testResultName}`,
-          source: sourceTestResultId,
-        },
-        {
-          root: true,
-        }
-      );
-    }
 
-    await context.dispatch("startCapture", {
-      url: initialUrl,
-      config: (context.rootState as any).operationHistory.config,
-      operations,
-      callbacks: {
-        onChangeNumberOfWindows: () => {
-          /* Do nothing */
+      const operations =
+        pauseCapturingIndex > 0
+          ? payload.operations.slice(0, pauseCapturingIndex)
+          : payload.operations;
+
+      const replayOption = context.state.replayOption;
+
+      if (replayOption.replayCaptureMode) {
+        await context.dispatch("operationHistory/resetHistory", null, {
+          root: true,
+        });
+        await context.dispatch(
+          "operationHistory/createTestResult",
+          {
+            initialUrl,
+            name: `${replayOption.testResultName}`,
+            source: sourceTestResultId,
+          },
+          {
+            root: true,
+          }
+        );
+      }
+
+      await context.dispatch("startCapture", {
+        url: initialUrl,
+        config: (context.rootState as any).operationHistory.config,
+        operations,
+        callbacks: {
+          onChangeNumberOfWindows: () => {
+            /* Do nothing */
+          },
         },
-      },
-    });
+      });
+    } finally {
+      context.commit("setIsReplaying", { isReplaying: true });
+    }
   },
 
   /**
@@ -585,7 +590,6 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     } finally {
       context.dispatch("endCapture");
 
-      context.commit("setIsReplaying", { isReplaying: false });
       context.commit("setCapturing", { isCapturing: false });
       context.commit("setPaused", { isPaused: false });
       context.commit("setCurrentWindow", { currentWindow: "" });

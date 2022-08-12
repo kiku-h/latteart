@@ -254,15 +254,8 @@ export default class OperationContextMenu extends Vue {
           this.operationInfo.sequence
         );
         try {
-          await this.$store.dispatch("captureControl/startCapture", {
-            url: extractOperations[0].url,
-            config: this.$store.state.operationHistory.config,
+          await this.$store.dispatch("captureControl/replayOperations", {
             operations: extractOperations,
-            callbacks: {
-              onChangeNumberOfWindows: () => {
-                /* Do nothing */
-              },
-            },
           });
 
           this.informationMessageDialogOpened = true;
@@ -292,15 +285,8 @@ export default class OperationContextMenu extends Vue {
           this.operationInfo.sequence - 1
         );
         try {
-          await this.$store.dispatch("captureControl/startCapture", {
-            url: extractOperations[0].url,
-            config: this.$store.state.operationHistory.config,
+          await this.$store.dispatch("captureControl/replayOperations", {
             operations: extractOperations,
-            callbacks: {
-              onChangeNumberOfWindows: () => {
-                /* Do nothing */
-              },
-            },
           });
 
           this.informationMessageDialogOpened = true;
@@ -337,15 +323,8 @@ export default class OperationContextMenu extends Vue {
           });
           const extractOperations = operations.slice(from - 1, to);
           try {
-            await this.$store.dispatch("captureControl/startCapture", {
-              url: extractOperations[0].url,
-              config: this.$store.state.operationHistory.config,
+            await this.$store.dispatch("captureControl/replayOperations", {
               operations: extractOperations,
-              callbacks: {
-                onChangeNumberOfWindows: () => {
-                  /* Do nothing */
-                },
-              },
             });
 
             this.informationMessageDialogOpened = true;

@@ -130,10 +130,6 @@ export default class ReplayOptionDialog extends Vue {
         },
       });
 
-      this.$store.commit("captureControl/setIsReplaying", {
-        isReplaying: true,
-      });
-
       this.$emit("ok");
     } catch (error) {
       if (error instanceof Error) {

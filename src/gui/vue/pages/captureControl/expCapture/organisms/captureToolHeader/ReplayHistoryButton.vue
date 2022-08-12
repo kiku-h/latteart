@@ -156,8 +156,8 @@ export default class ReplayHistoryButton extends Vue {
         }
       } catch (error) {
         if (error instanceof Error) {
-          this.errorDialogMessage = `${error.message}`;
           this.errorDialogOpened = true;
+          this.errorDialogMessage = error.message;
         } else {
           throw error;
         }
