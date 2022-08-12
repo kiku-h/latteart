@@ -191,7 +191,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   },
 
   /**
-   * Run operations.
+   * Replay operations.
    * @param context Action context.
    * @param payload.operations Operations.
    */
@@ -305,6 +305,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context.rootState.clientSideCaptureServiceDispatcher.resumeCapturing();
   },
 
+  /**
+   * Run operations.
+   * @param context Action context.
+   * @param payload.operations Operations.
+   */
   async runOperations(context, payload: { operations: Operation[] }) {
     const recordedWindowHandles = payload.operations
       .map((operation) => {
