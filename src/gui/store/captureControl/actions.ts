@@ -191,6 +191,72 @@ const actions: ActionTree<CaptureControlState, RootState> = {
   },
 
   /**
+   * Run operations.
+   * @param context Action context.
+   * @param payload.operations Operations.
+   */
+  async runOperations(
+    context,
+    payload: {
+      operations: Operation[];
+    }
+  ): Promise<boolean> {
+    const initialUrl = payload.operations[0].url;
+
+    const sourceTestResultId = (context.rootState as any).operationHistory
+      .testResultInfo.id;
+
+    const pauseCapturingIndex = payload.operations.findIndex((operation) => {
+      return operation.type === "pause_capturing";
+    });
+
+    const operations =
+      pauseCapturingIndex > 0
+        ? payload.operations.slice(0, pauseCapturingIndex)
+        : payload.operations;
+
+    const replayOption = context.state.replayOption;
+
+    if (replayOption.replayCaptureMode) {
+      await context.dispatch("operationHistory/resetHistory", null, {
+        root: true,
+      });
+      await context.dispatch(
+        "operationHistory/createTestResult",
+        {
+          initialUrl,
+          name: `${replayOption.testResultName}`,
+          source: sourceTestResultId,
+        },
+        {
+          root: true,
+        }
+      );
+    }
+
+    await context.dispatch("startCapture", {
+      url: initialUrl,
+      config: (context.rootState as any).operationHistory.config,
+      operations,
+      callbacks: {
+        onChangeNumberOfWindows: () => {
+          /* Do nothing */
+        },
+      },
+    });
+
+    return replayOption.replayCaptureMode;
+  },
+
+  /**
+   * Stop replaying operations.
+   * @param context Action context.
+   */
+  async forceQuitReplay(context) {
+    context.dispatch("endCapture");
+  },
+
+  /**
    * Switch capturing window.
    * @param context Action context.
    * @param payload.to Destination window handle.

@@ -115,10 +115,6 @@ export default class ReplayHistoryButton extends Vue {
     return this.$store.state.captureControl.isResuming;
   }
 
-  private get isReplayCaptureMode(): boolean {
-    return this.$store.state.captureControl.replayOption.replayCaptureMode;
-  }
-
   private get operations(): Operation[] {
     return this.$store.getters["operationHistory/getOperations"]();
   }
@@ -146,42 +142,14 @@ export default class ReplayHistoryButton extends Vue {
 
     (async () => {
       try {
-        const initialUrl = this.operations[0].url;
+        const isReplayCaptureMode = await this.$store.dispatch(
+          "captureControl/runOperations",
+          {
+            operations: this.operations,
+          }
+        );
 
-        const sourceTestResultId =
-          this.$store.state.operationHistory.testResultInfo.id;
-
-        const pauseCapturingIndex = this.operations.findIndex((operation) => {
-          return operation.type === "pause_capturing";
-        });
-
-        const operations =
-          pauseCapturingIndex > 0
-            ? this.operations.slice(0, pauseCapturingIndex)
-            : this.operations;
-
-        if (this.isReplayCaptureMode) {
-          await this.$store.dispatch("operationHistory/resetHistory");
-
-          await this.$store.dispatch("operationHistory/createTestResult", {
-            initialUrl,
-            name: `${this.$store.state.captureControl.replayOption.testResultName}`,
-            source: sourceTestResultId,
-          });
-        }
-
-        await this.$store.dispatch("captureControl/startCapture", {
-          url: initialUrl,
-          config: this.$store.state.operationHistory.config,
-          operations,
-          callbacks: {
-            onChangeNumberOfWindows: () => {
-              /* Do nothing */
-            },
-          },
-        });
-
-        if (this.isReplayCaptureMode) {
+        if (isReplayCaptureMode) {
           this.compareHistory();
         } else {
           this.informationMessageDialogOpened = true;
@@ -200,8 +168,12 @@ export default class ReplayHistoryButton extends Vue {
     })();
   }
 
-  private forceQuitReplay() {
-    this.$store.dispatch("captureControl/endCapture");
+  private async forceQuitReplay() {
+    await this.$store
+      .dispatch("captureControl/forceQuitReplay")
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   private compareHistory(): void {
