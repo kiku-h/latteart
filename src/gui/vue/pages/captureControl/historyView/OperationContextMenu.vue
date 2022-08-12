@@ -246,9 +246,6 @@ export default class OperationContextMenu extends Vue {
         value: this.operationInfo.sequence,
       }),
       onClick: async () => {
-        this.$store.commit("captureControl/setIsReplaying", {
-          isReplaying: true,
-        });
         const extractOperations = operations.slice(
           0,
           this.operationInfo.sequence
@@ -278,9 +275,6 @@ export default class OperationContextMenu extends Vue {
         value: this.operationInfo.sequence,
       }),
       onClick: async () => {
-        this.$store.commit("captureControl/setIsReplaying", {
-          isReplaying: true,
-        });
         const extractOperations = operations.slice(
           this.operationInfo.sequence - 1
         );
@@ -318,9 +312,6 @@ export default class OperationContextMenu extends Vue {
           value2: to,
         }),
         onClick: async () => {
-          this.$store.commit("captureControl/setIsReplaying", {
-            isReplaying: true,
-          });
           const extractOperations = operations.slice(from - 1, to);
           try {
             await this.$store.dispatch("captureControl/replayOperations", {
