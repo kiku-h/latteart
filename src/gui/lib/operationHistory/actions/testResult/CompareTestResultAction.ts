@@ -21,10 +21,10 @@ import {
 } from "@/lib/common/ActionResult";
 import { RepositoryContainer } from "@/lib/eventDispatcher/RepositoryContainer";
 
-const CREATE_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.operation_history.create_test_result_failed";
+const COMPARE_TEST_RESULT_FAILED_MESSAGE_KEY =
+  "error.operation_history.compare_test_result_failed";
 
-export class CreateTestResultAction {
+export class CompareTestResultAction {
   constructor(
     private repositoryContainer: Pick<
       RepositoryContainer,
@@ -32,24 +32,24 @@ export class CreateTestResultAction {
     >
   ) {}
 
-  public async createTestResult(
-    initialUrl?: string,
-    name?: string,
-    source?: string
-  ): Promise<ActionResult<{ id: string; name: string }>> {
-    const postEmptyTestResultResult =
-      await this.repositoryContainer.testResultRepository.postEmptyTestResult(
-        initialUrl,
-        name,
-        source
-      );
+  public async compareTestResult(
+    testResultId1: string,
+    testResultId2: string
+  ): Promise<ActionResult<{ url: string; isSame: boolean }>> {
+    const result = await this.repositoryContainer.testResultRepository.postDiff(
+      testResultId1,
+      testResultId2
+    );
 
-    if (postEmptyTestResultResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({
-        messageKey: CREATE_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: COMPARE_TEST_RESULT_FAILED_MESSAGE_KEY,
       });
     }
 
-    return new ActionSuccess(postEmptyTestResultResult.data);
+    return new ActionSuccess({
+      url: result.data.url,
+      isSame: result.data.isSame,
+    });
   }
 }

@@ -21,7 +21,7 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "@/lib/captureControl/Reply";
-import { TestResult } from "@/lib/operationHistory/types";
+import { TestResult, TestResultSummary } from "@/lib/operationHistory/types";
 
 export class TestResultRepository {
   constructor(private restClient: RESTClient) {}
@@ -85,13 +85,15 @@ export class TestResultRepository {
    */
   public async postEmptyTestResult(
     initialUrl?: string,
-    name?: string
-  ): Promise<RepositoryAccessResult<{ id: string; name: string }>> {
+    name?: string,
+    source?: string
+  ): Promise<RepositoryAccessResult<Pick<TestResult, "id" | "name">>> {
     try {
       const url = `/test-results`;
       const response = await this.restClient.httpPost(url, {
         initialUrl,
         name,
+        source,
       });
 
       if (response.status !== 200) {
@@ -111,7 +113,7 @@ export class TestResultRepository {
    * @returns List of test results.
    */
   public async getTestResults(): Promise<
-    RepositoryAccessResult<Array<{ id: string; name: string }>>
+    RepositoryAccessResult<Array<TestResultSummary>>
   > {
     try {
       const response = await this.restClient.httpGet(`/test-results`);
@@ -124,6 +126,7 @@ export class TestResultRepository {
         data: response.data as Array<{
           id: string;
           name: string;
+          source?: string;
         }>,
       });
     } catch (error) {
@@ -173,6 +176,56 @@ export class TestResultRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as TestResult,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  /**
+   * Compare test result.
+   * @param testResultId_1  Test result id.
+   * @param testResultId_2  Test result id.
+   */
+  public async postDiff(
+    testResultId1: string,
+    testResultId2: string
+  ): Promise<
+    RepositoryAccessResult<{
+      diffs: {
+        [key: string]: {
+          a: string | undefined;
+          b: string | undefined;
+        };
+      }[];
+      isSame: boolean;
+      url: string;
+    }>
+  > {
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId1}/diffs`,
+        {
+          targetTestResultId: testResultId2,
+          excludeQuery: "windowHandle",
+        }
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          diffs: {
+            [key: string]: {
+              a: string | undefined;
+              b: string | undefined;
+            };
+          }[];
+          isSame: boolean;
+          url: string;
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

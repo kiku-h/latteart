@@ -38,7 +38,7 @@ export interface ResumeActionObserver {
     inputElementInfos: InputElementInfo[];
     historyItems: OperationHistoryItem[];
     url: string;
-    testResultInfo: { id: string; name: string };
+    testResultInfo: { id: string; name: string; source: string };
   }) => Promise<void>;
   registerTestStepId(testStepId: string): number;
   clearTestStepIds(): void;
@@ -75,6 +75,7 @@ export class ResumeAction {
     const data = {
       id: testResult.id,
       name: testResult.name,
+      source: testResult.source ?? "",
       operationHistoryItems: testResult.testSteps.map((testStep) => {
         const operation = testStep.operation
           ? convertTestStepOperation(testStep.operation, serviceUrl)
@@ -145,7 +146,7 @@ export class ResumeAction {
         inputElementInfos: data.inputElementInfos,
         historyItems,
         url: data.initialUrl,
-        testResultInfo: { id: data.id, name: data.name },
+        testResultInfo: { id: data.id, name: data.name, source: data.source },
       });
     }
 

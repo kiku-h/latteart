@@ -64,6 +64,7 @@ import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoti
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { GetTestResultAction } from "@/lib/operationHistory/actions/testResult/GetTestResultAction";
+import { CompareTestResultAction } from "@/lib/operationHistory/actions/testResult/CompareTestResultAction";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -892,6 +893,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: "",
       id: "",
       name: "",
+      source: "",
     });
     context.commit("clearTestStepIds");
   },
@@ -1323,16 +1325,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.initialUrl Initial URL.
    * @param payload.name Test result name.
+   * @param payload.source Source test result Id.
    */
   async createTestResult(
     context,
-    payload: { initialUrl: string; name: string }
+    payload: { initialUrl: string; name: string; source: string }
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
+    const source = payload.source ? payload.source : undefined;
     const result = await new CreateTestResultAction(
       context.rootState.repositoryContainer
-    ).createTestResult(initialUrl, name);
+    ).createTestResult(initialUrl, name, source);
 
     if (result.isFailure()) {
       throw new Error(
@@ -1349,6 +1353,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
       id: testResultInfo.id,
       name: testResultInfo.name,
+      source: "",
     });
   },
 
@@ -1448,6 +1453,26 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     return result.data.url;
+  },
+
+  async compareTestResult(
+    context,
+    payload: { testResultId1: string; testResultId2: string }
+  ) {
+    const result = await new CompareTestResultAction(
+      context.rootState.repositoryContainer
+    ).compareTestResult(payload.testResultId1, payload.testResultId2);
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
+    return result.data;
   },
 };
 
