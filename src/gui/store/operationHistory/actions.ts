@@ -770,9 +770,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           context.commit("resetAllCoverageSources", {
             coverageSources: data.coverageSources,
           });
-          context.commit("resetInputElementInfos", {
-            inputElementInfos: data.inputElementInfos,
-          });
           context.commit("resetHistory", {
             historyItems: data.historyItems,
           });
@@ -884,7 +881,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("captureControl/clearWindowHandles", null, { root: true });
     context.commit("clearUnassignedIntentions");
     context.commit("clearAllCoverageSources");
-    context.commit("clearInputElementInfos");
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     context.commit("clearModels");
     context.commit("selectWindow", { windowHandle: "" });
@@ -949,13 +945,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       );
     }
 
-    const { id, operation, coverageSource, inputElementInfo } = result.data;
+    const { id, operation, coverageSource } = result.data;
 
     context.commit("addTestStepId", { testStepId: id });
     const sequence = context.state.testStepIds.indexOf(id) + 1;
 
     operation.sequence = sequence;
-    operation.inputElements = inputElementInfo?.inputElements ?? [];
 
     context.commit("addHistory", {
       entry: { operation, intention: null, bugs: null, notices: null },
@@ -966,14 +961,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     });
 
     context.commit("registerCoverageSource", { coverageSource });
-    if (
-      !!inputElementInfo &&
-      !!inputElementInfo.inputElements &&
-      inputElementInfo.inputElements.length !== 0
-    ) {
-      context.commit("registerInputElementInfo", { inputElementInfo });
-    }
-
     context.commit("setCanUpdateModels", { canUpdateModels: true });
 
     if (

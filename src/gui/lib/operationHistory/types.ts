@@ -171,7 +171,6 @@ export interface TestResult {
     notices: ApiNote[];
   }[];
   coverageSources: CoverageSource[];
-  inputElementInfos: InputElementInfo[];
 }
 
 export type TestResultSummary = Pick<TestResult, "id" | "name" | "source">;

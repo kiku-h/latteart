@@ -40,7 +40,6 @@ describe("ResumeAction", () => {
           initialUrl: "url",
           testSteps: [],
           coverageSources: [],
-          inputElementInfos: [],
         };
         const resSuccess: RESTClientResponse = {
           status: 200,
@@ -64,7 +63,6 @@ describe("ResumeAction", () => {
 
         expect(observer.setResumedData).toBeCalledWith({
           coverageSources: expectedTestResult.coverageSources,
-          inputElementInfos: expectedTestResult.inputElementInfos,
           historyItems: expectedTestResult.testSteps,
           url: expectedTestResult.initialUrl,
           testResultInfo: {
