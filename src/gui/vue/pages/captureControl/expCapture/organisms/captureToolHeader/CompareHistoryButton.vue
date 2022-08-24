@@ -50,6 +50,7 @@
 </template>
 
 <script lang="ts">
+import { CompareInfo } from "@/lib/common/settings/Settings";
 import { Operation } from "@/lib/operationHistory/Operation";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
@@ -104,6 +105,10 @@ export default class CompareHistoryButton extends Vue {
     return this.$store.state.operationHistory.testResultInfo.source;
   }
 
+  private get compareInfo(): CompareInfo {
+    return this.$store.state.operationHistory.config.compare;
+  }
+
   private get operations(): Operation[] {
     return this.$store.getters["operationHistory/getOperations"]();
   }
@@ -152,6 +157,9 @@ export default class CompareHistoryButton extends Vue {
         await this.$store.dispatch("operationHistory/compareTestResult", {
           testResultId1: destTestResultId,
           testResultId2: sourceTestResultId,
+          excludeTags: this.compareInfo.exclude.isEnabled
+            ? this.compareInfo.exclude.tags
+            : "",
         });
 
       this.downloadLinkDialogOpened = true;

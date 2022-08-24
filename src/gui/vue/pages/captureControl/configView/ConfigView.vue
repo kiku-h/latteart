@@ -106,6 +106,15 @@
               </template>
               <screen-definition-setting> </screen-definition-setting>
             </v-expansion-panel-content>
+
+            <v-expansion-panel-content v-if="configureCaptureSettings">
+              <template v-slot:header class="py-0">
+                {{
+                  $store.getters.message("config-view.setting-exclusion-tags")
+                }}
+              </template>
+              <compare-setting> </compare-setting>
+            </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
       </v-layout>
@@ -128,12 +137,14 @@ import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer
 import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
 import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
+import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
 @Component({
   components: {
     "number-field": NumberField,
     "coverage-setting": CoverageSetting,
     "screen-definition-setting": ScreenDefinitionSetting,
     "image-compression-setting": ImageCompressionSetting,
+    "compare-setting": CompareSetting,
     "error-message-dialog": ErrorMessageDialog,
   },
 })

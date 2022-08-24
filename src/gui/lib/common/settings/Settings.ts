@@ -64,6 +64,7 @@ export default class Settings {
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
     imageCompression: ImageCompression;
+    compare: CompareInfo;
   };
 
   /**
@@ -104,6 +105,12 @@ export default class Settings {
         isEnabled: true,
         isDeleteSrcImage: true,
       },
+      compare: {
+        exclude: {
+          isEnabled: false,
+          tags: "",
+        },
+      },
     };
     this.captureSettings = {
       ignoreTags: [],
@@ -125,4 +132,11 @@ export interface Coverage {
 export interface ImageCompression {
   isEnabled: boolean;
   isDeleteSrcImage: boolean;
+}
+
+export interface CompareInfo {
+  exclude: {
+    isEnabled: boolean;
+    tags: string;
+  };
 }

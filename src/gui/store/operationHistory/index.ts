@@ -29,6 +29,7 @@ import {
   ScreenDefinition,
   Coverage,
   ImageCompression,
+  CompareInfo,
 } from "@/lib/common/settings/Settings";
 import { ScreenDefType } from "@/lib/common/enum/SettingsEnum";
 import ScreenHistory from "@/lib/operationHistory/ScreenHistory";
@@ -81,6 +82,11 @@ export interface OperationHistoryState {
      * Screenshot image compression settings.
      */
     imageCompression: ImageCompression;
+
+    /**
+     * Compare settings.
+     */
+    compare: CompareInfo;
   };
 
   /**
@@ -309,6 +315,12 @@ const state: OperationHistoryState = {
     imageCompression: {
       isEnabled: false,
       isDeleteSrcImage: false,
+    },
+    compare: {
+      exclude: {
+        isEnabled: false,
+        tags: "",
+      },
     },
   },
   testStepIds: [],
