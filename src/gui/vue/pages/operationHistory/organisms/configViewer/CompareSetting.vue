@@ -27,7 +27,16 @@
       <v-flex xs12>
         <v-text-field
           single-line
-          :label="$store.getters.message('config-view.exclude-compare')"
+          :label="$store.getters.message('config-view.exclude-compare-query')"
+          v-model="excludeQuery"
+          @change="changeExcludeQuery"
+          :disabled="!isEnableExclusion"
+        ></v-text-field>
+      </v-flex>
+      <v-flex xs12>
+        <v-text-field
+          single-line
+          :label="$store.getters.message('config-view.exclude-compare-tags')"
           v-model="excludeTags"
           @change="changeExcludeTags"
           :disabled="!isEnableExclusion"
@@ -43,6 +52,7 @@ import { Component, Vue } from "vue-property-decorator";
 @Component
 export default class CompareSetting extends Vue {
   private tagText = "";
+  private queryText = "";
 
   private get isEnableExclusion(): boolean {
     return this.$store.state.operationHistory.config.compare.exclude.isEnabled;
@@ -54,6 +64,8 @@ export default class CompareSetting extends Vue {
           compare: {
             exclude: {
               isEnabled: isEnabled,
+              query:
+                this.$store.state.operationHistory.config.compare.exclude.query,
               tags: this.$store.state.operationHistory.config.compare.exclude
                 .tags,
             },
@@ -61,6 +73,14 @@ export default class CompareSetting extends Vue {
         },
       });
     })();
+  }
+
+  private get excludeQuery(): string {
+    return this.$store.state.operationHistory.config.compare.exclude.query;
+  }
+
+  private set excludeQuery(query: string) {
+    this.queryText = query;
   }
 
   private get excludeTags(): string {
@@ -80,7 +100,28 @@ export default class CompareSetting extends Vue {
               isEnabled:
                 this.$store.state.operationHistory.config.compare.exclude
                   .isEnabled,
+              query:
+                this.$store.state.operationHistory.config.compare.exclude.query,
               tags: this.tagText,
+            },
+          },
+        },
+      });
+    })();
+  }
+
+  private changeExcludeQuery() {
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          compare: {
+            exclude: {
+              isEnabled:
+                this.$store.state.operationHistory.config.compare.exclude
+                  .isEnabled,
+              query: this.queryText,
+              tags: this.$store.state.operationHistory.config.compare.exclude
+                .tags,
             },
           },
         },

@@ -108,6 +108,7 @@ export default class Settings {
       compare: {
         exclude: {
           isEnabled: false,
+          query: "",
           tags: "",
         },
       },
@@ -137,6 +138,7 @@ export interface ImageCompression {
 export interface CompareInfo {
   exclude: {
     isEnabled: boolean;
+    query: string;
     tags: string;
   };
 }

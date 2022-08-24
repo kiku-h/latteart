@@ -191,6 +191,10 @@ export class SettingsProvider {
         );
       }
 
+      if (sourceCompare.exclude && sourceCompare.exclude.query) {
+        target.config.compare.exclude.query = sourceCompare.exclude.query;
+      }
+
       if (sourceCompare.exclude && sourceCompare.exclude.tags) {
         target.config.compare.exclude.tags = sourceCompare.exclude.tags;
       }

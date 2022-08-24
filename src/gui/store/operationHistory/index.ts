@@ -314,6 +314,7 @@ const state: OperationHistoryState = {
     compare: {
       exclude: {
         isEnabled: false,
+        query: "",
         tags: "",
       },
     },

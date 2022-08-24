@@ -190,6 +190,7 @@ export class TestResultRepository {
   public async postDiff(
     testResultId1: string,
     testResultId2: string,
+    excludeQuery?: string,
     excludeTags?: string
   ): Promise<
     RepositoryAccessResult<{
@@ -208,7 +209,7 @@ export class TestResultRepository {
         `/test-results/${testResultId1}/diffs`,
         {
           targetTestResultId: testResultId2,
-          excludeQuery: "windowHandle",
+          excludeQuery,
           excludeTags,
         }
       );

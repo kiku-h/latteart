@@ -136,8 +136,9 @@
     "image-compression-delete-source-image": "元画像を削除する",
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-exclusion-tags": "テスト結果比較の設定",
-    "exclude-tags-enabled": "タグを除外する",
-    "exclude-compare": "比較で除外するタグ",
+    "exclude-compare-query": "比較で除外するフィールド",
+    "exclude-tags-enabled": "指定した比較対象を一部除外する",
+    "exclude-compare-tags": "比較で除外するタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
     "screen-def": {

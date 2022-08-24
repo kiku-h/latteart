@@ -105,10 +105,6 @@ export default class CompareHistoryButton extends Vue {
     return this.$store.state.operationHistory.testResultInfo.source;
   }
 
-  private get compareInfo(): CompareInfo {
-    return this.$store.state.operationHistory.config.compare;
-  }
-
   private get operations(): Operation[] {
     return this.$store.getters["operationHistory/getOperations"]();
   }
@@ -157,9 +153,6 @@ export default class CompareHistoryButton extends Vue {
         await this.$store.dispatch("operationHistory/compareTestResult", {
           testResultId1: destTestResultId,
           testResultId2: sourceTestResultId,
-          excludeTags: this.compareInfo.exclude.isEnabled
-            ? this.compareInfo.exclude.tags
-            : "",
         });
 
       this.downloadLinkDialogOpened = true;

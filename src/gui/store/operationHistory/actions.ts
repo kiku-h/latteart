@@ -1454,15 +1454,22 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     payload: {
       testResultId1: string;
       testResultId2: string;
-      excludeTags: string;
     }
   ) {
-    const excludeTags = payload.excludeTags ? payload.excludeTags : undefined;
+    const isEnabled = context.state.config.compare.exclude.isEnabled;
+    const excludeQuery = isEnabled
+      ? context.state.config.compare.exclude.query
+      : undefined;
+    const excludeTags = isEnabled
+      ? context.state.config.compare.exclude.tags
+      : undefined;
+
     const result = await new CompareTestResultAction(
       context.rootState.repositoryContainer
     ).compareTestResult(
       payload.testResultId1,
       payload.testResultId2,
+      excludeQuery,
       excludeTags
     );
 

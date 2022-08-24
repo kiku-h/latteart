@@ -132,8 +132,9 @@
     "image-compression-delete-source-image": "Delete Original Screenshots",
     "include-coverage": "Tags to include in coverage calculation",
     "setting-exclusion-tags": "Compare Test Results Settings",
-    "exclude-tags-enabled": "Exclude tags",
-    "exclude-compare": "Tags to exclude in comparison",
+    "exclude-compare-query": "Fields to exclude in comparison",
+    "exclude-tags-enabled": "Exclude some of the specified comparison targets",
+    "exclude-compare-tags": "Tags to exclude in comparison",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
     "screen-def": {
