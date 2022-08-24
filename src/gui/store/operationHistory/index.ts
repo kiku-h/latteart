@@ -129,11 +129,6 @@ export interface OperationHistoryState {
   coverageSources: CoverageSource[];
 
   /**
-   * Element informations for calculating screen element coverage.
-   */
-  inputElementInfos: InputElementInfo[];
-
-  /**
    * Sequence diagram.
    */
   sequenceDiagramGraph: Element | null;
@@ -330,7 +325,6 @@ const state: OperationHistoryState = {
   displayInclusionList: [],
   defaultTagList: [],
   coverageSources: [],
-  inputElementInfos: [],
   sequenceDiagramGraph: null,
   windowHandleToScreenTransitionDiagramGraph: {},
   elementCoverages: [],
