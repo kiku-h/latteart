@@ -22,17 +22,19 @@ import { ElementInfo } from "./types";
 export interface CapturedOperation {
   input: string;
   type: string;
-  elementInfo: ElementInfo | null;
+  elementInfo: CapturedElementInfo | null;
   title: string;
   url: string;
   imageData: string;
   windowHandle: string;
   timestamp: string;
-  screenElements: ElementInfo[];
+  screenElements: CapturedElementInfo[];
   pageSource: string;
-  inputElements: ElementInfo[];
+  inputElements: CapturedElementInfo[];
   keywordTexts: string[];
 }
+
+export type CapturedElementInfo = ElementInfo & { ownedText: string };
 
 /**
  * Screen transition information acquired by capture.
