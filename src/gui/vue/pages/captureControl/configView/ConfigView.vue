@@ -115,6 +115,13 @@
               </template>
               <compare-setting> </compare-setting>
             </v-expansion-panel-content>
+
+            <v-expansion-panel-content v-if="configureCaptureSettings">
+              <template v-slot:header class="py-0">
+                {{ $store.getters.message("config-view.setting-autofill") }}
+              </template>
+              <autofill-setting> </autofill-setting>
+            </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
       </v-layout>
@@ -136,6 +143,7 @@ import * as Util from "@/lib/common/util";
 import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer/CoverageSetting.vue";
 import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
 import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
+import AutofillSetting from "@/vue/pages/operationHistory/organisms/configViewer/AutofillSetting.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
 @Component({
@@ -145,6 +153,7 @@ import CompareSetting from "../../operationHistory/organisms/configViewer/Compar
     "screen-definition-setting": ScreenDefinitionSetting,
     "image-compression-setting": ImageCompressionSetting,
     "compare-setting": CompareSetting,
+    "autofill-setting": AutofillSetting,
     "error-message-dialog": ErrorMessageDialog,
   },
 })
