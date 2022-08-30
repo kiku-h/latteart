@@ -47,4 +47,5 @@ export interface CapturedScreenTransition {
   windowHandle: string;
   timestamp: string;
   pageSource: string;
+  screenElements: CapturedElementInfo[];
 }
