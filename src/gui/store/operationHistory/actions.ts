@@ -1512,13 +1512,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       testResultId2: string;
     }
   ) {
-    const isEnabled = context.state.config.compare.exclude.isEnabled;
-    const excludeQuery = isEnabled
-      ? context.state.config.compare.exclude.query
-      : undefined;
-    const excludeTags = isEnabled
-      ? context.state.config.compare.exclude.tags
-      : undefined;
+    const compareInfo = {
+      isEnabled: context.state.config.compare.exclude.isEnabled,
+      query:
+        context.state.config.compare.exclude.query !== ""
+          ? context.state.config.compare.exclude.query
+          : undefined,
+      tags:
+        context.state.config.compare.exclude.tags !== ""
+          ? context.state.config.compare.exclude.tags
+          : undefined,
+    };
+    const isEnabled = compareInfo.isEnabled;
+    const excludeQuery = isEnabled ? compareInfo.query : undefined;
+    const excludeTags = isEnabled ? compareInfo.tags : undefined;
 
     const result = await new CompareTestResultAction(
       context.rootState.repositoryContainer
