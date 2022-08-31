@@ -937,7 +937,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const repositoryContainer = context.rootState.repositoryContainer;
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
-      // capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
       capturedOperation.keywordTexts = capturedOperation.screenElements.flatMap(
         (element) => {
           return element.text ? [element.text] : [];
