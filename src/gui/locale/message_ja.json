@@ -137,7 +137,7 @@
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-exclusion-tags": "テスト結果比較の設定",
     "exclude-compare-query": "除外するフィールド",
-    "exclude-tags-enabled": "指定した比較対象を一部除外する",
+    "exclude-tags-enabled": "指定した比較対象を除外する",
     "exclude-compare-tags": "除外するタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",

@@ -24,53 +24,26 @@
         >
         </v-checkbox>
       </v-flex>
-      <div class="head-label">
-        {{ $store.getters.message("config-view.exclude-compare-query") }}
-      </div>
-      <v-flex
-        style="width: 150px"
-        v-for="query in queries"
-        v-bind:key="query"
-        pa-1
-      >
-        <v-card class="ma-1 pa-1" color="#EEE">
-          <v-card-text class="my-0 py-0">
-            <v-layout align-center ma-0 pa-0>
-              <v-flex xs10 ma-0 pa-0>
-                {{ query }}
-              </v-flex>
-              <v-flex xs2 ma-0 pa-0 align-right>
-                <v-checkbox
-                  v-model="excludeQueryCheckBox"
-                  :value="query"
-                  :disabled="!isEnableExclusion"
-                />
-              </v-flex>
-            </v-layout>
-          </v-card-text>
-        </v-card>
-      </v-flex>
-      <div class="head-label">
-        {{ $store.getters.message("config-view.exclude-compare-tags") }}
-      </div>
-      <v-flex style="width: 150px" v-for="tag in tagList" v-bind:key="tag" pa-1>
-        <v-card class="ma-1 pa-1" color="#EEE">
-          <v-card-text class="my-0 py-0">
-            <v-layout align-center ma-0 pa-0>
-              <v-flex xs10 ma-0 pa-0 class="tagName">
-                {{ tag }}
-              </v-flex>
-              <v-flex xs2 ma-0 pa-0 align-right>
-                <v-checkbox
-                  v-model="excludeTagCheckBox"
-                  :value="tag"
-                  :disabled="!isEnableExclusion"
-                />
-              </v-flex>
-            </v-layout>
-          </v-card-text>
-        </v-card>
-      </v-flex>
+      <v-select
+        v-model="exclusionQuery"
+        :items="queries"
+        :menu-props="{ maxHeight: '400' }"
+        :label="$store.getters.message('config-view.exclude-compare-query')"
+        multiple
+        @change="changeQuery"
+        :disabled="!isEnableExclusion"
+        class="px-1"
+      ></v-select>
+      <v-select
+        v-model="exclusionTag"
+        :items="tags"
+        :menu-props="{ maxHeight: '400' }"
+        :label="$store.getters.message('config-view.exclude-compare-tags')"
+        multiple
+        @change="changeTag"
+        :disabled="!isEnableExclusion"
+        class="px-1"
+      ></v-select>
     </v-layout>
   </v-container>
 </template>
@@ -80,8 +53,9 @@ import { Component, Vue } from "vue-property-decorator";
 
 @Component
 export default class CompareSetting extends Vue {
-  private exclusionTagMap = new Map();
-  private exclusionQueryMap = new Map();
+  private queryList: string[] = [];
+  private tagList: string[] = [];
+
   private queries = [
     "input",
     "type",
@@ -93,7 +67,7 @@ export default class CompareSetting extends Vue {
     "screenElements",
   ];
 
-  private tagList = this.$store.state.operationHistory.defaultTagList;
+  private tags = this.$store.state.operationHistory.defaultTagList;
 
   private get isEnableExclusion(): boolean {
     return this.$store.state.operationHistory.config.compare.exclude.isEnabled;
@@ -116,21 +90,33 @@ export default class CompareSetting extends Vue {
     })();
   }
 
-  private get excludeQueryCheckBox() {
-    this.initExclusionQueryMap();
-    const excludeQueries =
+  private get exclusionQuery(): string[] {
+    return (
       this.$store.state.operationHistory.config.compare.exclude.query.split(
         ","
-      ) ?? [];
-    excludeQueries.forEach((query: string) => {
-      this.exclusionQueryMap.set(query, true);
-    });
-    return excludeQueries;
+      ) ?? []
+    );
   }
 
-  private set excludeQueryCheckBox(list: string[]) {
-    const tmpList = list.filter((item) => {
-      return item !== "";
+  private set exclusionQuery(excludeQueries: string[]) {
+    this.queryList = excludeQueries;
+  }
+
+  private get exclusionTag(): string[] {
+    return (
+      this.$store.state.operationHistory.config.compare.exclude.tags.split(
+        ","
+      ) ?? []
+    );
+  }
+
+  private set exclusionTag(excludeTags: string[]) {
+    this.tagList = excludeTags;
+  }
+
+  private changeQuery() {
+    const tmpList = this.queryList.filter((tag) => {
+      return tag !== "";
     });
     const queryText = tmpList.length > 0 ? tmpList.join(",") : "";
     (async () => {
@@ -151,26 +137,11 @@ export default class CompareSetting extends Vue {
     })();
   }
 
-  private get excludeTagCheckBox() {
-    this.initExclusionTagMap();
-    const excludeTags =
-      this.$store.state.operationHistory.config.compare.exclude.tags.split(
-        ","
-      ) ?? [];
-    excludeTags.forEach((tag: string) => {
-      this.exclusionTagMap.set(tag, true);
+  private changeTag() {
+    const tmpList = this.tagList.filter((tag) => {
+      return tag !== "";
     });
-    return excludeTags;
-  }
-
-  private set excludeTagCheckBox(list: string[]) {
-    const tmpList = list.filter((item) => {
-      return item !== "";
-    });
-    console.log(tmpList);
-    console.log(list);
     const tagText = tmpList.length > 0 ? tmpList.join(",") : "";
-    console.log(tagText);
     (async () => {
       await this.$store.dispatch("operationHistory/writeSettings", {
         config: {
@@ -188,30 +159,5 @@ export default class CompareSetting extends Vue {
       });
     })();
   }
-
-  private initExclusionQueryMap() {
-    const queryMap = new Map();
-    this.queries.forEach((query: string) => {
-      queryMap.set(query, false);
-    });
-    this.exclusionQueryMap = queryMap;
-  }
-
-  private initExclusionTagMap() {
-    const tagyMap = new Map();
-    this.$store.state.operationHistory.defaultTagList.forEach((tag: string) => {
-      tagyMap.set(tag, false);
-    });
-    this.exclusionTagMap = tagyMap;
-  }
 }
 </script>
-
-<style lang="sass" scoped>
-.tagName
-  word-break: break-all
-
-.head-label
-  width: 100%
-  padding-left: 5px
-</style>

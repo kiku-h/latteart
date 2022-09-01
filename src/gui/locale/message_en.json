@@ -133,7 +133,7 @@
     "include-coverage": "Tags to include in coverage calculation",
     "setting-exclusion-tags": "Compare Test Results Settings",
     "exclude-compare-query": "Fields to exclude",
-    "exclude-tags-enabled": "Exclude some of the specified comparison targets",
+    "exclude-tags-enabled": "Exclude the specified comparison target",
     "exclude-compare-tags": "Tags to exclude",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
