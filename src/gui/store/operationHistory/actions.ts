@@ -970,7 +970,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           throw new Error();
         }
         context.commit("setAutofillSelectDialog", {
-          autofillConditionGroups: matchGroup.data,
+          dialogData: {
+            autofillConditionGroups: matchGroup.data,
+            message: context.rootGetters.message(
+              "autofill-select-dialog.message"
+            ),
+          },
         });
       } else {
         context.commit("setAutofillSelectDialog", {
@@ -990,6 +995,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       context.commit("setAutofillRegisterDialog", {
         title: beforeOperation.title,
         url: beforeOperation.url,
+        message: context.rootGetters.message(
+          "autofill-register-dialog.message"
+        ),
         inputElements: beforeOperation.inputElements?.map((element) => {
           return {
             ...element,
