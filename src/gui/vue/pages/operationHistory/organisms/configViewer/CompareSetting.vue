@@ -21,10 +21,11 @@
         <v-checkbox
           v-model="isEnableExclusionQuery"
           :label="$store.getters.message('config-view.exclude-query-enabled')"
+          hide-details
         >
         </v-checkbox>
       </v-flex>
-      <v-flex xs12>
+      <v-flex xs12 class="select-box">
         <v-select
           v-model="exclusionQuery"
           :items="queries"
@@ -42,10 +43,11 @@
         <v-checkbox
           v-model="isEnableExclusionTag"
           :label="$store.getters.message('config-view.exclude-tags-enabled')"
+          hide-details
         >
         </v-checkbox>
       </v-flex>
-      <v-flex xs12>
+      <v-flex xs12 class="select-box">
         <v-select
           v-model="exclusionTag"
           :items="tags"
@@ -222,3 +224,8 @@ export default class CompareSetting extends Vue {
   }
 }
 </script>
+
+<style lang="sass" scoped>
+.select-box
+  padding-left: 1.5em
+</style>
