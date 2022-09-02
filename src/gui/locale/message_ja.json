@@ -136,8 +136,9 @@
     "image-compression-delete-source-image": "元画像を削除する",
     "include-coverage": "カバレッジ計算に含めるタグ",
     "setting-exclusion-tags": "テスト結果比較の設定",
-    "exclude-compare-query": "除外するフィールド",
-    "exclude-tags-enabled": "指定した比較対象を除外する",
+    "exclude-query-enabled": "指定した操作内情報の差分を検出しない",
+    "exclude-compare-query": "除外する操作内情報",
+    "exclude-tags-enabled": "指定した画面要素の差分を検出しない",
     "exclude-compare-tags": "除外するタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
@@ -246,7 +247,10 @@
     "text": "テキスト",
     "type": "イベント種別",
     "input": "入力値",
-    "timestamp": "時刻"
+    "timestamp": "時刻",
+    "elementinfo": "対象画面要素",
+    "url": "ページURL",
+    "screenelements": "ページ内文字列"
   },
   "sequence": {
     "window-title": "シーケンス図"

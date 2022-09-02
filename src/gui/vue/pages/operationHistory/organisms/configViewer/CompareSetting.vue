@@ -19,36 +19,50 @@
     <v-layout row wrap>
       <v-flex xs12>
         <v-checkbox
-          v-model="isEnableExclusion"
+          v-model="isEnableExclusionQuery"
+          :label="$store.getters.message('config-view.exclude-query-enabled')"
+        >
+        </v-checkbox>
+      </v-flex>
+      <v-flex xs12>
+        <v-select
+          v-model="exclusionQuery"
+          :items="queries"
+          item-text="queryName"
+          item-value="queryValue"
+          :menu-props="{ maxHeight: '400' }"
+          :label="$store.getters.message('config-view.exclude-compare-query')"
+          multiple
+          @change="changeQuery"
+          :disabled="!isEnableExclusionQuery"
+          class="px-1"
+        ></v-select>
+      </v-flex>
+      <v-flex xs12>
+        <v-checkbox
+          v-model="isEnableExclusionTag"
           :label="$store.getters.message('config-view.exclude-tags-enabled')"
         >
         </v-checkbox>
       </v-flex>
-      <v-select
-        v-model="exclusionQuery"
-        :items="queries"
-        :menu-props="{ maxHeight: '400' }"
-        :label="$store.getters.message('config-view.exclude-compare-query')"
-        multiple
-        @change="changeQuery"
-        :disabled="!isEnableExclusion"
-        class="px-1"
-      ></v-select>
-      <v-select
-        v-model="exclusionTag"
-        :items="tags"
-        :menu-props="{ maxHeight: '400' }"
-        :label="$store.getters.message('config-view.exclude-compare-tags')"
-        multiple
-        @change="changeTag"
-        :disabled="!isEnableExclusion"
-        class="px-1"
-      ></v-select>
+      <v-flex xs12>
+        <v-select
+          v-model="exclusionTag"
+          :items="tags"
+          :menu-props="{ maxHeight: '400' }"
+          :label="$store.getters.message('config-view.exclude-compare-tags')"
+          multiple
+          @change="changeTag"
+          :disabled="!isEnableExclusionTag"
+          class="px-1"
+        ></v-select>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>
 
 <script lang="ts">
+import { CompareInfo } from "@/lib/common/settings/Settings";
 import { Component, Vue } from "vue-property-decorator";
 
 @Component
@@ -56,33 +70,84 @@ export default class CompareSetting extends Vue {
   private queryList: string[] = [];
   private tagList: string[] = [];
 
-  private queries = [
-    "input",
-    "type",
-    "elementInfo",
-    "title",
-    "url",
-    "windowHandle",
-    "keywordTexts",
-    "screenElements",
-  ];
+  private tags = this.$store.state.operationHistory.defaultTagList.sort();
 
-  private tags = this.$store.state.operationHistory.defaultTagList;
-
-  private get isEnableExclusion(): boolean {
-    return this.$store.state.operationHistory.config.compare.exclude.isEnabled;
+  private get queries(): { queryName: string; queryValue: string }[] {
+    return [
+      {
+        queryName: `${this.$store.getters.message("operation.input")}`,
+        queryValue: "input",
+      },
+      {
+        queryName: `${this.$store.getters.message("operation.type")}`,
+        queryValue: "type",
+      },
+      {
+        queryName: `${this.$store.getters.message("operation.elementinfo")}`,
+        queryValue: "elementInfo",
+      },
+      {
+        queryName: `${this.$store.getters.message("operation.title")}`,
+        queryValue: "title",
+      },
+      {
+        queryName: `${this.$store.getters.message("operation.url")}`,
+        queryValue: "url",
+      },
+      {
+        queryName: `${this.$store.getters.message("operation.screenelements")}`,
+        queryValue: "screenElements",
+      },
+    ];
   }
-  private set isEnableExclusion(isEnabled: boolean) {
+
+  private get compareInfo(): CompareInfo {
+    return this.$store.state.operationHistory.config.compare;
+  }
+
+  private get isEnableExclusionQuery(): boolean {
+    return this.compareInfo.exclude.query.isEnabled;
+  }
+
+  private set isEnableExclusionQuery(isEnabled: boolean) {
     (async () => {
       await this.$store.dispatch("operationHistory/writeSettings", {
         config: {
           compare: {
             exclude: {
-              isEnabled: isEnabled,
-              query:
-                this.$store.state.operationHistory.config.compare.exclude.query,
-              tags: this.$store.state.operationHistory.config.compare.exclude
-                .tags,
+              query: {
+                isEnabled: isEnabled,
+                item: this.compareInfo.exclude.query.item,
+              },
+              tags: {
+                isEnabled: this.compareInfo.exclude.tags.isEnabled,
+                item: this.compareInfo.exclude.tags.item,
+              },
+            },
+          },
+        },
+      });
+    })();
+  }
+
+  private get isEnableExclusionTag(): boolean {
+    return this.compareInfo.exclude.tags.isEnabled;
+  }
+
+  private set isEnableExclusionTag(isEnabled: boolean) {
+    (async () => {
+      await this.$store.dispatch("operationHistory/writeSettings", {
+        config: {
+          compare: {
+            exclude: {
+              query: {
+                isEnabled: this.compareInfo.exclude.query.isEnabled,
+                item: this.compareInfo.exclude.query.item,
+              },
+              tags: {
+                isEnabled: isEnabled,
+                item: this.compareInfo.exclude.tags.item,
+              },
             },
           },
         },
@@ -91,11 +156,7 @@ export default class CompareSetting extends Vue {
   }
 
   private get exclusionQuery(): string[] {
-    return (
-      this.$store.state.operationHistory.config.compare.exclude.query.split(
-        ","
-      ) ?? []
-    );
+    return this.compareInfo.exclude.query.item.split(",") ?? [];
   }
 
   private set exclusionQuery(excludeQueries: string[]) {
@@ -103,11 +164,7 @@ export default class CompareSetting extends Vue {
   }
 
   private get exclusionTag(): string[] {
-    return (
-      this.$store.state.operationHistory.config.compare.exclude.tags.split(
-        ","
-      ) ?? []
-    );
+    return this.compareInfo.exclude.tags.item.split(",") ?? [];
   }
 
   private set exclusionTag(excludeTags: string[]) {
@@ -124,12 +181,14 @@ export default class CompareSetting extends Vue {
         config: {
           compare: {
             exclude: {
-              isEnabled:
-                this.$store.state.operationHistory.config.compare.exclude
-                  .isEnabled,
-              query: queryText,
-              tags: this.$store.state.operationHistory.config.compare.exclude
-                .tags,
+              query: {
+                isEnabled: this.compareInfo.exclude.query.isEnabled,
+                item: queryText,
+              },
+              tags: {
+                isEnabled: this.compareInfo.exclude.tags.isEnabled,
+                item: this.compareInfo.exclude.tags.item,
+              },
             },
           },
         },
@@ -147,12 +206,14 @@ export default class CompareSetting extends Vue {
         config: {
           compare: {
             exclude: {
-              isEnabled:
-                this.$store.state.operationHistory.config.compare.exclude
-                  .isEnabled,
-              query:
-                this.$store.state.operationHistory.config.compare.exclude.query,
-              tags: tagText,
+              query: {
+                isEnabled: this.compareInfo.exclude.query.isEnabled,
+                item: this.compareInfo.exclude.query.item,
+              },
+              tags: {
+                isEnabled: this.compareInfo.exclude.tags.isEnabled,
+                item: tagText,
+              },
             },
           },
         },

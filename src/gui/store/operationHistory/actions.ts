@@ -1520,19 +1520,27 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
   ) {
     const compareInfo = {
-      isEnabled: context.state.config.compare.exclude.isEnabled,
-      query:
-        context.state.config.compare.exclude.query !== ""
-          ? context.state.config.compare.exclude.query
-          : undefined,
-      tags:
-        context.state.config.compare.exclude.tags !== ""
-          ? context.state.config.compare.exclude.tags
-          : undefined,
+      query: {
+        isEnabled: context.state.config.compare.exclude.query.isEnabled,
+        item:
+          context.state.config.compare.exclude.query.item !== ""
+            ? context.state.config.compare.exclude.query.item
+            : undefined,
+      },
+      tags: {
+        isEnabled: context.state.config.compare.exclude.tags.isEnabled,
+        item:
+          context.state.config.compare.exclude.tags.item !== ""
+            ? context.state.config.compare.exclude.tags.item
+            : undefined,
+      },
     };
-    const isEnabled = compareInfo.isEnabled;
-    const excludeQuery = isEnabled ? compareInfo.query : undefined;
-    const excludeTags = isEnabled ? compareInfo.tags : undefined;
+    const excludeQuery = compareInfo.query.isEnabled
+      ? compareInfo.query.item
+      : undefined;
+    const excludeTags = compareInfo.tags.isEnabled
+      ? compareInfo.tags.item
+      : undefined;
 
     const result = await new CompareTestResultAction(
       context.rootState.repositoryContainer

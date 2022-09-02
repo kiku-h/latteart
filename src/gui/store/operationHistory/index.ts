@@ -345,9 +345,14 @@ const state: OperationHistoryState = {
     },
     compare: {
       exclude: {
-        isEnabled: false,
-        query: "",
-        tags: "",
+        query: {
+          isEnabled: false,
+          item: "",
+        },
+        tags: {
+          isEnabled: false,
+          item: "",
+        },
       },
     },
   },
