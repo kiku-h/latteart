@@ -131,6 +131,11 @@
     "image-compression-enabled": "Compress Screenshots",
     "image-compression-delete-source-image": "Delete Original Screenshots",
     "include-coverage": "Tags to include in coverage calculation",
+    "setting-exclusion-tags": "Compare Test Results Settings",
+    "exclude-query-enabled": "Do not detect differences in specified operation information",
+    "exclude-compare-query": "In-operation information to exclude",
+    "exclude-tags-enabled": "Do not detect differences for specified screen elements",
+    "exclude-compare-tags": "Tags to exclude",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
@@ -238,7 +243,10 @@
     "text": "Text",
     "type": "Event Type",
     "input": "Input Value",
-    "timestamp": "Timestamp"
+    "timestamp": "Timestamp",
+    "elementinfo": "Target screen element",
+    "url": "Url",
+    "screenelements": "In-page string"
   },
   "sequence": {
     "window-title": "Sequence Diagram"

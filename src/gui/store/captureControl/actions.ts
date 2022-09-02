@@ -539,7 +539,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 imageData: capturedScreenTransition.imageData,
                 windowHandle: capturedScreenTransition.windowHandle,
                 timestamp: capturedScreenTransition.timestamp,
-                screenElements: [],
+                screenElements: capturedScreenTransition.screenElements,
                 pageSource: capturedScreenTransition.pageSource,
                 inputElements: [],
               };

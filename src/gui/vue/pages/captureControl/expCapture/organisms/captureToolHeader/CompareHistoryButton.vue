@@ -50,6 +50,7 @@
 </template>
 
 <script lang="ts">
+import { CompareInfo } from "@/lib/common/settings/Settings";
 import { Operation } from "@/lib/operationHistory/Operation";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";

@@ -34,11 +34,15 @@ export class CompareTestResultAction {
 
   public async compareTestResult(
     testResultId1: string,
-    testResultId2: string
+    testResultId2: string,
+    excludeQuery?: string,
+    excludeTags?: string
   ): Promise<ActionResult<{ url: string; isSame: boolean }>> {
     const result = await this.repositoryContainer.testResultRepository.postDiff(
       testResultId1,
-      testResultId2
+      testResultId2,
+      excludeQuery,
+      excludeTags
     );
 
     if (result.isFailure()) {

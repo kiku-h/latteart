@@ -68,6 +68,7 @@ export default class Settings {
     autofillSetting: AutofillSetting;
     coverage: Coverage;
     imageCompression: ImageCompression;
+    compare: CompareInfo;
   };
 
   /**
@@ -113,6 +114,18 @@ export default class Settings {
         isEnabled: true,
         isDeleteSrcImage: true,
       },
+      compare: {
+        exclude: {
+          query: {
+            isEnabled: false,
+            item: "",
+          },
+          tags: {
+            isEnabled: false,
+            item: "",
+          },
+        },
+      },
     };
     this.captureSettings = {
       ignoreTags: [],
@@ -134,4 +147,17 @@ export interface Coverage {
 export interface ImageCompression {
   isEnabled: boolean;
   isDeleteSrcImage: boolean;
+}
+
+export interface CompareInfo {
+  exclude: {
+    query: {
+      isEnabled: boolean;
+      item: string;
+    };
+    tags: {
+      isEnabled: boolean;
+      item: string;
+    };
+  };
 }
