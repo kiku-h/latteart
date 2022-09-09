@@ -381,7 +381,6 @@ import ScrollableDialog from "@/vue/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/vue/pages/common/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
-import { TestResultSummary } from "@/lib/operationHistory/types";
 
 @Component({
   components: {
@@ -397,7 +396,7 @@ export default class SessionInfo extends Vue {
   private reportSectionDisplayed = false;
 
   private testResultSelectionDialogOpened = false;
-  private testResults: TestResultSummary[] = [];
+  private testResults: TestResultFile[] = [];
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
