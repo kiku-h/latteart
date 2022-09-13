@@ -123,9 +123,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
       );
     }
 
-    console.log(result.data);
+    const testResultList = result.data.map((item) => {
+      return { name: item.name, id: item.id };
+    });
 
-    return result.data;
+    return testResultList;
   },
 
   /**
