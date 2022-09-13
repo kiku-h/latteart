@@ -1410,7 +1410,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
       id: testResultInfo.id,
       name: testResultInfo.name,
-      source: "",
+      source: testResultInfo.source ?? "",
     });
   },
 

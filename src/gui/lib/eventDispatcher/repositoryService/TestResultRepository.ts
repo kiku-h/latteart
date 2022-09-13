@@ -87,7 +87,7 @@ export class TestResultRepository {
     initialUrl?: string,
     name?: string,
     source?: string
-  ): Promise<RepositoryAccessResult<Pick<TestResult, "id" | "name">>> {
+  ): Promise<RepositoryAccessResult<TestResultSummary>> {
     try {
       const url = `/test-results`;
       const response = await this.restClient.httpPost(url, {
@@ -101,7 +101,7 @@ export class TestResultRepository {
       }
 
       return new RepositoryAccessSuccess({
-        data: response.data as { id: string; name: string },
+        data: response.data as TestResultSummary,
       });
     } catch (error) {
       return createConnectionRefusedFailure();
