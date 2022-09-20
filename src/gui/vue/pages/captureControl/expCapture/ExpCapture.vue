@@ -35,7 +35,7 @@
       <capture-tool-footer />
     </v-footer>
 
-    <intention-edit-dialog
+    <test-purpose-edit-dialog
       :opened="intentionEditDialogOpened"
       @close="intentionEditDialogOpened = false"
     />
@@ -78,7 +78,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
-import IntentionEditDialog from "@/vue/pages/common/IntentionEditDialog.vue";
+import TestPurposeEditDialog from "@/vue/pages/common/TestPurposeEditDialog.vue";
 import BugEditDialog from "@/vue/pages/common/BugEditDialog.vue";
 import NoticeEditDialog from "@/vue/pages/common/NoticeEditDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
@@ -93,7 +93,7 @@ import AutofillRegisterDialog from "@/vue/pages/common/AutofillRegisterDialog.vu
   components: {
     "capture-tool-header": CaptureToolHeader,
     "capture-tool-footer": CaptureToolFooter,
-    "intention-edit-dialog": IntentionEditDialog,
+    "test-purpose-edit-dialog": TestPurposeEditDialog,
     "bug-edit-dialog": BugEditDialog,
     "notice-edit-dialog": NoticeEditDialog,
     "context-menu": ContextMenu,
@@ -277,7 +277,7 @@ export default class ExpCapture extends Vue {
       try {
         switch (noteType) {
           case "intention":
-            await this.$store.dispatch("operationHistory/deleteIntention", {
+            await this.$store.dispatch("operationHistory/deleteTestPurpose", {
               sequence,
             });
 

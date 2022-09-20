@@ -40,15 +40,14 @@ import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/Mermaid
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
-import { RecordIntentionAction } from "@/lib/operationHistory/actions/intention/RecordIntentionAction";
-import { SaveIntentionAction } from "@/lib/operationHistory/actions/intention/SaveIntentionAction";
-import { MoveIntentionAction } from "@/lib/operationHistory/actions/intention/MoveIntentionAction";
+import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/intention/RecordTestPurposeAction";
+import { MoveTestPurposeAction } from "@/lib/operationHistory/actions/intention/MoveTestPurposeAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
-import { DeleteIntentionAction } from "@/lib/operationHistory/actions/intention/DeleteIntentionAction";
+import { DeleteTestPurposeAction } from "@/lib/operationHistory/actions/intention/DeleteTestPurposeAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
@@ -169,69 +168,124 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.dispatch("setSettings", { settings: result.data });
   },
 
+  addUnassignedTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const lastItemIndex = context.state.history.length - 1;
+    const sequence =
+      (context.state.history[lastItemIndex]?.operation.sequence ?? 0) + 1;
+
+    context.commit("setUnassignedTestPurpose", {
+      unassignedTestPurpose: {
+        sequence,
+        note: payload.noteEditInfo.note,
+        noteDetails: payload.noteEditInfo.noteDetails,
+      },
+    });
+  },
+
   /**
-   * Record a test intention.
+   * Add a test purpose.
    * @param context Action context.
-   * @param payload.noteEditInfo Test intention information.
+   * @param payload.noteEditInfo Test purpose information.
    */
-  async saveIntention(context, payload: { noteEditInfo: NoteEditInfo }) {
-    const recordIntentionAction = new RecordIntentionAction(
-      {
-        getTestStepId: (sequence) => {
-          return context.state.testStepIds[sequence - 1];
-        },
-        setIntention: (intention) => {
-          context.commit("setIntention", { intention });
-          context.commit("setCanUpdateModels", { canUpdateModels: true });
-        },
-      },
+  async addTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const testStepId = payload.noteEditInfo.oldSequence
+      ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
+      : "";
+
+    if (!testStepId) {
+      return;
+    }
+
+    // add
+    const recordAction = new RecordTestPurposeAction(
       context.rootState.repositoryContainer
     );
-
-    const moveIntentionAction = new MoveIntentionAction(
-      {
-        getTestStepId: (sequence) => {
-          return context.state.testStepIds[sequence - 1];
-        },
-        moveIntention: (oldSequence, newIntention) => {
-          context.commit("deleteIntention", { sequence: oldSequence });
-          context.commit("setIntention", { intention: newIntention });
-          context.commit("setCanUpdateModels", { canUpdateModels: true });
-        },
-      },
-      context.rootState.repositoryContainer
-    );
-
-    const result = await new SaveIntentionAction({
-      recordIntention: (note) => {
-        return recordIntentionAction.record(context.state.history, note);
-      },
-      moveIntention: (fromSequence, destSequence) => {
-        return moveIntentionAction.move(
-          context.state.testResultInfo.id,
-          fromSequence,
-          destSequence
-        );
-      },
-      setUnassignedIntention: async (unassignedIntention) => {
-        context.commit("setUnassignedIntention", {
-          unassignedIntention,
-        });
-      },
-    }).save(
+    const result = await recordAction.add(
       context.state.testResultInfo.id,
-      payload.noteEditInfo,
-      context.state.history
+      testStepId,
+      {
+        summary: payload.noteEditInfo.note,
+        details: payload.noteEditInfo.noteDetails ?? "",
+      }
     );
 
     if (result.isFailure()) {
-      throw new Error(
-        context.rootGetters.message(
-          result.error.messageKey,
-          result.error.variables
-        )
-      );
+      const { messageKey, variables } = result.error;
+      throw new Error(context.rootGetters.message(messageKey, variables));
     }
+
+    // set to store
+    context.commit("setTestPurpose", {
+      intention: Note.createFromOtherNote({
+        other: result.data,
+        overrideParams: { sequence: payload.noteEditInfo.oldSequence },
+      }),
+    });
+    context.commit("setCanUpdateModels", { canUpdateModels: true });
+  },
+
+  /**
+   * Edit a test purpose.
+   * @param context Action context.
+   * @param payload.noteEditInfo Test purpose information.
+   */
+  async editTestPurpose(context, payload: { noteEditInfo: NoteEditInfo }) {
+    const fromTestStepId = payload.noteEditInfo.oldSequence
+      ? context.state.testStepIds[payload.noteEditInfo.oldSequence - 1]
+      : "";
+
+    if (!fromTestStepId) {
+      return;
+    }
+
+    const destTestStepId = payload.noteEditInfo.newSequence
+      ? context.state.testStepIds[payload.noteEditInfo.newSequence - 1]
+      : "";
+
+    // edit and move
+    const result = await (async () => {
+      const repositoryContainer = context.rootState.repositoryContainer;
+      const testResultId = context.state.testResultInfo.id;
+
+      const recordAction = new RecordTestPurposeAction(repositoryContainer);
+      const recordActionResult = await recordAction.edit(
+        testResultId,
+        fromTestStepId,
+        {
+          summary: payload.noteEditInfo.note,
+          details: payload.noteEditInfo.noteDetails ?? "",
+        }
+      );
+
+      if (recordActionResult.isFailure() || !destTestStepId) {
+        return recordActionResult;
+      }
+
+      const moveAction = new MoveTestPurposeAction(repositoryContainer);
+      return moveAction.move(testResultId, fromTestStepId, destTestStepId);
+    })();
+
+    if (result.isFailure()) {
+      const { messageKey, variables } = result.error;
+      throw new Error(context.rootGetters.message(messageKey, variables));
+    }
+
+    // set to store
+    if (payload.noteEditInfo.oldSequence !== undefined) {
+      context.commit("deleteTestPurpose", {
+        sequence: payload.noteEditInfo.oldSequence,
+      });
+    }
+    const sequence = !destTestStepId
+      ? payload.noteEditInfo.oldSequence
+      : payload.noteEditInfo.newSequence;
+    context.commit("setTestPurpose", {
+      intention: Note.createFromOtherNote({
+        other: result.data,
+        overrideParams: { sequence },
+      }),
+    });
+    context.commit("setCanUpdateModels", { canUpdateModels: true });
   },
 
   /**
@@ -239,12 +293,12 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.sequence Sequence number of the test intention.
    */
-  async deleteIntention(context, payload: { sequence: number }) {
+  async deleteTestPurpose(context, payload: { sequence: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
 
-    const result = await new DeleteIntentionAction(
+    const result = await new DeleteTestPurposeAction(
       context.rootState.repositoryContainer
-    ).deleteIntention(context.state.testResultInfo.id, testStepId);
+    ).delete(context.state.testResultInfo.id, testStepId);
 
     if (result.isFailure()) {
       throw new Error(
@@ -256,7 +310,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     }
 
     if (result.data) {
-      context.commit("deleteIntention", { sequence: payload.sequence });
+      context.commit("deleteTestPurpose", { sequence: payload.sequence });
       context.commit("setCanUpdateModels", { canUpdateModels: true });
     }
   },
@@ -887,7 +941,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   resetHistory(context) {
     context.commit("clearHistory");
     context.commit("captureControl/clearWindowHandles", null, { root: true });
-    context.commit("clearUnassignedIntentions");
+    context.commit("clearUnassignedTestPurposes");
     context.commit("clearAllCoverageSources");
     context.commit("setDisplayInclusionList", { displayInclusionList: [] });
     context.commit("clearModels");
@@ -902,28 +956,28 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     context.commit("clearTestStepIds");
   },
 
-  async saveUnassignedIntention(context, payload: { destSequence: number }) {
-    const unassignedIntentionIndex =
-      context.state.unassignedIntentions.findIndex((item) => {
+  async saveUnassignedTestPurpose(context, payload: { destSequence: number }) {
+    const unassignedTestPurposeIndex =
+      context.state.unassignedTestPurposes.findIndex((item) => {
         return item.sequence === payload.destSequence;
       });
 
-    if (unassignedIntentionIndex !== -1) {
-      const unassignedIntention =
-        context.state.unassignedIntentions[unassignedIntentionIndex];
+    if (unassignedTestPurposeIndex !== -1) {
+      const unassignedTestPurpose =
+        context.state.unassignedTestPurposes[unassignedTestPurposeIndex];
 
-      await context.dispatch("saveIntention", {
+      await context.dispatch("addTestPurpose", {
         noteEditInfo: {
-          note: unassignedIntention.note,
-          noteDetails: unassignedIntention.noteDetails,
+          note: unassignedTestPurpose.note,
+          noteDetails: unassignedTestPurpose.noteDetails,
           shouldTakeScreenshot: false,
-          oldSequence: unassignedIntention.sequence,
+          oldSequence: unassignedTestPurpose.sequence,
           tags: [],
         },
       });
 
-      context.commit("removeUnassignedIntention", {
-        index: unassignedIntentionIndex,
+      context.commit("removeUnassignedTestPurpose", {
+        index: unassignedTestPurposeIndex,
       });
     }
   },
@@ -1026,7 +1080,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       entry: { operation, intention: null, bugs: null, notices: null },
     });
 
-    await context.dispatch("saveUnassignedIntention", {
+    await context.dispatch("saveUnassignedTestPurpose", {
       destSequence: operation.sequence,
     });
 

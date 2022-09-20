@@ -459,7 +459,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
               context.commit("setCapturing", { isCapturing: true });
               context.commit(
-                "operationHistory/clearUnassignedIntentions",
+                "operationHistory/clearUnassignedTestPurposes",
                 null,
                 {
                   root: true,
@@ -484,7 +484,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 );
 
                 await context.dispatch(
-                  "operationHistory/saveIntention",
+                  "operationHistory/addUnassignedTestPurpose",
                   {
                     noteEditInfo: {
                       oldSequence: sequence ?? undefined,

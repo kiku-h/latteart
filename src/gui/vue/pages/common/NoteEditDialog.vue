@@ -226,9 +226,10 @@ export default class NoteEditDialog extends Vue {
         }
 
         if (!this.shouldContinueSameIntention) {
-          await this.$store.dispatch("operationHistory/saveIntention", {
-            noteEditInfo: intentionInfo,
-          });
+          await this.$store.dispatch(
+            "operationHistory/addUnassignedTestPurpose",
+            { noteEditInfo: intentionInfo }
+          );
         }
       } catch (error) {
         if (error instanceof Error) {
