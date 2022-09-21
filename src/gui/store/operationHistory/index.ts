@@ -113,9 +113,9 @@ export interface OperationHistoryState {
   screenHistory: ScreenHistory;
 
   /**
-   * Intentions unassigned to any operation.
+   * Test purposes unassigned to any operation.
    */
-  unassignedIntentions: {
+  unassignedTestPurposes: {
     sequence: number;
     note: string;
     noteDetails?: string;
@@ -359,7 +359,7 @@ const state: OperationHistoryState = {
   testStepIds: [],
   history: [],
   screenHistory: new ScreenHistory(),
-  unassignedIntentions: [],
+  unassignedTestPurposes: [],
   displayInclusionList: [],
   defaultTagList: [],
   coverageSources: [],

@@ -35,9 +35,9 @@
       <capture-tool-footer />
     </v-footer>
 
-    <intention-edit-dialog
-      :opened="intentionEditDialogOpened"
-      @close="intentionEditDialogOpened = false"
+    <test-purpose-edit-dialog
+      :opened="testPurposeEditDialogOpened"
+      @close="testPurposeEditDialogOpened = false"
     />
     <bug-edit-dialog
       :opened="bugEditDialogOpened"
@@ -78,7 +78,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { OperationWithNotes } from "@/lib/operationHistory/types";
-import IntentionEditDialog from "@/vue/pages/common/IntentionEditDialog.vue";
+import TestPurposeEditDialog from "@/vue/pages/common/TestPurposeEditDialog.vue";
 import BugEditDialog from "@/vue/pages/common/BugEditDialog.vue";
 import NoticeEditDialog from "@/vue/pages/common/NoticeEditDialog.vue";
 import ContextMenu from "@/vue/molecules/ContextMenu.vue";
@@ -93,7 +93,7 @@ import AutofillRegisterDialog from "@/vue/pages/common/AutofillRegisterDialog.vu
   components: {
     "capture-tool-header": CaptureToolHeader,
     "capture-tool-footer": CaptureToolFooter,
-    "intention-edit-dialog": IntentionEditDialog,
+    "test-purpose-edit-dialog": TestPurposeEditDialog,
     "bug-edit-dialog": BugEditDialog,
     "notice-edit-dialog": NoticeEditDialog,
     "context-menu": ContextMenu,
@@ -104,7 +104,7 @@ import AutofillRegisterDialog from "@/vue/pages/common/AutofillRegisterDialog.vu
   },
 })
 export default class ExpCapture extends Vue {
-  private intentionEditDialogOpened = false;
+  private testPurposeEditDialogOpened = false;
   private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
 
@@ -247,7 +247,7 @@ export default class ExpCapture extends Vue {
             index: index ?? null,
           },
         });
-        this.intentionEditDialogOpened = true;
+        this.testPurposeEditDialogOpened = true;
         return;
       case "bug":
         this.$store.commit("operationHistory/selectOperationNote", {
@@ -277,7 +277,7 @@ export default class ExpCapture extends Vue {
       try {
         switch (noteType) {
           case "intention":
-            await this.$store.dispatch("operationHistory/deleteIntention", {
+            await this.$store.dispatch("operationHistory/deleteTestPurpose", {
               sequence,
             });
 
