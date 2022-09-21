@@ -88,12 +88,12 @@
             <v-text-field
               :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.summary')"
-              v-model="newIntention"
+              v-model="newTestPurpose"
             ></v-text-field>
             <v-textarea
               :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.details')"
-              v-model="newIntentionDetails"
+              v-model="newTestPurposeDetails"
             ></v-textarea>
 
             <v-checkbox
@@ -160,8 +160,8 @@ export default class NoteEditDialog extends Vue {
   private maxSequence: number | null = null;
   private shouldTakeScreenshot = false;
   private shouldRecordAsIssue = false;
-  private newIntention = "";
-  private newIntentionDetails = "";
+  private newTestPurpose = "";
+  private newTestPurposeDetails = "";
   private shouldContinueSameTestPurpose = false;
 
   private errorMessageDialogOpened = false;
@@ -189,8 +189,8 @@ export default class NoteEditDialog extends Vue {
     this.maxSequence = this.$store.state.operationHistory.history.length;
     this.shouldTakeScreenshot = false;
     this.shouldRecordAsIssue = false;
-    this.newIntention = "";
-    this.newIntentionDetails = "";
+    this.newTestPurpose = "";
+    this.newTestPurposeDetails = "";
     this.shouldContinueSameTestPurpose = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {
@@ -213,8 +213,8 @@ export default class NoteEditDialog extends Vue {
         const intentionInfo = {
           oldSequence: this.newTargetSequence ?? undefined,
           newSequence: this.newTargetSequence ?? undefined,
-          note: this.newIntention,
-          noteDetails: this.newIntentionDetails,
+          note: this.newTestPurpose,
+          noteDetails: this.newTestPurposeDetails,
           tags: [],
           shouldTakeScreenshot: false,
         } as NoteEditInfo;
@@ -259,7 +259,7 @@ export default class NoteEditDialog extends Vue {
       return false;
     }
 
-    if (!this.shouldContinueSameTestPurpose && this.newIntention === "") {
+    if (!this.shouldContinueSameTestPurpose && this.newTestPurpose === "") {
       return false;
     }
 
