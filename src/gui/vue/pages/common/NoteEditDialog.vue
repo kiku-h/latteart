@@ -86,18 +86,18 @@
         <v-card flat>
           <v-card-text>
             <v-text-field
-              :disabled="shouldContinueSameIntention"
+              :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.summary')"
               v-model="newIntention"
             ></v-text-field>
             <v-textarea
-              :disabled="shouldContinueSameIntention"
+              :disabled="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.details')"
               v-model="newIntentionDetails"
             ></v-textarea>
 
             <v-checkbox
-              v-model="shouldContinueSameIntention"
+              v-model="shouldContinueSameTestPurpose"
               :label="$store.getters.message('note-edit.continue-same-purpose')"
             ></v-checkbox>
           </v-card-text>
@@ -162,7 +162,7 @@ export default class NoteEditDialog extends Vue {
   private shouldRecordAsIssue = false;
   private newIntention = "";
   private newIntentionDetails = "";
-  private shouldContinueSameIntention = false;
+  private shouldContinueSameTestPurpose = false;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -191,7 +191,7 @@ export default class NoteEditDialog extends Vue {
     this.shouldRecordAsIssue = false;
     this.newIntention = "";
     this.newIntentionDetails = "";
-    this.shouldContinueSameIntention = false;
+    this.shouldContinueSameTestPurpose = false;
 
     this.$store.commit("operationHistory/selectOperationNote", {
       selectedOperationNote: { sequence: null, index: null },
@@ -225,7 +225,7 @@ export default class NoteEditDialog extends Vue {
           });
         }
 
-        if (!this.shouldContinueSameIntention) {
+        if (!this.shouldContinueSameTestPurpose) {
           await this.$store.dispatch(
             "operationHistory/addUnassignedTestPurpose",
             { noteEditInfo: intentionInfo }
@@ -259,7 +259,7 @@ export default class NoteEditDialog extends Vue {
       return false;
     }
 
-    if (!this.shouldContinueSameIntention && this.newIntention === "") {
+    if (!this.shouldContinueSameTestPurpose && this.newIntention === "") {
       return false;
     }
 

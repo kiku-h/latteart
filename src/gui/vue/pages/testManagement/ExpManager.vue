@@ -26,8 +26,8 @@
       @close="errorMessageDialogOpened = false"
     />
     <test-purpose-edit-dialog
-      :opened="intentionEditDialogOpened"
-      @close="intentionEditDialogOpened = false"
+      :opened="testPurposeEditDialogOpened"
+      @close="testPurposeEditDialogOpened = false"
     />
     <bug-edit-dialog
       :opened="bugEditDialogOpened"
@@ -74,7 +74,7 @@ export default class Manager extends Vue {
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-  private intentionEditDialogOpened = false;
+  private testPurposeEditDialogOpened = false;
   private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
 
@@ -135,7 +135,7 @@ export default class Manager extends Vue {
             index: index ?? null,
           },
         });
-        this.intentionEditDialogOpened = true;
+        this.testPurposeEditDialogOpened = true;
         return;
       case "bug":
         this.$store.commit("operationHistory/selectOperationNote", {

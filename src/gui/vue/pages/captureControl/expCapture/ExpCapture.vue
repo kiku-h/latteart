@@ -36,8 +36,8 @@
     </v-footer>
 
     <test-purpose-edit-dialog
-      :opened="intentionEditDialogOpened"
-      @close="intentionEditDialogOpened = false"
+      :opened="testPurposeEditDialogOpened"
+      @close="testPurposeEditDialogOpened = false"
     />
     <bug-edit-dialog
       :opened="bugEditDialogOpened"
@@ -104,7 +104,7 @@ import AutofillRegisterDialog from "@/vue/pages/common/AutofillRegisterDialog.vu
   },
 })
 export default class ExpCapture extends Vue {
-  private intentionEditDialogOpened = false;
+  private testPurposeEditDialogOpened = false;
   private bugEditDialogOpened = false;
   private noticeEditDialogOpened = false;
 
@@ -247,7 +247,7 @@ export default class ExpCapture extends Vue {
             index: index ?? null,
           },
         });
-        this.intentionEditDialogOpened = true;
+        this.testPurposeEditDialogOpened = true;
         return;
       case "bug":
         this.$store.commit("operationHistory/selectOperationNote", {

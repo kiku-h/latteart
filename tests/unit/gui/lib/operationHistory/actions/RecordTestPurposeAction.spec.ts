@@ -1,4 +1,4 @@
-import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/intention/RecordTestPurposeAction";
+import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/RecordTestPurposeAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { TestStepRepositoryImpl } from "@/lib/eventDispatcher/repositoryService/TestStepRepository";
 import { NoteRepositoryImpl } from "@/lib/eventDispatcher/repositoryService/NoteRepository";

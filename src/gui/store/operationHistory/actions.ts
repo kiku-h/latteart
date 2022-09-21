@@ -40,14 +40,14 @@ import MermaidGraphConverter from "@/lib/operationHistory/graphConverter/Mermaid
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { CapturedOperation } from "@/lib/operationHistory/CapturedOperation";
 import { ResumeAction } from "@/lib/operationHistory/actions/ResumeAction";
-import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/intention/RecordTestPurposeAction";
-import { MoveTestPurposeAction } from "@/lib/operationHistory/actions/intention/MoveTestPurposeAction";
+import { RecordTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/RecordTestPurposeAction";
+import { MoveTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/MoveTestPurposeAction";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { Note } from "@/lib/operationHistory/Note";
 import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
 import { ExportTestResultAction } from "@/lib/operationHistory/actions/testResult/ExportTestResultAction";
 import { DeleteTestResultAction } from "@/lib/operationHistory/actions/testResult/DeleteTestResultAction";
-import { DeleteTestPurposeAction } from "@/lib/operationHistory/actions/intention/DeleteTestPurposeAction";
+import { DeleteTestPurposeAction } from "@/lib/operationHistory/actions/testPurpose/DeleteTestPurposeAction";
 import { ReadSettingAction } from "@/lib/operationHistory/actions/setting/ReadSettingAction";
 import { SaveSettingAction } from "@/lib/operationHistory/actions/setting/SaveSettingAction";
 import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
@@ -289,9 +289,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
   },
 
   /**
-   * Delete a test intention.
+   * Delete a test purpose.
    * @param context Action context.
-   * @param payload.sequence Sequence number of the test intention.
+   * @param payload.sequence Sequence number of the test purpose.
    */
   async deleteTestPurpose(context, payload: { sequence: number }) {
     const testStepId = context.state.testStepIds[payload.sequence - 1];
