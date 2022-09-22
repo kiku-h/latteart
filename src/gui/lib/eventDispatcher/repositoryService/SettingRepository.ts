@@ -19,6 +19,7 @@ import Settings, {
   ScreenDefinition,
   Coverage,
   ImageCompression,
+  CompareInfo,
 } from "@/lib/common/settings/Settings";
 import {
   RepositoryAccessResult,
@@ -38,6 +39,7 @@ type SettingsFromDB = Omit<Settings, "config"> & {
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
     imageCompression: ImageCompression;
+    compare: CompareInfo;
   };
 };
 

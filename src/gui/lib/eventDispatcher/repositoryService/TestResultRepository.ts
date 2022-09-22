@@ -85,13 +85,15 @@ export class TestResultRepository {
    */
   public async postEmptyTestResult(
     initialUrl?: string,
-    name?: string
+    name?: string,
+    source?: string
   ): Promise<RepositoryAccessResult<TestResultSummary>> {
     try {
       const url = `/test-results`;
       const response = await this.restClient.httpPost(url, {
         initialUrl,
         name,
+        source,
       });
 
       if (response.status !== 200) {
@@ -124,6 +126,7 @@ export class TestResultRepository {
         data: response.data as Array<{
           id: string;
           name: string;
+          source?: string;
         }>,
       });
     } catch (error) {
@@ -173,6 +176,59 @@ export class TestResultRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as TestResult,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  /**
+   * Compare test result.
+   * @param testResultId_1  Test result id.
+   * @param testResultId_2  Test result id.
+   */
+  public async postDiff(
+    testResultId1: string,
+    testResultId2: string,
+    excludeQuery?: string,
+    excludeTags?: string
+  ): Promise<
+    RepositoryAccessResult<{
+      diffs: {
+        [key: string]: {
+          a: string | undefined;
+          b: string | undefined;
+        };
+      }[];
+      isSame: boolean;
+      url: string;
+    }>
+  > {
+    try {
+      const response = await this.restClient.httpPost(
+        `/test-results/${testResultId1}/diffs`,
+        {
+          targetTestResultId: testResultId2,
+          excludeQuery,
+          excludeTags,
+        }
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return new RepositoryAccessSuccess({
+        data: response.data as {
+          diffs: {
+            [key: string]: {
+              a: string | undefined;
+              b: string | undefined;
+            };
+          }[];
+          isSame: boolean;
+          url: string;
+        },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

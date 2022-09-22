@@ -43,6 +43,7 @@
             }}</v-list-tile-title>
           </v-list-tile>
         </screenshots-download-button>
+        <compare-history-button />
         <delete-test-result-button />
       </v-list>
     </v-menu>
@@ -58,6 +59,7 @@ import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import TestResultFileImportButton from "./TestResultFileImportButton.vue";
 import ScreenshotsDownloadButton from "@/vue/pages/operationHistory/organisms/ScreenshotsDownloadButton.vue";
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
+import CompareHistoryButton from "./CompareHistoryButton.vue";
 
 @Component({
   components: {
@@ -67,6 +69,7 @@ import DeleteTestResultButton from "./DeleteTestResultButton.vue";
     "test-result-import-button": TestResultFileImportButton,
     "screenshots-download-button": ScreenshotsDownloadButton,
     "delete-test-result-button": DeleteTestResultButton,
+    "compare-history-button": CompareHistoryButton,
   },
 })
 export default class MenuButton extends Vue {

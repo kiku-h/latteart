@@ -63,6 +63,7 @@ import { AddNoticeAction } from "@/lib/operationHistory/actions/notice/AddNotice
 import { EditNoticeAction } from "@/lib/operationHistory/actions/notice/EditNoticeAction";
 import { MoveNoticeAction } from "@/lib/operationHistory/actions/notice/MoveNoticeAction";
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
+import { CompareTestResultAction } from "@/lib/operationHistory/actions/testResult/CompareTestResultAction";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
 import { calculateElapsedEpochMillis } from "@/lib/common/util";
 import { Operation } from "@/lib/operationHistory/Operation";
@@ -89,6 +90,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         screenDefinition: config.screenDefinition,
         coverage: config.coverage,
         imageCompression: config.imageCompression,
+        compare: config.compare,
       },
     });
   },
@@ -119,6 +121,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         imageCompression:
           payload.config.imageCompression ??
           context.state.config.imageCompression,
+        compare: payload.config.compare ?? context.state.config.compare,
       },
       debug: context.rootState.settingsProvider.settings.debug,
       defaultTagList:
@@ -955,6 +958,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: "",
       id: "",
       name: "",
+      source: "",
     });
     context.commit("clearTestStepIds");
   },
@@ -994,7 +998,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const repositoryContainer = context.rootState.repositoryContainer;
     const capturedOperation = payload.operation;
     if (context.rootGetters.getSetting("debug.saveItems.keywordSet")) {
-      capturedOperation.keywordTexts = capturedOperation.pageSource.split("\n");
+      capturedOperation.keywordTexts = capturedOperation.screenElements.flatMap(
+        (element) => {
+          return element.text ? [element.text] : [];
+        }
+      );
     }
 
     const result = await new RegisterOperationAction(
@@ -1433,16 +1441,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    * @param context Action context.
    * @param payload.initialUrl Initial URL.
    * @param payload.name Test result name.
+   * @param payload.source Source test result Id.
    */
   async createTestResult(
     context,
-    payload: { initialUrl: string; name: string }
+    payload: { initialUrl: string; name: string; source: string }
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
+    const source = payload.source ? payload.source : undefined;
     const result = await new CreateTestResultAction(
       context.rootState.repositoryContainer
-    ).createTestResult(initialUrl, name);
+    ).createTestResult(initialUrl, name, source);
 
     if (result.isFailure()) {
       throw new Error(
@@ -1459,6 +1469,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: context.rootState.repositoryContainer.serviceUrl,
       id: testResultInfo.id,
       name: testResultInfo.name,
+      source: testResultInfo.source ?? "",
     });
   },
 
@@ -1603,6 +1614,57 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         )
       );
     }
+    return result.data;
+  },
+
+  async compareTestResult(
+    context,
+    payload: {
+      testResultId1: string;
+      testResultId2: string;
+    }
+  ) {
+    const compareInfo = {
+      query: {
+        isEnabled: context.state.config.compare.exclude.query.isEnabled,
+        item:
+          context.state.config.compare.exclude.query.item !== ""
+            ? context.state.config.compare.exclude.query.item
+            : undefined,
+      },
+      tags: {
+        isEnabled: context.state.config.compare.exclude.tags.isEnabled,
+        item:
+          context.state.config.compare.exclude.tags.item !== ""
+            ? context.state.config.compare.exclude.tags.item
+            : undefined,
+      },
+    };
+    const excludeQuery = compareInfo.query.isEnabled
+      ? compareInfo.query.item
+      : undefined;
+    const excludeTags = compareInfo.tags.isEnabled
+      ? compareInfo.tags.item
+      : undefined;
+
+    const result = await new CompareTestResultAction(
+      context.rootState.repositoryContainer
+    ).compareTestResult(
+      payload.testResultId1,
+      payload.testResultId2,
+      excludeQuery,
+      excludeTags
+    );
+
+    if (result.isFailure()) {
+      throw new Error(
+        context.rootGetters.message(
+          result.error.messageKey,
+          result.error.variables
+        )
+      );
+    }
+
     return result.data;
   },
 };
