@@ -20,6 +20,7 @@ describe("LoadHistoryAction", () => {
       const testResult: TestResult = {
         id: "id",
         name: "name",
+        source: "",
         startTimeStamp: 0,
         endTimeStamp: 0,
         initialUrl: "url",
@@ -30,7 +31,7 @@ describe("LoadHistoryAction", () => {
         coverageSources: [],
         historyItems: [],
         url: "url",
-        testResultInfo: { id: "id", name: "name" },
+        testResultInfo: { id: "id", name: "name", source: "" },
         testStepIds: [],
         startTimeStamp: 0,
       };

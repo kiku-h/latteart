@@ -96,7 +96,11 @@ export class LoadHistoryAction {
       coverageSources: testResult.coverageSources,
       historyItems: operationHistoryItems,
       url: testResult.initialUrl,
-      testResultInfo: { id: testResult.id, name: testResult.name },
+      testResultInfo: {
+        id: testResult.id,
+        name: testResult.name,
+        source: testResult.source ?? "",
+      },
       testStepIds: testResult.testSteps.map(({ id }) => id),
       startTimeStamp: testResult.startTimeStamp,
     };

@@ -40,6 +40,7 @@
   "replay": {
     "done-title": "履歴再生の終了",
     "done-run-operations": "履歴再生が終了しました。",
+    "done-capture-operations": "履歴の記録再生が終了しました。記録したテスト結果を比較しますか？",
     "run-operations-canceled": "履歴再生を中止しました。"
   },
   "navigate": {
@@ -86,7 +87,14 @@
     "delete-test-result": "テスト結果の削除",
     "delete-test-result-title": "テスト結果の削除",
     "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
-    "delete-test-result-succeeded": "テスト結果の削除が完了しました。"
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "compare-test-result": "テスト結果の比較",
+    "compare-test-result-title": "テスト結果の比較",
+    "compare-test-result-message": "テスト結果を比較してよろしいですか？",
+    "comparing-test-result": "テスト結果を比較中",
+    "compare-test-result-is-same": "テスト結果の比較が完了しました。テスト結果に差異はありません。\n詳細はダウンロードファイルをご確認ください。",
+    "compare-test-result-is-different": "テスト結果の比較が完了しました。テスト結果に差異があります。\n詳細はダウンロードファイルをご確認ください。",
+    "compare-test-result-not-exist": "比較するテスト結果がありません。"
   },
   "import-export-dialog": {
     "test-result-import-title": "テスト結果のインポート",
@@ -127,6 +135,11 @@
     "image-compression-enabled": "取得したスクリーンショットを圧縮する",
     "image-compression-delete-source-image": "元画像を削除する",
     "include-coverage": "カバレッジ計算に含めるタグ",
+    "setting-exclusion-tags": "テスト結果比較の設定",
+    "exclude-query-enabled": "指定した操作内情報の差分を検出しない",
+    "exclude-compare-query": "除外する操作内情報",
+    "exclude-tags-enabled": "指定した画面要素の差分を検出しない",
+    "exclude-compare-tags": "除外するタグ",
     "setting-device": "デバイスの詳細設定",
     "setting-screen": "画面遷移の定義",
     "setting-autofill": "自動入力設定",
@@ -198,6 +211,7 @@
   },
   "replay-option": {
     "start-replay": "履歴を再生する",
+    "replay-capture": "操作を記録する",
     "test-result-name": "テスト結果名",
     "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
   },
@@ -233,7 +247,10 @@
     "text": "テキスト",
     "type": "イベント種別",
     "input": "入力値",
-    "timestamp": "時刻"
+    "timestamp": "時刻",
+    "elementinfo": "対象画面要素",
+    "url": "ページURL",
+    "screenelements": "ページ内文字列"
   },
   "sequence": {
     "window-title": "シーケンス図"
@@ -503,6 +520,7 @@
       "save_test_scripts_no_operation_error": "テストスクリプトの生成を中止しました。ユーザによる操作が記録されていません",
       "update_test_result_failed": "テスト結果の更新に失敗しました。テスト結果ファイルの書き込み権限もしくはディスク容量をご確認ください。",
       "delete_test_result_failed": "テスト結果の削除に失敗しました。",
+      "compare_test_result_failed": "テスト結果の比較に失敗しました。",
       "add_note_failed": "気づきの追加に失敗しました。",
       "delete_note_failed": "気づきの削除に失敗しました。",
       "edit_note_failed": "気づきの編集に失敗しました。",

@@ -131,6 +131,27 @@
               >
               </autofill-setting>
             </v-expansion-panel-content>
+
+            <v-expansion-panel-content v-if="configureCaptureSettings">
+              <template v-slot:header class="py-0">
+                {{
+                  $store.getters.message("config-view.setting-exclusion-tags")
+                }}
+              </template>
+              <compare-setting
+                :tags="defaultTagList"
+                :compare-info="compareInfo"
+                @save-config="saveConfig"
+              >
+              </compare-setting>
+            </v-expansion-panel-content>
+
+            <v-expansion-panel-content v-if="configureCaptureSettings">
+              <template v-slot:header class="py-0">
+                {{ $store.getters.message("config-view.setting-autofill") }}
+              </template>
+              <autofill-setting> </autofill-setting>
+            </v-expansion-panel-content>
           </v-expansion-panel>
         </v-flex>
       </v-layout>
@@ -157,7 +178,9 @@ import CoverageSetting from "@/vue/pages/operationHistory/organisms/configViewer
 import ScreenDefinitionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ScreenDefinitionSetting.vue";
 import ImageCompressionSetting from "@/vue/pages/operationHistory/organisms/configViewer/ImageCompressionSetting.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
+import CompareSetting from "../../operationHistory/organisms/configViewer/CompareSetting.vue";
 import Settings, {
+  CompareInfo,
   Coverage,
   ImageCompression,
   ScreenDefinition,
@@ -171,6 +194,7 @@ import { AutofillSetting } from "@/lib/operationHistory/types";
     "coverage-setting": CoverageSetting,
     "screen-definition-setting": ScreenDefinitionSetting,
     "image-compression-setting": ImageCompressionSetting,
+    "compare-setting": CompareSetting,
     "autofill-setting": AutofillSettingComponent,
     "error-message-dialog": ErrorMessageDialog,
   },
@@ -230,6 +254,10 @@ export default class ConfigView extends Vue {
         conditionGroups: [],
       }
     );
+  }
+
+  private get compareInfo(): CompareInfo {
+    return this.$store.state.operationHistory.config.compare;
   }
 
   @Watch("locale")
@@ -415,6 +443,7 @@ export default class ConfigView extends Vue {
     screenDefinition?: ScreenDefinition;
     coverage?: Coverage;
     imageCompression?: ImageCompression;
+    compare?: CompareInfo;
   }) {
     await this.$store.dispatch("operationHistory/writeSettings", { config });
 
