@@ -39,6 +39,7 @@
   "replay": {
     "done-title": "Replay is done",
     "done-run-operations": "Replay is finished.",
+    "done-capture-operations": "Replay is finished. Do you want to compare the recorded test results?",
     "run-operations-canceled": "Replay is canceled."
   },
   "navigate": {
@@ -85,7 +86,14 @@
     "delete-test-result": "Delete Test Result",
     "delete-test-result-title": "Delete Test Result",
     "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
-    "delete-test-result-succeeded": "Test Result deletion has finished."
+    "delete-test-result-succeeded": "Test Result deletion has finished.",
+    "compare-test-result": "Compare Test Result",
+    "compare-test-result-title": "Compare Test Result",
+    "compare-test-result-message": "Are you sure you want to compare the test results?",
+    "comparing-test-result": "Comparing test results",
+    "compare-test-result-is-same": "The comparison of test results is complete. There is no difference in the test results.\nPlease check the download file for details.",
+    "compare-test-result-is-different": "The comparison of test results is complete. There are differences in the test results.\nPlease check the download file for details.",
+    "compare-test-result-not-exist": "There are no test results to compare."
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
@@ -126,6 +134,11 @@
     "image-compression-enabled": "Compress Screenshots",
     "image-compression-delete-source-image": "Delete Original Screenshots",
     "include-coverage": "Tags to include in coverage calculation",
+    "setting-exclusion-tags": "Compare Test Results Settings",
+    "exclude-query-enabled": "Do not detect differences in specified operation information",
+    "exclude-compare-query": "In-operation information to exclude",
+    "exclude-tags-enabled": "Do not detect differences for specified screen elements",
+    "exclude-compare-tags": "Tags to exclude",
     "setting-device": "Advanced Device Settings",
     "setting-screen": "Screen Transition Definition",
     "setting-autofill": "Autofill Setting",
@@ -214,6 +227,7 @@
   },
   "replay-option": {
     "start-replay": "Replay",
+    "replay-capture": "Capture operations",
     "test-result-name": "Test result name",
     "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
   },
@@ -249,7 +263,10 @@
     "text": "Text",
     "type": "Event Type",
     "input": "Input Value",
-    "timestamp": "Timestamp"
+    "timestamp": "Timestamp",
+    "elementinfo": "Target screen element",
+    "url": "Url",
+    "screenelements": "In-page string"
   },
   "sequence": {
     "window-title": "Sequence Diagram"
@@ -521,6 +538,7 @@
       "save_test_scripts_no_operation_error": "Aborted test script generation. There is no recorded operation.",
       "update_test_result_failed": "Failed to update test result. Please check permissions of the test result file or disk capacity.",
       "delete_test_result_failed": "Failed to delete the test result.",
+      "compare_test_result_failed": "Failed to compare test results.",
       "add_note_failed": "Failed to add note.",
       "delete_note_failed": "Failed to delete note.",
       "edit_note_failed": "Failed to update note.",

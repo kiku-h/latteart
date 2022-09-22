@@ -644,15 +644,17 @@ const mutations: MutationTree<OperationHistoryState> = {
    * @param state State.
    * @param payload.id Test result ID.
    * @param payload.name Test result name.
+   * @param payload.source Test result source.
    */
   setTestResultInfo(
     state,
-    payload: { repositoryUrl: string; id: string; name: string }
+    payload: { repositoryUrl: string; id: string; name: string; source: string }
   ) {
     state.testResultInfo = {
       repositoryUrl: payload.repositoryUrl,
       id: payload.id,
       name: payload.name,
+      source: payload.source,
     };
   },
 
