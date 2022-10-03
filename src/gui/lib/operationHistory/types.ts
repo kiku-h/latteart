@@ -44,6 +44,12 @@ export interface ElementInfo {
   value?: string;
   checked?: boolean;
   attributes: { [key: string]: any };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
 }
 
 /**
@@ -173,6 +179,14 @@ export interface TestStepOperation {
   inputElements: ElementInfo[];
   windowHandle: string;
   keywordTexts?: string[];
+  scrollPosition: {
+    x: number;
+    y: number;
+  } | null;
+  windowInnerSize: {
+    width: number;
+    height: number;
+  } | null;
 }
 
 interface ApiNote {
