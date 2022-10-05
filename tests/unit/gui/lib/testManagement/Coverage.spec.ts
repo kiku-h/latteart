@@ -185,7 +185,7 @@ describe("Coverageは", () => {
 });
 
 const createEmptyOperation = () => {
-  return new Operation(1, "", "", null, "", "", "", "");
+  return new Operation(1, "", "", null, "", "", "", "", null, null);
 };
 
 const screenHistory = new ScreenHistory([

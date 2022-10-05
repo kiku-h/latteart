@@ -32,6 +32,14 @@ export interface CapturedOperation {
   pageSource: string;
   inputElements: CapturedElementInfo[];
   keywordTexts: string[];
+  scrollPosition?: {
+    x: number;
+    y: number;
+  };
+  clientSize?: {
+    width: number;
+    height: number;
+  };
 }
 
 export type CapturedElementInfo = ElementInfo & { ownedText: string };
