@@ -33,7 +33,7 @@ export function convertTestStepOperation(
       ? new URL(testStepOperation.imageFileUrl, serviceUrl).toString()
       : testStepOperation.imageFileUrl,
     scrollPosition: testStepOperation.scrollPosition,
-    windowInnerSize: testStepOperation.windowInnerSize,
+    clientSize: testStepOperation.clientSize,
     windowHandle: testStepOperation.windowHandle,
     timestamp: testStepOperation.timestamp,
     inputElements: testStepOperation.inputElements,

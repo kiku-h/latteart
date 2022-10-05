@@ -179,14 +179,14 @@ export interface TestStepOperation {
   inputElements: ElementInfo[];
   windowHandle: string;
   keywordTexts?: string[];
-  scrollPosition: {
+  scrollPosition?: {
     x: number;
     y: number;
-  } | null;
-  windowInnerSize: {
+  };
+  clientSize?: {
     width: number;
     height: number;
-  } | null;
+  };
 }
 
 interface ApiNote {

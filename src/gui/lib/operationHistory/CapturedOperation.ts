@@ -36,7 +36,7 @@ export interface CapturedOperation {
     x: number;
     y: number;
   };
-  windowInnerSize?: {
+  clientSize?: {
     width: number;
     height: number;
   };

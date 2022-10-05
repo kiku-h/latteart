@@ -45,8 +45,8 @@ export class Operation {
     url?: string;
     screenDef?: string;
     imageFilePath?: string;
-    scrollPosition?: { x: number; y: number } | null;
-    windowInnerSize?: { width: number; height: number } | null;
+    scrollPosition?: { x: number; y: number };
+    clientSize?: { width: number; height: number };
     windowHandle?: string;
     timestamp?: string;
     compressedImageFilePath?: string;
@@ -62,8 +62,8 @@ export class Operation {
       args.url ?? "",
       args.screenDef ?? "",
       args.imageFilePath ?? "",
-      args.scrollPosition ?? null,
-      args.windowInnerSize ?? null,
+      args.scrollPosition,
+      args.clientSize,
       args.windowHandle,
       args.keywordSet
     );
@@ -110,8 +110,8 @@ export class Operation {
       url?: string;
       screenDef?: string;
       imageFilePath?: string;
-      scrollPosition?: { x: number; y: number } | null;
-      windowInnerSize?: { width: number; height: number } | null;
+      scrollPosition?: { x: number; y: number };
+      clientSize?: { width: number; height: number };
       windowHandle?: string;
       timestamp?: string;
       compressedImageFilePath?: string;
@@ -130,7 +130,7 @@ export class Operation {
         args.other.screenDef,
         args.other.imageFilePath,
         args.other.scrollPosition,
-        args.other.windowInnerSize,
+        args.other.clientSize,
         args.other.windowHandle,
         args.other.keywordSet
       );
@@ -168,9 +168,9 @@ export class Operation {
       args.overrideParams.scrollPosition !== undefined
         ? args.overrideParams.scrollPosition
         : args.other.scrollPosition,
-      args.overrideParams.windowInnerSize !== undefined
-        ? args.overrideParams.windowInnerSize
-        : args.other.windowInnerSize,
+      args.overrideParams.clientSize !== undefined
+        ? args.overrideParams.clientSize
+        : args.other.clientSize,
       args.overrideParams.windowHandle !== undefined
         ? args.overrideParams.windowHandle
         : args.other.windowHandle,
@@ -234,12 +234,12 @@ export class Operation {
   /**
    * Scroll position.
    */
-  public scrollPosition: { x: number; y: number } | null;
+  public scrollPosition?: { x: number; y: number };
 
   /**
    * Inner size of the browser window.
    */
-  public windowInnerSize: { width: number; height: number } | null;
+  public clientSize?: { width: number; height: number };
 
   /**
    * Time of operation.
@@ -277,7 +277,7 @@ export class Operation {
    * @param screenDef  Screen definition.
    * @param imageFilePath  Screen image path.
    * @param scrollPosition Scroll position.
-   * @param windowInnerSize Inner size of the browser window.
+   * @param clientSize ClientSize.
    * @param windowHandle  Id of windowHandle that operated the screen.
    */
   constructor(
@@ -289,8 +289,8 @@ export class Operation {
     url: string,
     screenDef: string,
     imageFilePath: string,
-    scrollPosition: { x: number; y: number } | null,
-    windowInnerSize: { width: number; height: number } | null,
+    scrollPosition?: { x: number; y: number },
+    clientSize?: { width: number; height: number },
     windowHandle?: string,
     keywordSet?: Set<string>
   ) {
@@ -303,7 +303,7 @@ export class Operation {
     this.screenDef = screenDef;
     this.imageFilePath = imageFilePath;
     this.scrollPosition = scrollPosition;
-    this.windowInnerSize = windowInnerSize;
+    this.clientSize = clientSize;
     this.timestamp = new TimestampImpl().unix().toString();
     this.windowHandle = windowHandle === undefined ? "" : windowHandle;
     this.keywordSet = keywordSet;
