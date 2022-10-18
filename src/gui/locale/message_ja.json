@@ -95,8 +95,10 @@
     "compare-test-result-title": "テスト結果の比較",
     "compare-test-result-message": "テスト結果を比較してよろしいですか？",
     "comparing-test-result": "テスト結果を比較中",
-    "compare-test-result-is-same": "テスト結果の比較が完了しました。テスト結果に差異はありません。\n詳細はダウンロードファイルをご確認ください。",
-    "compare-test-result-is-different": "テスト結果の比較が完了しました。テスト結果に差異があります。\n詳細はダウンロードファイルをご確認ください。",
+    "compate-test-result": "テスト結果の比較が完了しました。",
+    "compate-test-result-skip-image-compare": "PNG以外の画像の比較をスキップしました。",
+    "compare-test-result-is-same": "テスト結果に差異はありません。\n詳細はダウンロードファイルをご確認ください。",
+    "compare-test-result-is-different": "テスト結果に差異があります。\n詳細はダウンロードファイルをご確認ください。",
     "compare-test-result-not-exist": "比較するテスト結果がありません。"
   },
   "import-export-dialog": {
