@@ -214,7 +214,7 @@ export default class ReplayHistoryButton extends Vue {
         const comparedInfo: {
           url: string;
           isSame: boolean;
-          hasSkipImageCompare: boolean;
+          hasInvalidScreenshots: boolean;
         } = await this.$store.dispatch("operationHistory/compareTestResult", {
           testResultId1: targetTestResults.destId,
           testResultId2: targetTestResults.sourceId,
@@ -227,7 +227,7 @@ export default class ReplayHistoryButton extends Vue {
         this.downloadLinkDialogMessage = `${this.$store.getters.message(
           "history-view.compate-test-result"
         )}${
-          comparedInfo.hasSkipImageCompare
+          comparedInfo.hasInvalidScreenshots
             ? this.$store.getters.message(
                 "history-view.compate-test-result-skip-image-compare"
               )

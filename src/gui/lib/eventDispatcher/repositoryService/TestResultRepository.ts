@@ -200,7 +200,7 @@ export class TestResultRepository {
           b: string | undefined;
         };
       }[];
-      hasSkipImageCompare: boolean;
+      hasInvalidScreenshots: boolean;
       isSame: boolean;
       url: string;
     }>
@@ -227,7 +227,7 @@ export class TestResultRepository {
               b: string | undefined;
             };
           }[];
-          hasSkipImageCompare: boolean;
+          hasInvalidScreenshots: boolean;
           isSame: boolean;
           url: string;
         },

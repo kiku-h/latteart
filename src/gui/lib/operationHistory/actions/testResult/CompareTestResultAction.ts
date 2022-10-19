@@ -54,7 +54,7 @@ export class CompareTestResultAction {
     return new ActionSuccess({
       url: result.data.url,
       isSame: result.data.isSame,
-      hasSkipImageCompare: result.data.hasSkipImageCompare,
+      hasInvalidScreenshots: result.data.hasInvalidScreenshots,
     });
   }
 }
