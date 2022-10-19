@@ -149,20 +149,29 @@ export default class CompareHistoryButton extends Vue {
         );
       }
 
-      const comparedInfo: { url: string; isSame: boolean } =
-        await this.$store.dispatch("operationHistory/compareTestResult", {
-          testResultId1: destTestResultId,
-          testResultId2: sourceTestResultId,
-        });
-
+      const comparedInfo: {
+        url: string;
+        isSame: boolean;
+        hasInvalidScreenshots: boolean;
+        compareTestResult: boolean;
+      } = await this.$store.dispatch("operationHistory/compareTestResult", {
+        testResultId1: destTestResultId,
+        testResultId2: sourceTestResultId,
+      });
       this.downloadLinkDialogOpened = true;
-      this.downloadLinkDialogMessage = comparedInfo.isSame
-        ? this.$store.getters.message(
-            "history-view.compare-test-result-is-same"
-          )
-        : this.$store.getters.message(
-            "history-view.compare-test-result-is-different"
-          );
+      this.downloadLinkDialogMessage = `${this.$store.getters.message(
+        "history-view.compate-test-result"
+      )}${
+        comparedInfo.hasInvalidScreenshots
+          ? this.$store.getters.message(
+              "history-view.compate-test-result-skip-image-compare"
+            )
+          : ""
+      }${this.$store.getters.message(
+        comparedInfo.isSame
+          ? "history-view.compare-test-result-is-same"
+          : "history-view.compare-test-result-is-different"
+      )}`;
 
       this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${comparedInfo.url}`;
     } catch (error) {

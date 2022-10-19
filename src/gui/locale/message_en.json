@@ -92,8 +92,10 @@
     "compare-test-result-title": "Compare Test Result",
     "compare-test-result-message": "Are you sure you want to compare the test results?",
     "comparing-test-result": "Comparing test results",
-    "compare-test-result-is-same": "The comparison of test results is complete. There is no difference in the test results.\nPlease check the download file for details.",
-    "compare-test-result-is-different": "The comparison of test results is complete. There are differences in the test results.\nPlease check the download file for details.",
+    "compate-test-result": "The comparison of test results is complete.",
+    "compare-test-result-skip-image-compare": " Skipped comparing non-PNG images.",
+    "compare-test-result-is-same": " There is no difference in the test results.\nPlease check the download file for details.",
+    "compare-test-result-is-different": " There are differences in the test results.\nPlease check the download file for details.",
     "compare-test-result-not-exist": "There are no test results to compare."
   },
   "import-export-dialog": {
@@ -270,7 +272,8 @@
     "url": "Url",
     "elementinfo": "Target screen element",
     "pageUrl": "Url",
-    "screenelements": "In-page string"
+    "screenelements": "In-page string",
+    "screenshots": "Screenshot"
   },
   "sequence": {
     "window-title": "Sequence Diagram"

@@ -54,6 +54,7 @@ export class CompareTestResultAction {
     return new ActionSuccess({
       url: result.data.url,
       isSame: result.data.isSame,
+      hasInvalidScreenshots: result.data.hasInvalidScreenshots,
     });
   }
 }
