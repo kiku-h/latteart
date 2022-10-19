@@ -127,7 +127,8 @@ export default class ClientSideCaptureServiceDispatcher {
       onChangeAlertVisibility: (data: { isVisible: boolean }) => Promise<void>;
       onPause: () => Promise<void>;
       onResume: () => Promise<void>;
-    }
+    },
+    clientSize?: { width: number; height: number }
   ): Promise<Reply<void>> {
     try {
       let occurredError: ServerError | null = null;
@@ -147,7 +148,7 @@ export default class ClientSideCaptureServiceDispatcher {
       };
 
       const onConnect = () => {
-        this.socketIOClient?.emit("start_capture", url, target);
+        this.socketIOClient?.emit("start_capture", url, target, clientSize);
       };
 
       const onStart = async (data?: unknown) => {

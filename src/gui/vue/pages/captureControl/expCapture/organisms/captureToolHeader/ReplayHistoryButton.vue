@@ -211,23 +211,32 @@ export default class ReplayHistoryButton extends Vue {
           );
         }
 
-        const comparedInfo: { url: string; isSame: boolean } =
-          await this.$store.dispatch("operationHistory/compareTestResult", {
-            testResultId1: targetTestResults.destId,
-            testResultId2: targetTestResults.sourceId,
-          });
+        const comparedInfo: {
+          url: string;
+          isSame: boolean;
+          hasInvalidScreenshots: boolean;
+        } = await this.$store.dispatch("operationHistory/compareTestResult", {
+          testResultId1: targetTestResults.destId,
+          testResultId2: targetTestResults.sourceId,
+        });
 
         const currentRepositoryUrl =
           this.$store.state.repositoryContainer.serviceUrl;
 
         this.downloadLinkDialogOpened = true;
-        this.downloadLinkDialogMessage = comparedInfo.isSame
-          ? this.$store.getters.message(
-              "history-view.compare-test-result-is-same"
-            )
-          : this.$store.getters.message(
-              "history-view.compare-test-result-is-different"
-            );
+        this.downloadLinkDialogMessage = `${this.$store.getters.message(
+          "history-view.compate-test-result"
+        )}${
+          comparedInfo.hasInvalidScreenshots
+            ? this.$store.getters.message(
+                "history-view.compate-test-result-skip-image-compare"
+              )
+            : ""
+        }${this.$store.getters.message(
+          comparedInfo.isSame
+            ? "history-view.compare-test-result-is-same"
+            : "history-view.compare-test-result-is-different"
+        )}`;
 
         this.downloadLinkDialogLinkUrl = `${currentRepositoryUrl}/${comparedInfo.url}`;
       } catch (error) {
