@@ -272,7 +272,8 @@
     "timestamp": "時刻",
     "elementinfo": "対象画面要素",
     "url": "ページURL",
-    "screenelements": "ページ内文字列"
+    "screenelements": "ページ内文字列",
+    "screenshots": "スクリーンショット"
   },
   "sequence": {
     "window-title": "シーケンス図"

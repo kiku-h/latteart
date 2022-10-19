@@ -268,7 +268,8 @@
     "timestamp": "Timestamp",
     "elementinfo": "Target screen element",
     "url": "Url",
-    "screenelements": "In-page string"
+    "screenelements": "In-page string",
+    "screenshots": "Screenshot"
   },
   "sequence": {
     "window-title": "Sequence Diagram"
