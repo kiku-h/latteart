@@ -129,8 +129,8 @@ export default class CompareSetting extends Vue {
         queryValue: "screenElements",
       },
       {
-        queryName: `${this.$store.getters.message("operation.screenshots")}`,
-        queryValue: "screenshots",
+        queryName: `${this.$store.getters.message("operation.screenshot")}`,
+        queryValue: "screenshot",
       },
     ];
   }

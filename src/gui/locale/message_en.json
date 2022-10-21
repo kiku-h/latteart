@@ -273,7 +273,7 @@
     "elementinfo": "Target screen element",
     "pageUrl": "Url",
     "screenelements": "In-page string",
-    "screenshots": "Screenshot"
+    "screenshot": "Screenshot"
   },
   "sequence": {
     "window-title": "Sequence Diagram"

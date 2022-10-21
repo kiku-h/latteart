@@ -277,7 +277,7 @@
     "elementinfo": "対象画面要素",
     "pageUrl": "ページURL",
     "screenelements": "ページ内文字列",
-    "screenshots": "スクリーンショット"
+    "screenshot": "スクリーンショット"
   },
   "sequence": {
     "window-title": "シーケンス図"
