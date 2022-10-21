@@ -233,7 +233,7 @@
   },
   "replay-option": {
     "start-replay": "履歴を再生する",
-    "replay-capture": "操作を記録する",
+    "replay-capture": "リプレイ結果を保存する",
     "test-result-name": "テスト結果名",
     "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみ再生します。"
   },

@@ -229,7 +229,7 @@
   },
   "replay-option": {
     "start-replay": "Replay",
-    "replay-capture": "Capture operations",
+    "replay-capture": "Save replay results",
     "test-result-name": "Test result name",
     "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
   },
