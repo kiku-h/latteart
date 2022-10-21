@@ -32,6 +32,8 @@ export function convertTestStepOperation(
     imageFilePath: testStepOperation.imageFileUrl
       ? new URL(testStepOperation.imageFileUrl, serviceUrl).toString()
       : testStepOperation.imageFileUrl,
+    scrollPosition: testStepOperation.scrollPosition,
+    clientSize: testStepOperation.clientSize,
     windowHandle: testStepOperation.windowHandle,
     timestamp: testStepOperation.timestamp,
     inputElements: testStepOperation.inputElements,

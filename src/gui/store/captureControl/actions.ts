@@ -208,6 +208,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
 
     try {
       const initialUrl = payload.operations[0].url;
+      const clientSize = payload.operations[0].clientSize;
 
       const sourceTestResultId = (context.rootState as any).operationHistory
         .testResultInfo.id;
@@ -242,6 +243,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
             /* Do nothing */
           },
         },
+        clientSize,
       });
     } finally {
       context.commit("setIsReplaying", { isReplaying: false });
@@ -571,7 +573,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
                 imageData: capturedScreenTransition.imageData,
                 windowHandle: capturedScreenTransition.windowHandle,
                 timestamp: capturedScreenTransition.timestamp,
-                screenElements: [],
+                screenElements: capturedScreenTransition.screenElements,
                 pageSource: capturedScreenTransition.pageSource,
                 inputElements: [],
               };

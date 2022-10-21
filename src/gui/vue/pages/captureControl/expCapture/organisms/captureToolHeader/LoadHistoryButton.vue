@@ -110,6 +110,7 @@ export default class LoadHistoryButton extends Vue {
         this.testResults.push({
           id: "",
           name: "EMPTY",
+          source: "",
         });
       }
 

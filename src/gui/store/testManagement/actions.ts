@@ -123,7 +123,11 @@ const actions: ActionTree<TestManagementState, RootState> = {
       );
     }
 
-    return result.data;
+    const testResultList = result.data.map((item) => {
+      return { name: item.name, id: item.id };
+    });
+
+    return testResultList;
   },
 
   /**

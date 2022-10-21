@@ -44,6 +44,12 @@ export interface ElementInfo {
   value?: string;
   checked?: boolean;
   attributes: { [key: string]: any };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
 }
 
 /**
@@ -184,6 +190,14 @@ export interface TestStepOperation {
   inputElements: ElementInfo[];
   windowHandle: string;
   keywordTexts?: string[];
+  scrollPosition?: {
+    x: number;
+    y: number;
+  };
+  clientSize?: {
+    width: number;
+    height: number;
+  };
 }
 
 interface ApiNote {
@@ -201,6 +215,7 @@ export interface TestResult {
   startTimeStamp: number;
   endTimeStamp: number;
   initialUrl: string;
+  source?: string;
   testSteps: {
     id: string;
     operation: TestStepOperation;
@@ -211,4 +226,4 @@ export interface TestResult {
   coverageSources: CoverageSource[];
 }
 
-export type TestResultSummary = Pick<TestResult, "id" | "name">;
+export type TestResultSummary = Pick<TestResult, "id" | "name" | "source">;
