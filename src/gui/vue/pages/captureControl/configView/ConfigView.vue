@@ -132,7 +132,7 @@
               </autofill-setting>
             </v-expansion-panel-content>
 
-            <v-expansion-panel-content v-if="configureCaptureSettings">
+            <v-expansion-panel-content v-if="false">
               <template v-slot:header class="py-0">
                 {{
                   $store.getters.message("config-view.setting-auto-operation")
