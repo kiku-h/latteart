@@ -45,9 +45,7 @@ describe("ScreenHistoryクラスは", () => {
       "title1",
       "url1",
       "screenDef1",
-      "",
-      null,
-      null
+      ""
     );
 
     testOperation2 = new Operation(
@@ -58,9 +56,7 @@ describe("ScreenHistoryクラスは", () => {
       "title2",
       "url2",
       "screenDef2",
-      "",
-      null,
-      null
+      ""
     );
 
     testOperation3 = new Operation(
@@ -71,9 +67,7 @@ describe("ScreenHistoryクラスは", () => {
       "title3",
       "url3",
       "screenDef3",
-      "",
-      null,
-      null
+      ""
     );
   });
 
@@ -440,41 +434,19 @@ describe("ScreenHistoryクラスは", () => {
           intention: null,
           bugs: null,
           notices: null,
-          operation: new Operation(1, "", "", null, "", "", "", "", null, null),
+          operation: new Operation(1, "", "", null, "", "", "", ""),
         },
         {
           intention: null,
           bugs: null,
           notices: null,
-          operation: new Operation(
-            2,
-            "",
-            "",
-            elementInfo1,
-            "",
-            "",
-            "",
-            "",
-            null,
-            null
-          ),
+          operation: new Operation(2, "", "", elementInfo1, "", "", "", ""),
         },
         {
           intention: null,
           bugs: null,
           notices: null,
-          operation: new Operation(
-            3,
-            "",
-            "",
-            elementInfo2,
-            "",
-            "",
-            "",
-            "",
-            null,
-            null
-          ),
+          operation: new Operation(3, "", "", elementInfo2, "", "", "", ""),
         },
       ];
     };

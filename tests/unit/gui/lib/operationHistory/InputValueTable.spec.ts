@@ -15,9 +15,7 @@ function createTestOperation(
       "",
       "",
       "",
-      "",
-      null,
-      null
+      ""
     ),
     intention: null,
     bugs: [],
