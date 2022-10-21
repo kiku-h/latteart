@@ -27,7 +27,7 @@
 
     <v-divider vertical class="mx-3" />
 
-    <run-auto-operation-button />
+    <run-auto-operation-button v-if="false" />
 
     <autofill-button />
 

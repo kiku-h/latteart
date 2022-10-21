@@ -23,7 +23,7 @@
     fill-height
   >
     <v-layout align-center style="height: 40px">
-      <auto-operation-register-button />
+      <auto-operation-register-button v-if="false" />
       <replay-operations-button />
     </v-layout>
     <v-layout
