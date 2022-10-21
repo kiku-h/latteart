@@ -80,7 +80,6 @@ export default class CompareSetting extends Vue {
   private queryList: string[] = [];
   private tagList: string[] = [];
 
-  private tempTags: string[] = [];
   private tempCompareInfo: CompareInfo = {
     exclude: {
       query: {
@@ -94,14 +93,13 @@ export default class CompareSetting extends Vue {
     },
   };
 
-  @Watch("tags")
-  private updateTempTags() {
-    this.tempTags = [...this.tags].sort();
-  }
-
   @Watch("compareInfo")
   private updateCompareInfo() {
     this.tempCompareInfo = { ...this.compareInfo };
+  }
+
+  private get tempTags() {
+    return this.tags.sort();
   }
 
   private get tempQueries(): { queryName: string; queryValue: string }[] {
