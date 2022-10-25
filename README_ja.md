@@ -32,6 +32,7 @@ LatteArt は以下の 2 つのツールで構成されています。
 - [記録ツール 操作説明書](./docs/manual/capture/manual-capture.md): 記録ツールの各機能の詳細
 - [管理ツール 操作説明書](./docs/manual/management/manual-management.md): 管理ツールの各機能の詳細
 - [テストスクリプト自動生成](./docs/manual/common/test-script-generation.md): テストスクリプト自動生成機能の詳細
+- [テスト結果比較機能(拡張機能)](./docs/ext-manual/test-result-comparison.md): テスト結果比較機能の詳細
 
 # インストール
 
