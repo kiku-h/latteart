@@ -126,8 +126,12 @@ compare_YYYYMMDD_HHmmss/
 
 ### 指定した操作内情報の差分を検出しない
 
+<img src="./images/comparison-ignore-field.png" width="700"/>
+
 操作時に記録した情報の内、比較時に無視する項目を指定することができます。
 
 ### 指定した画面要素の差分を検出しない
+
+<img src="./images/comparison-ignore-tag.png" width="700"/>
 
 比較時に無視する画面要素のタグ名を指定することができます。
