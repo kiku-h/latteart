@@ -194,6 +194,7 @@ export class TestResultRepository {
     excludeTags?: string
   ): Promise<
     RepositoryAccessResult<{
+      diffCount: number;
       diffs: {
         [key: string]: {
           a: string | undefined;
@@ -201,7 +202,6 @@ export class TestResultRepository {
         };
       }[];
       hasInvalidScreenshots: boolean;
-      isSame: boolean;
       url: string;
     }>
   > {
@@ -221,6 +221,7 @@ export class TestResultRepository {
 
       return new RepositoryAccessSuccess({
         data: response.data as {
+          diffCount: number;
           diffs: {
             [key: string]: {
               a: string | undefined;
@@ -228,7 +229,6 @@ export class TestResultRepository {
             };
           }[];
           hasInvalidScreenshots: boolean;
-          isSame: boolean;
           url: string;
         },
       });
