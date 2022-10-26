@@ -39,13 +39,10 @@
       @close="informationMessageDialogOpened = false"
     />
 
-    <download-link-dialog
-      :opened="downloadLinkDialogOpened"
-      :title="$store.getters.message('common.confirm')"
-      :message="downloadLinkDialogMessage"
-      alertMessage=""
-      :linkUrl="downloadLinkDialogLinkUrl"
-      @close="downloadLinkDialogOpened = false"
+    <comparison-result-dialog
+      :opened="resultDialogOpened"
+      :comparisonResult="comparisonResult"
+      @close="resultDialogOpened = false"
     />
 
     <error-message-dialog
@@ -60,11 +57,11 @@
 import { Operation } from "@/lib/operationHistory/Operation";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
-import DownloadLinkDialog from "@/vue/pages/common/DownloadLinkDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../../../common/ErrorMessageDialog.vue";
 import InformationMessageDialog from "../../../../common/InformationMessageDialog.vue";
 import ReplayOptionDialog from "../../../replayOptionDialog/ReplayOptionDialog.vue";
+import ComparisonResultDialog from "../ComparisonResultDialog.vue";
 
 @Component({
   components: {
@@ -72,7 +69,7 @@ import ReplayOptionDialog from "../../../replayOptionDialog/ReplayOptionDialog.v
     "information-message-dialog": InformationMessageDialog,
     "replay-option-dialog": ReplayOptionDialog,
     "confirm-dialog": ConfirmDialog,
-    "download-link-dialog": DownloadLinkDialog,
+    "comparison-result-dialog": ComparisonResultDialog,
   },
 })
 export default class ReplayHistoryButton extends Vue {
@@ -85,15 +82,25 @@ export default class ReplayHistoryButton extends Vue {
     /* Do nothing */
   }
 
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogLinkUrl = "";
+  private resultDialogOpened = false;
 
   private errorDialogOpened = false;
   private errorDialogMessage = "";
 
   private informationMessageDialogOpened = false;
   private informationMessage = "";
+
+  private comparisonResult: {
+    url: string;
+    diffCount: number;
+    diffs: {
+      [key: string]: {
+        a: string | undefined;
+        b: string | undefined;
+      };
+    }[];
+    hasInvalidScreenshots: boolean;
+  } | null = null;
 
   private get isDisabled(): boolean {
     return (
@@ -213,32 +220,21 @@ export default class ReplayHistoryButton extends Vue {
 
         const comparedInfo: {
           url: string;
-          isSame: boolean;
+          diffCount: number;
+          diffs: {
+            [key: string]: {
+              a: string | undefined;
+              b: string | undefined;
+            };
+          }[];
           hasInvalidScreenshots: boolean;
         } = await this.$store.dispatch("operationHistory/compareTestResult", {
           testResultId1: targetTestResults.destId,
           testResultId2: targetTestResults.sourceId,
         });
 
-        const currentRepositoryUrl =
-          this.$store.state.repositoryContainer.serviceUrl;
-
-        this.downloadLinkDialogOpened = true;
-        this.downloadLinkDialogMessage = `${this.$store.getters.message(
-          "history-view.compate-test-result"
-        )}${
-          comparedInfo.hasInvalidScreenshots
-            ? this.$store.getters.message(
-                "history-view.compate-test-result-skip-image-compare"
-              )
-            : ""
-        }${this.$store.getters.message(
-          comparedInfo.isSame
-            ? "history-view.compare-test-result-is-same"
-            : "history-view.compare-test-result-is-different"
-        )}`;
-
-        this.downloadLinkDialogLinkUrl = `${currentRepositoryUrl}/${comparedInfo.url}`;
+        this.comparisonResult = comparedInfo;
+        this.resultDialogOpened = true;
       } catch (error) {
         if (error instanceof Error) {
           this.errorDialogMessage = error.message;

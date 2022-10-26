@@ -32,13 +32,10 @@
       @close="confirmDialogOpened = false"
     />
 
-    <download-link-dialog
-      :opened="downloadLinkDialogOpened"
-      :title="$store.getters.message('common.confirm')"
-      :message="downloadLinkDialogMessage"
-      alertMessage=""
-      :linkUrl="downloadLinkDialogLinkUrl"
-      @close="downloadLinkDialogOpened = false"
+    <comparison-result-dialog
+      :opened="resultDialogOpened"
+      :comparisonResult="comparisonResult"
+      @close="resultDialogOpened = false"
     />
 
     <error-message-dialog
@@ -50,30 +47,38 @@
 </template>
 
 <script lang="ts">
-import { CompareInfo } from "@/lib/common/settings/Settings";
 import { Operation } from "@/lib/operationHistory/Operation";
 import { TestResultSummary } from "@/lib/operationHistory/types";
 import ConfirmDialog from "@/vue/pages/common/ConfirmDialog.vue";
-import DownloadLinkDialog from "@/vue/pages/common/DownloadLinkDialog.vue";
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "../../../../common/ErrorMessageDialog.vue";
+import ComparisonResultDialog from "../ComparisonResultDialog.vue";
 
 @Component({
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "download-link-dialog": DownloadLinkDialog,
     "confirm-dialog": ConfirmDialog,
+    "comparison-result-dialog": ComparisonResultDialog,
   },
 })
 export default class CompareHistoryButton extends Vue {
   private confirmDialogOpened = false;
 
-  private downloadLinkDialogOpened = false;
-  private downloadLinkDialogMessage = "";
-  private downloadLinkDialogLinkUrl = "";
-
   private errorMessageDialogOpened = false;
   private errorMessage = "";
+  private resultDialogOpened = false;
+
+  private comparisonResult: {
+    url: string;
+    diffCount: number;
+    diffs: {
+      [key: string]: {
+        a: string | undefined;
+        b: string | undefined;
+      };
+    }[];
+    hasInvalidScreenshots: boolean;
+  } | null = null;
 
   private get isDisabled(): boolean {
     return (
@@ -107,10 +112,6 @@ export default class CompareHistoryButton extends Vue {
 
   private get operations(): Operation[] {
     return this.$store.getters["operationHistory/getOperations"]();
-  }
-
-  private get currentRepositoryUrl(): string {
-    return this.$store.state.repositoryContainer.serviceUrl;
   }
 
   private openConfirmDialog() {
@@ -151,29 +152,21 @@ export default class CompareHistoryButton extends Vue {
 
       const comparedInfo: {
         url: string;
-        isSame: boolean;
+        diffCount: number;
+        diffs: {
+          [key: string]: {
+            a: string | undefined;
+            b: string | undefined;
+          };
+        }[];
         hasInvalidScreenshots: boolean;
-        compareTestResult: boolean;
       } = await this.$store.dispatch("operationHistory/compareTestResult", {
         testResultId1: destTestResultId,
         testResultId2: sourceTestResultId,
       });
-      this.downloadLinkDialogOpened = true;
-      this.downloadLinkDialogMessage = `${this.$store.getters.message(
-        "history-view.compate-test-result"
-      )}${
-        comparedInfo.hasInvalidScreenshots
-          ? this.$store.getters.message(
-              "history-view.compate-test-result-skip-image-compare"
-            )
-          : ""
-      }${this.$store.getters.message(
-        comparedInfo.isSame
-          ? "history-view.compare-test-result-is-same"
-          : "history-view.compare-test-result-is-different"
-      )}`;
 
-      this.downloadLinkDialogLinkUrl = `${this.currentRepositoryUrl}/${comparedInfo.url}`;
+      this.comparisonResult = comparedInfo;
+      this.resultDialogOpened = true;
     } catch (error) {
       if (error instanceof Error) {
         this.errorMessageDialogOpened = true;

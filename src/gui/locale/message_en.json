@@ -95,8 +95,10 @@
     "compate-test-result": "The comparison of test results is complete.",
     "compare-test-result-skip-image-compare": " Skipped comparing non-PNG images.",
     "compare-test-result-is-same": " There is no difference in the test results.\nPlease check the download file for details.",
-    "compare-test-result-is-different": " There are differences in the test results.\nPlease check the download file for details.",
-    "compare-test-result-not-exist": "There are no test results to compare."
+    "compare-test-result-is-different": " There are {diffCount} differences in the test results.\nPlease check the download file for details.",
+    "compare-test-result-not-exist": "There are no test results to compare.",
+    "compare-diffs-sequence": "Operation number",
+    "compare-diffs-field": "Operation information"
   },
   "import-export-dialog": {
     "test-result-import-title": "Import Test Result",
@@ -139,7 +141,7 @@
     "include-coverage": "Tags to include in coverage calculation",
     "setting-exclusion-tags": "Compare Test Results Settings",
     "exclude-query-enabled": "Do not detect differences in specified operation information",
-    "exclude-compare-query": "In-operation information to exclude",
+    "exclude-compare-query": "Operation information to exclude",
     "exclude-tags-enabled": "Do not detect differences for specified screen elements",
     "exclude-compare-tags": "Tags to exclude",
     "setting-device": "Advanced Device Settings",
