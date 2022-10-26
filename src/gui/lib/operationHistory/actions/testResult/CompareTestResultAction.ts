@@ -37,7 +37,19 @@ export class CompareTestResultAction {
     testResultId2: string,
     excludeQuery?: string,
     excludeTags?: string
-  ): Promise<ActionResult<{ url: string; isSame: boolean }>> {
+  ): Promise<
+    ActionResult<{
+      url: string;
+      diffCount: number;
+      diffs: {
+        [key: string]: {
+          a: string | undefined;
+          b: string | undefined;
+        };
+      }[];
+      hasInvalidScreenshots: boolean;
+    }>
+  > {
     const result = await this.repositoryContainer.testResultRepository.postDiff(
       testResultId1,
       testResultId2,
@@ -51,10 +63,13 @@ export class CompareTestResultAction {
       });
     }
 
+    const { url, diffCount, diffs, hasInvalidScreenshots } = result.data;
+
     return new ActionSuccess({
-      url: result.data.url,
-      isSame: result.data.isSame,
-      hasInvalidScreenshots: result.data.hasInvalidScreenshots,
+      url,
+      diffCount,
+      diffs,
+      hasInvalidScreenshots,
     });
   }
 }
