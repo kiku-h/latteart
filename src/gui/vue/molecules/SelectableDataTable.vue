@@ -28,7 +28,7 @@
     >
       <template v-slot:headers="props">
         <tr :style="{ height: '40px !important' }">
-          <th class="check-col">
+          <th class="check-col" v-if="false">
             <v-checkbox
               :input-value="props.all"
               :indeterminate="isPartiallyChecked"
@@ -77,7 +77,7 @@
           "
           @contextmenu="contextmenu(props.item.index, $event)"
         >
-          <td class="check-col check-item">
+          <td class="check-col check-item" v-if="false">
             <v-checkbox
               class="mr-1"
               hide-details
