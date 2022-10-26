@@ -16,7 +16,12 @@ const baseRestClient: RESTClient = {
 describe("CompareTestResultAction", () => {
   describe("#compareTestResult", () => {
     describe("指定したテスト結果を比較し、比較結果をエクスポートする", () => {
-      const expectedData = { url: "url", isSame: true };
+      const expectedData = {
+        url: "url",
+        diffCount: 0,
+        diffs: [],
+        hasInvalidScreenshots: false,
+      };
       const resSuccess: RESTClientResponse = {
         status: 200,
         data: expectedData,
