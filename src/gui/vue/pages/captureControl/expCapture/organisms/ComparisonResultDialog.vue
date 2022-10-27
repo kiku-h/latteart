@@ -140,21 +140,28 @@ export default class ComparisonResultDialog extends Vue {
 
     const sequenceAndFieldNames = this.comparisonResult.diffs.map(
       (diff, index) => {
-        const fieldNames = Object.keys(diff)
-          .map((key) => {
+        const fieldNames = Object.entries(diff)
+          .flatMap(([key, value]) => {
+            if (
+              key === "screenshot" &&
+              (value.a === "skip" || value.b === "skip")
+            ) {
+              return [];
+            }
+
             if (key === "elementInfo") {
-              return this.$store.getters.message("operation.elementinfo");
+              return [this.$store.getters.message("operation.elementinfo")];
             }
 
             if (key === "url") {
-              return this.$store.getters.message("operation.pageUrl");
+              return [this.$store.getters.message("operation.pageUrl")];
             }
 
             if (key === "screenElements") {
-              return this.$store.getters.message("operation.screenelements");
+              return [this.$store.getters.message("operation.screenelements")];
             }
 
-            return this.$store.getters.message(`operation.${key}`);
+            return [this.$store.getters.message(`operation.${key}`)];
           })
           .join(", ");
 
