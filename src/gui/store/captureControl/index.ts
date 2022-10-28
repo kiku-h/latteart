@@ -105,6 +105,7 @@ export interface CaptureControlState {
   replayOption: {
     testResultName: string;
     replayCaptureMode: boolean;
+    isCompare: boolean;
   };
 }
 
@@ -132,6 +133,7 @@ const state: CaptureControlState = {
   replayOption: {
     testResultName: "",
     replayCaptureMode: false,
+    isCompare: false,
   },
 };
 

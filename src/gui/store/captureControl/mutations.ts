@@ -161,6 +161,7 @@ const mutations: MutationTree<CaptureControlState> = {
       replayOption: {
         testResultName: string;
         replayCaptureMode: boolean;
+        isCompare: boolean;
       };
     }
   ) {

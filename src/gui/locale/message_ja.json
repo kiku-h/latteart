@@ -44,7 +44,7 @@
   "replay": {
     "done-title": "テスト結果のリプレイ終了",
     "done-run-operations": "リプレイが終了しました。",
-    "done-capture-operations": "リプレイが終了しました。記録したテスト結果を比較しますか？",
+    "done-capture-operations": "リプレイが終了しました。リプレイ元「{name}」と比較します。",
     "run-operations-canceled": "リプレイを中止しました。"
   },
   "navigate": {
@@ -239,6 +239,7 @@
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
     "replay-capture": "リプレイ結果を保存する",
+    "replay-compare": "リプレイ元のテスト結果と比較する",
     "test-result-name": "テスト結果名",
     "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
   },

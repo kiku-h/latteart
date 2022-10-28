@@ -24,6 +24,12 @@
         <v-checkbox
           :label="$store.getters.message('replay-option.replay-capture')"
           v-model="replayCaptureMode"
+          hide-details
+        ></v-checkbox>
+        <v-checkbox
+          :disabled="!replayCaptureMode"
+          :label="$store.getters.message('replay-option.replay-compare')"
+          v-model="isCompare"
         ></v-checkbox>
 
         <v-card flat>
@@ -84,6 +90,7 @@ export default class ReplayOptionDialog extends Vue {
 
   private testResultName = "";
   private replayCaptureMode = false;
+  private isCompare = false;
 
   private errorMessageDialogOpened = false;
   private errorMessage = "";
@@ -116,6 +123,7 @@ export default class ReplayOptionDialog extends Vue {
     this.testResultName =
       this.$store.state.operationHistory.testResultInfo.name;
     this.replayCaptureMode = false;
+    this.isCompare = false;
     this.alertMessage = this.hasPauseCapturingOperation
       ? this.$store.getters.message("replay-option.alert-pause-capturing")
       : "";
@@ -127,6 +135,7 @@ export default class ReplayOptionDialog extends Vue {
         replayOption: {
           testResultName: this.replayCaptureMode ? this.testResultName : "",
           replayCaptureMode: this.replayCaptureMode,
+          isCompare: this.replayCaptureMode ? this.isCompare : false,
         },
       });
 

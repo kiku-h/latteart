@@ -132,6 +132,14 @@ export default class ReplayHistoryButton extends Vue {
       : this.$store.getters.message("app.replay");
   }
 
+  private get replayOption(): {
+    testResultName: string;
+    replayCaptureMode: boolean;
+    isCompare: boolean;
+  } {
+    return this.$store.state.captureControl.replayOption;
+  }
+
   private async execute() {
     if (!this.isReplaying) {
       this.replayOptionDialogOpened = true;
@@ -149,12 +157,17 @@ export default class ReplayHistoryButton extends Vue {
 
     (async () => {
       try {
+        const sourceTestResultName =
+          this.$store.state.operationHistory.testResultInfo.name;
         await this.$store.dispatch("captureControl/replayOperations", {
           operations: this.operations,
         });
 
-        if (this.$store.state.captureControl.replayOption.replayCaptureMode) {
-          this.compareHistory();
+        if (
+          this.replayOption.replayCaptureMode &&
+          this.replayOption.isCompare
+        ) {
+          this.compareHistory(sourceTestResultName);
         } else {
           this.informationMessageDialogOpened = true;
           this.informationMessage = this.$store.getters.message(
@@ -180,10 +193,11 @@ export default class ReplayHistoryButton extends Vue {
       });
   }
 
-  private compareHistory(): void {
+  private compareHistory(sourceTestResultName: string): void {
     this.confirmDialogTitle = this.$store.getters.message("replay.done-title");
     this.confirmDialogMessage = this.$store.getters.message(
-      "replay.done-capture-operations"
+      "replay.done-capture-operations",
+      { name: sourceTestResultName }
     );
 
     this.confirmDialogAccept = async () => {

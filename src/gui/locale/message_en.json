@@ -40,7 +40,7 @@
   "replay": {
     "done-title": "Replay is done",
     "done-run-operations": "Replay is finished.",
-    "done-capture-operations": "Replay is finished. Do you want to compare the recorded test results?",
+    "done-capture-operations": "Replay is finished. Compare with replay source test results \"{name}\".",
     "run-operations-canceled": "Replay is canceled."
   },
   "navigate": {
@@ -235,6 +235,7 @@
   "replay-option": {
     "start-replay": "Replay",
     "replay-capture": "Save replay results",
+    "replay-compare": "Compare with replay original test results",
     "test-result-name": "Test result name",
     "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
   },
