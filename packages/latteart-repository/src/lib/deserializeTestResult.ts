@@ -15,59 +15,21 @@
  */
 
 import {
-  HistoryItemExportDataV1,
-  TestResultExportDataV1,
-  TestResultExportDataV2,
-} from "@/services/ExportService";
-interface DeserializedElementInfo {
-  tagname: string;
-  text: string;
-  xpath: string;
-  value: string;
-  checked: boolean;
-  attributes: {
-    [key: string]: string;
-  };
-}
+  CoverageSource,
+  ElementInfo,
+  Note,
+  Operation,
+  TestResult,
+  TestStep,
+} from "./types";
 
-interface DeserializedCoverageSource {
-  title: string;
-  url: string;
-  screenElements: {
-    tagname: string;
-    text: string;
-    xpath: string;
-    value: string;
-    checked: boolean;
-    attributes: {
-      [key: string]: string;
-    };
-  }[];
-}
-
-export interface DeserializedTestStep {
-  id: string;
-  operation: {
-    input: string;
-    type: string;
-    elementInfo: DeserializedElementInfo | null;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    windowHandle: string;
-    inputElements: DeserializedElementInfo[];
-    keywordTexts: string[];
-    isAutomatic: boolean;
-  };
-  testPurpose: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  } | null;
+// V0 Format
+export type TestResultExportDataV0 = {
+  name: string;
+  sessionId: string;
+  startTimeStamp: number;
+  endTimeStamp: number;
+  initialUrl: string;
   notes: {
     id: string;
     type: string;
@@ -76,214 +38,149 @@ export interface DeserializedTestStep {
     imageFileUrl: string;
     tags: string[];
   }[];
-}
-
-export interface DeserializedTestResult {
-  id: string;
-  name: string;
-  startTimeStamp: number;
-  lastUpdateTimeStamp: number;
-  initialUrl: string;
-  testingTime: number;
-  testSteps: DeserializedTestStep[];
-  coverageSources: DeserializedCoverageSource[];
-}
-
-export type TestResultImportDataV1 = TestResultExportDataV1;
-export type TestResultImportDataV2 = TestResultExportDataV2;
-export type HistoryItemImportDataV1 = HistoryItemExportDataV1;
-
-type HistoryItemImportDataV0 = Pick<HistoryItemExportDataV1, "testStep"> & {
+  coverageSources: {
+    title: string;
+    url: string;
+    screenElements: NonNullable<
+      HistoryItemExportDataV0["testStep"]["operation"]["elementInfo"]
+    >[];
+  }[];
+  history: { [k: string]: HistoryItemExportDataV0 };
+};
+type HistoryItemExportDataV0 = {
+  testStep: {
+    timestamp: string;
+    imageFileUrl: string;
+    windowInfo: { windowHandle: string };
+    pageInfo: { title: string; url: string; keywordTexts: string[] };
+    operation: {
+      input: string;
+      type: string;
+      elementInfo: {
+        tagname: string;
+        text: string;
+        xpath: string;
+        value: string;
+        checked: boolean;
+        attributes: { [key: string]: string };
+      } | null;
+      isAutomatic?: boolean;
+    };
+    inputElements: NonNullable<
+      HistoryItemExportDataV0["testStep"]["operation"]["elementInfo"]
+    >[];
+  };
   intention: string | null;
   bugs: string[];
   notices: string[];
 };
 
-export type TestResultImportDataV0 = Omit<
-  TestResultImportDataV1,
-  "version" | "history"
+// V1 Format
+export type TestResultExportDataV1 = Omit<TestResultExportDataV0, "history"> & {
+  version: number;
+  history: { [k: string]: HistoryItemExportDataV1 };
+};
+export type HistoryItemExportDataV1 = Pick<
+  HistoryItemExportDataV0,
+  "testStep"
 > & {
-  history: {
-    [k: string]: HistoryItemImportDataV0;
+  testPurpose: string | null;
+  notes: string[];
+};
+
+// V2 Format
+export type TestResultExportDataV2 = Omit<
+  TestResultExportDataV1,
+  "endTimeStamp"
+> & {
+  lastUpdateTimeStamp: number;
+  testingTime: number;
+};
+
+export type DeserializedTestResult = Omit<
+  TestResult,
+  "testSteps" | "coverageSources"
+> & {
+  testSteps: DeserializedTestStep[];
+  coverageSources: (Pick<CoverageSource, "title" | "url"> & {
+    screenElements: DeserializedElementInfo[];
+  })[];
+};
+export type DeserializedTestStep = Pick<TestStep, "id"> & {
+  operation: Omit<
+    Operation,
+    "elementInfo" | "inputElements" | "keywordTexts"
+  > & {
+    elementInfo: DeserializedElementInfo | null;
+    inputElements: DeserializedElementInfo[];
+    keywordTexts: string[];
+  };
+  testPurpose: Note | null;
+  notes: Note[];
+};
+
+type DeserializedElementInfo = Pick<ElementInfo, "tagname" | "xpath"> & {
+  text: string;
+  value: string;
+  checked: boolean;
+  attributes: {
+    [key: string]: string;
   };
 };
 
 export const deserializeTestResult = (
   testResultData: string
 ): DeserializedTestResult => {
-  const testResultImportData = JSON.parse(testResultData);
+  const data = JSON.parse(testResultData);
 
-  const version: number = testResultImportData.version ?? 0;
+  const version: number = data.version ?? 0;
 
   if (version === 1) {
-    const v1FormatData = validateV1Format(testResultImportData);
+    const v1FormatData = validateV1Format(data);
     return deserializeTestResultV1(v1FormatData);
-  } else if (version === 2) {
-    const v2FormatData = validateV2Format(testResultImportData);
+  }
+
+  if (version === 2) {
+    const v2FormatData = validateV2Format(data);
     return deserializeTestResultV2(v2FormatData);
   }
 
-  return deserializeTestResultV0(testResultImportData);
+  return deserializeTestResultV0(data);
 };
 
-const validateV2Format = (
-  testResultImportData: any
-): TestResultImportDataV2 => {
+const validateV1Format = (data: any): TestResultExportDataV1 => {
   if (
-    Object.values(testResultImportData.history).every((historyItem: any) => {
+    Object.values(data.history).every((historyItem: any) => {
       return historyItem.testPurpose !== undefined && historyItem.notes;
     })
   ) {
-    return testResultImportData;
+    return data;
   }
 
   throw new Error("ImportData is invalid format.");
 };
 
-const validateV1Format = (
-  testResultImportData: any
-): TestResultImportDataV1 => {
+const validateV2Format = (data: any): TestResultExportDataV2 => {
   if (
-    Object.values(testResultImportData.history).every((historyItem: any) => {
+    Object.values(data.history).every((historyItem: any) => {
       return historyItem.testPurpose !== undefined && historyItem.notes;
     })
   ) {
-    return testResultImportData;
+    return data;
   }
 
   throw new Error("ImportData is invalid format.");
 };
 
-const deserializeTestResultV2 = (
-  testResultImportData: TestResultImportDataV2
-) => {
-  const entries: [string, HistoryItemImportDataV1][] = Object.entries(
-    testResultImportData.history
-  );
-  const testSteps = entries.map(([_, item]) => {
-    const testPurpose = (() => {
-      const testPurpose = testResultImportData.notes.find(
-        (note) => note.id === item.testPurpose
-      );
-
-      return testPurpose ? testPurpose : null;
-    })();
-
-    const notes = item.notes.flatMap((noteId) => {
-      const note = testResultImportData.notes.find(
-        (note) => note.id === noteId
-      );
-
-      return note ? [note] : [];
-    });
-
-    return {
-      id: "",
-      operation: {
-        input: item.testStep.operation.input,
-        type: item.testStep.operation.type,
-        elementInfo: item.testStep.operation.elementInfo,
-        title: item.testStep.pageInfo.title,
-        url: item.testStep.pageInfo.url,
-        imageFileUrl: item.testStep.imageFileUrl,
-        timestamp: item.testStep.timestamp,
-        windowHandle: item.testStep.windowInfo.windowHandle,
-        inputElements: item.testStep.inputElements,
-        keywordTexts: item.testStep.pageInfo.keywordTexts,
-        isAutomatic: item.testStep.operation.isAutomatic ?? false,
-      },
-      testPurpose,
-      notes,
-    };
-  });
-
-  const testResult = {
-    id: testResultImportData.sessionId,
-    name: testResultImportData.name,
-    startTimeStamp: testResultImportData.startTimeStamp,
-    lastUpdateTimeStamp: testResultImportData.lastUpdateTimeStamp,
-    initialUrl: testResultImportData.initialUrl,
-    testingTime: testResultImportData.testingTime,
-    testSteps,
-    coverageSources: testResultImportData.coverageSources,
-  };
-  return testResult;
-};
-
-const deserializeTestResultV1 = (
-  testResultImportData: TestResultImportDataV1
-) => {
-  const entries: [string, HistoryItemImportDataV1][] = Object.entries(
-    testResultImportData.history
-  );
-  const testSteps = entries.map(([_, item]) => {
-    const testPurpose = (() => {
-      const testPurpose = testResultImportData.notes.find(
-        (note) => note.id === item.testPurpose
-      );
-
-      return testPurpose ? testPurpose : null;
-    })();
-
-    const notes = item.notes.flatMap((noteId) => {
-      const note = testResultImportData.notes.find(
-        (note) => note.id === noteId
-      );
-
-      return note ? [note] : [];
-    });
-
-    return {
-      id: "",
-      operation: {
-        input: item.testStep.operation.input,
-        type: item.testStep.operation.type,
-        elementInfo: item.testStep.operation.elementInfo,
-        title: item.testStep.pageInfo.title,
-        url: item.testStep.pageInfo.url,
-        imageFileUrl: item.testStep.imageFileUrl,
-        timestamp: item.testStep.timestamp,
-        windowHandle: item.testStep.windowInfo.windowHandle,
-        inputElements: item.testStep.inputElements,
-        keywordTexts: item.testStep.pageInfo.keywordTexts,
-        isAutomatic: item.testStep.operation.isAutomatic ?? false,
-      },
-      testPurpose,
-      notes,
-    };
-  });
-
-  const testingTime = calculateTestingTime(
-    testSteps,
-    testResultImportData.startTimeStamp
-  );
-
-  const testResult = {
-    id: testResultImportData.sessionId,
-    name: testResultImportData.name,
-    startTimeStamp: testResultImportData.startTimeStamp,
-    lastUpdateTimeStamp: Number(
-      testSteps[testSteps.length - 1].operation.timestamp
-    ),
-    initialUrl: testResultImportData.initialUrl,
-    testingTime,
-    testSteps,
-    coverageSources: testResultImportData.coverageSources,
-  };
-  return testResult;
-};
-
-const deserializeTestResultV0 = (
-  testResultImportData: TestResultImportDataV0
-) => {
-  const entries: [string, HistoryItemImportDataV0][] = Object.entries(
-    testResultImportData.history
+const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
+  const entries: [string, HistoryItemExportDataV0][] = Object.entries(
+    formattedData.history
   );
 
   let lastTimestamp: string;
   const testSteps = entries.map(([_, item]) => {
     const testPurpose = (() => {
-      const intention = testResultImportData.notes.find(
+      const intention = formattedData.notes.find(
         (note) => note.id === item.intention
       );
 
@@ -291,9 +188,7 @@ const deserializeTestResultV0 = (
     })();
 
     const notes = [...item.notices, ...item.bugs].flatMap((noteId) => {
-      const note = testResultImportData.notes.find(
-        (note) => note.id === noteId
-      );
+      const note = formattedData.notes.find((note) => note.id === noteId);
 
       return note ? [note] : [];
     });
@@ -328,25 +223,136 @@ const deserializeTestResultV0 = (
 
   const testingTime = calculateTestingTime(
     testSteps,
-    testResultImportData.startTimeStamp
+    formattedData.startTimeStamp
   );
 
   const testResult = {
-    id: testResultImportData.sessionId,
-    name: testResultImportData.name,
-    startTimeStamp: testResultImportData.startTimeStamp,
+    id: formattedData.sessionId,
+    name: formattedData.name,
+    startTimeStamp: formattedData.startTimeStamp,
     lastUpdateTimeStamp: Number(
       testSteps[testSteps.length - 1].operation.timestamp
     ),
-    initialUrl: testResultImportData.initialUrl,
+    initialUrl: formattedData.initialUrl,
     testingTime,
     testSteps,
-    coverageSources: testResultImportData.coverageSources,
+    coverageSources: formattedData.coverageSources,
   };
   return testResult;
 };
 
-export const calculateTestingTime = (
+const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
+  const entries: [string, HistoryItemExportDataV1][] = Object.entries(
+    formattedData.history
+  );
+  const testSteps = entries.map(([_, item]) => {
+    const testPurpose = (() => {
+      const testPurpose = formattedData.notes.find(
+        (note) => note.id === item.testPurpose
+      );
+
+      return testPurpose ? testPurpose : null;
+    })();
+
+    const notes = item.notes.flatMap((noteId) => {
+      const note = formattedData.notes.find((note) => note.id === noteId);
+
+      return note ? [note] : [];
+    });
+
+    return {
+      id: "",
+      operation: {
+        input: item.testStep.operation.input,
+        type: item.testStep.operation.type,
+        elementInfo: item.testStep.operation.elementInfo,
+        title: item.testStep.pageInfo.title,
+        url: item.testStep.pageInfo.url,
+        imageFileUrl: item.testStep.imageFileUrl,
+        timestamp: item.testStep.timestamp,
+        windowHandle: item.testStep.windowInfo.windowHandle,
+        inputElements: item.testStep.inputElements,
+        keywordTexts: item.testStep.pageInfo.keywordTexts,
+        isAutomatic: item.testStep.operation.isAutomatic ?? false,
+      },
+      testPurpose,
+      notes,
+    };
+  });
+
+  const testingTime = calculateTestingTime(
+    testSteps,
+    formattedData.startTimeStamp
+  );
+
+  const testResult = {
+    id: formattedData.sessionId,
+    name: formattedData.name,
+    startTimeStamp: formattedData.startTimeStamp,
+    lastUpdateTimeStamp: Number(
+      testSteps[testSteps.length - 1].operation.timestamp
+    ),
+    initialUrl: formattedData.initialUrl,
+    testingTime,
+    testSteps,
+    coverageSources: formattedData.coverageSources,
+  };
+  return testResult;
+};
+
+const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
+  const entries: [string, HistoryItemExportDataV1][] = Object.entries(
+    formattedData.history
+  );
+  const testSteps = entries.map(([_, item]) => {
+    const testPurpose = (() => {
+      const testPurpose = formattedData.notes.find(
+        (note) => note.id === item.testPurpose
+      );
+
+      return testPurpose ? testPurpose : null;
+    })();
+
+    const notes = item.notes.flatMap((noteId) => {
+      const note = formattedData.notes.find((note) => note.id === noteId);
+
+      return note ? [note] : [];
+    });
+
+    return {
+      id: "",
+      operation: {
+        input: item.testStep.operation.input,
+        type: item.testStep.operation.type,
+        elementInfo: item.testStep.operation.elementInfo,
+        title: item.testStep.pageInfo.title,
+        url: item.testStep.pageInfo.url,
+        imageFileUrl: item.testStep.imageFileUrl,
+        timestamp: item.testStep.timestamp,
+        windowHandle: item.testStep.windowInfo.windowHandle,
+        inputElements: item.testStep.inputElements,
+        keywordTexts: item.testStep.pageInfo.keywordTexts,
+        isAutomatic: item.testStep.operation.isAutomatic ?? false,
+      },
+      testPurpose,
+      notes,
+    };
+  });
+
+  const testResult = {
+    id: formattedData.sessionId,
+    name: formattedData.name,
+    startTimeStamp: formattedData.startTimeStamp,
+    lastUpdateTimeStamp: formattedData.lastUpdateTimeStamp,
+    initialUrl: formattedData.initialUrl,
+    testingTime: formattedData.testingTime,
+    testSteps,
+    coverageSources: formattedData.coverageSources,
+  };
+  return testResult;
+};
+
+const calculateTestingTime = (
   testSteps: DeserializedTestStep[],
   startTimeStamp: number
 ): number => {

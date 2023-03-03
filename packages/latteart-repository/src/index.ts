@@ -24,7 +24,7 @@ import { ValidateError } from "tsoa";
 import LoggingService from "./logger/LoggingService";
 import StandardLogger, { RunningMode } from "./logger/StandardLogger";
 import bodyParser from "body-parser";
-import { SettingsUtility } from "./lib/settings/SettingsUtility";
+import { SettingsUtility } from "./gateways/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
 import {
   ConnectionOptions,
@@ -41,7 +41,6 @@ import { CoverageSourceEntity } from "./entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "./entities/TestPurposeEntity";
 import { TestResultEntity } from "./entities/TestResultEntity";
 import { ScreenshotEntity } from "./entities/ScreenshotEntity";
-import { StaticDirectoryServiceImpl } from "./services/StaticDirectoryService";
 import { AttachedFileEntity } from "./entities/AttachedFilesEntity";
 import { ConfigEntity } from "./entities/ConfigEntity";
 import { ProjectEntity } from "./entities/ProjectEntity";
@@ -72,36 +71,6 @@ LoggingService.initialize(
     RunningMode.Debug,
     path.join(appRootPath, "logs", "latteart-repository.log")
   )
-);
-
-export const screenshotDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "screenshots"
-);
-export const attachedFileDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "attached-files"
-);
-export const snapshotDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "snapshots"
-);
-export const testScriptDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "test-scripts"
-);
-export const importDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "imports"
-);
-export const exportDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "exports"
-);
-
-export const tempDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "temp"
 );
 
 export const transactionRunner = new TransactionRunner();

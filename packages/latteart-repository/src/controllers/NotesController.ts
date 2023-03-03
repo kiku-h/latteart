@@ -16,7 +16,6 @@
 
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
@@ -32,7 +31,6 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService } from "..";
 import {
   CreateNoteDto,
   UpdateNoteDto,
@@ -41,6 +39,7 @@ import {
   UpdateNoteResponse,
 } from "../interfaces/Notes";
 import { NotesServiceImpl } from "../services/NotesService";
+import { createScreenshotFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/notes")
 @Tags("test-results")
@@ -62,9 +61,7 @@ export class NotesController extends Controller {
     console.log("NotesController - addNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     if (!["notice", "intention"].includes(requestBody.type)) {
       LoggingService.error(`invalid note type: ${requestBody.type}`);
@@ -77,7 +74,7 @@ export class NotesController extends Controller {
     try {
       if (requestBody.type === "notice") {
         return new NotesServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
         }).createNote(testResultId, requestBody);
       } else {
@@ -115,13 +112,11 @@ export class NotesController extends Controller {
     console.log("NotesController - getNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     try {
       const note = await new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
@@ -173,19 +168,17 @@ export class NotesController extends Controller {
     console.log("NotesController - updateNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     try {
       const note = await new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
       if (note) {
         return new NotesServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
         }).updateNote(noteId, requestBody);
       }
@@ -234,19 +227,17 @@ export class NotesController extends Controller {
     console.log("NotesController - deleteNote");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     try {
       const note = await new NotesServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
       if (note) {
         return new NotesServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
         }).deleteNote(noteId);
       }

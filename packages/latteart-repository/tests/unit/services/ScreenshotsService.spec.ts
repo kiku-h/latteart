@@ -2,7 +2,7 @@ import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
 import { ScreenshotsService } from "@/services/ScreenshotsService";
-import { StaticDirectoryServiceImpl } from "@/services/StaticDirectoryService";
+import { FileRepositoryImpl, StaticDirectory } from "@/gateways/fileRepository";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { getRepository } from "typeorm";
@@ -17,13 +17,14 @@ const resourcesDirPath = path.join(
   "../",
   "resources"
 );
-const tempDirectoryService = new StaticDirectoryServiceImpl(
-  resourcesDirPath,
+const staticDirectoryService = new StaticDirectory(resourcesDirPath);
+const tempDirectoryService = new FileRepositoryImpl(
+  staticDirectoryService,
   "temp"
 );
 const tempDirPath = path.join(resourcesDirPath, "temp");
-const screenshotDirectoryService = new StaticDirectoryServiceImpl(
-  resourcesDirPath,
+const screenshotDirectoryService = new FileRepositoryImpl(
+  staticDirectoryService,
   "screenshots"
 );
 
@@ -79,7 +80,7 @@ describe("ScreenshotsService", () => {
         timeStampService
       );
 
-      const zipPath = tempDirectoryService.getJoinedPath(
+      const zipPath = tempDirectoryService.getFilePath(
         `screenshots_${testResultEntity.name}_${datetime}.zip`
       );
       await fs.stat(zipPath);

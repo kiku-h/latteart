@@ -16,7 +16,6 @@
 
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -27,10 +26,10 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, tempDirectoryService } from "..";
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import { CreateTestResultImportDto } from "../interfaces/TesResultImport";
+import { createScreenshotFileRepository } from "@/gateways/fileRepository";
 
 @Route("imports/test-results")
 @Tags("imports")
@@ -50,21 +49,13 @@ export class TestResultImportController extends Controller {
     @Body() requestBody: CreateTestResultImportDto
   ): Promise<{ testResultId: string }> {
     const timestampService = new TimestampServiceImpl();
-
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
-
-    const importFileRepositoryService = new ImportFileRepositoryServiceImpl({
-      staticDirectory: tempDirectoryService,
-      imageFileRepository: imageFileRepositoryService,
-      timestamp: timestampService,
-    });
+    const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     try {
       const result = await new TestResultImportService({
         importFileRepository: importFileRepositoryService,
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).importTestResult(
         requestBody.source.testResultFile,

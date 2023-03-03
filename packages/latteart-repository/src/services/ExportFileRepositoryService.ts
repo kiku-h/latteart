@@ -17,11 +17,10 @@
 import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import FileArchiver from "@/lib/FileArchiver";
-import { StaticDirectoryService } from "./StaticDirectoryService";
+import FileArchiver from "@/gateways/FileArchiver";
 import os from "os";
-import { attachedFileDirectoryService } from "..";
+import { FileRepository } from "@/interfaces/fileRepository";
+import { createAttachedFileRepository } from "@/gateways/fileRepository";
 
 interface exportProjectData {
   projectId: string;
@@ -60,8 +59,8 @@ export class ExportFileRepositoryServiceImpl
 {
   constructor(
     private service: {
-      staticDirectory: StaticDirectoryService;
-      imageFileRepository: ImageFileRepositoryService;
+      exportFileRepository: FileRepository;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -96,13 +95,15 @@ export class ExportFileRepositoryServiceImpl
     }).zip();
     console.log("<< completed zip!! >>");
 
-    await this.service.staticDirectory.moveFile(
+    await this.service.exportFileRepository.moveFile(
       zipFilePath,
       path.basename(zipFilePath)
     );
     console.log("<< completed move!! >>");
 
-    return this.service.staticDirectory.getFileUrl(path.basename(zipFilePath));
+    return this.service.exportFileRepository.getFileUrl(
+      path.basename(zipFilePath)
+    );
   }
 
   public async outputProjectFiles(
@@ -119,6 +120,8 @@ export class ExportFileRepositoryServiceImpl
       path.join(projectPath, project.progressesFile.fileName),
       project.progressesFile.data
     );
+
+    const attachedFileRepository = createAttachedFileRepository();
 
     await Promise.all(
       project.stories.map(async (story) => {
@@ -137,7 +140,7 @@ export class ExportFileRepositoryServiceImpl
                   await fs.mkdirp(distAttachedDirPath);
                   const fileName = attachedFile.fileUrl.split("/").slice(-1)[0];
                   const srcFilePath =
-                    attachedFileDirectoryService.getJoinedPath(fileName);
+                    attachedFileRepository.getFilePath(fileName);
                   console.log(
                     `attached: ${srcFilePath} => ${path.join(
                       distAttachedDirPath,
@@ -183,7 +186,7 @@ export class ExportFileRepositoryServiceImpl
         const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
 
         const srcFilePath =
-          this.service.imageFileRepository.getFilePath(fileName);
+          this.service.screenshotFileRepository.getFilePath(fileName);
         const distFilePath = path.join(testResultPath, "screenshot", fileName);
         console.log(`${srcFilePath} => ${distFilePath}`);
         return await fs.copyFile(srcFilePath, distFilePath);
@@ -209,9 +212,12 @@ export class ExportFileRepositoryServiceImpl
 
     const exportFileName = `${testResult.name}_${timestamp}.zip`;
 
-    await this.service.staticDirectory.moveFile(zipFilePath, exportFileName);
+    await this.service.exportFileRepository.moveFile(
+      zipFilePath,
+      exportFileName
+    );
 
-    return this.service.staticDirectory.getFileUrl(exportFileName);
+    return this.service.exportFileRepository.getFileUrl(exportFileName);
   }
 
   private async outputFiles(testResult: {
@@ -233,7 +239,7 @@ export class ExportFileRepositoryServiceImpl
     const screenshotFilePaths = testResult.screenshots.map(({ fileUrl }) => {
       const fileName = fileUrl.split("/").slice(-1)[0];
 
-      return this.service.imageFileRepository.getFilePath(fileName);
+      return this.service.screenshotFileRepository.getFilePath(fileName);
     });
 
     await Promise.all(

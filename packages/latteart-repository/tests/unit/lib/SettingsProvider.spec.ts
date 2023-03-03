@@ -1,11 +1,11 @@
-import { SettingsProvider } from "@/lib/settings/SettingsProvider";
+import { SettingsProvider } from "@/gateways/settings/SettingsProvider";
 import path from "path";
-import { ERR_MSG } from "@/lib/settings/Constants";
+import { ERR_MSG } from "@/gateways/settings/Constants";
 import {
   RunningMode,
   Locale,
   ScreenDefType,
-} from "@/lib/settings/SettingsEnum";
+} from "@/gateways/settings/SettingsEnum";
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 

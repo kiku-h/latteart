@@ -29,20 +29,19 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import {
-  exportDirectoryService,
-  screenshotDirectoryService,
-  transactionRunner,
-} from "..";
+import { transactionRunner } from "..";
 import { ExportServiceImpl } from "@/services/ExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
+import {
+  createExportFileRepository,
+  createScreenshotFileRepository,
+} from "@/gateways/fileRepository";
 
 @Route("projects/{projectId}/export")
 @Tags("projects")
@@ -65,19 +64,17 @@ export class ProjectExportController extends Controller {
   ): Promise<{ url: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
-      const screenshotFileRepositoryService =
-        new ImageFileRepositoryServiceImpl({
-          staticDirectory: screenshotDirectoryService,
-        });
+      const screenshotFileRepository = createScreenshotFileRepository();
+      const exportFileRepository = createExportFileRepository();
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-        staticDirectory: exportDirectoryService,
-        imageFileRepository: screenshotFileRepositoryService,
+        exportFileRepository,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
       const testResultService = new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: screenshotFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),

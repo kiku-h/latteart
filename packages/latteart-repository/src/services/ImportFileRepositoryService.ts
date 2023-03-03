@@ -15,10 +15,7 @@
  */
 
 import path from "path";
-import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import { StaticDirectoryService } from "./StaticDirectoryService";
-import { readZip } from "@/lib/zipReader";
+import { readZip } from "@/gateways/zipReader";
 
 export interface ImportFileRepositoryService {
   readImportFile(base64FileData: string): Promise<{
@@ -30,14 +27,6 @@ export interface ImportFileRepositoryService {
 export class ImportFileRepositoryServiceImpl
   implements ImportFileRepositoryService
 {
-  constructor(
-    private service: {
-      staticDirectory: StaticDirectoryService;
-      imageFileRepository: ImageFileRepositoryService;
-      timestamp: TimestampService;
-    }
-  ) {}
-
   public async readImportFile(base64FileData: string): Promise<{
     testResultFile: { fileName: string; data: string };
     screenshots: { filePath: string; data: string }[];

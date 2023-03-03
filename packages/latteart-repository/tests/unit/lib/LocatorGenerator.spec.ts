@@ -3,6 +3,7 @@ import {
   ScreenElementLocatorGenerator,
   ElementLocatorSource,
 } from "@/lib/elementLocator";
+import { ElementInfo } from "@/lib/types";
 
 describe("LocatorGeneratorImpl", () => {
   describe("#generateFrom", () => {
@@ -104,16 +105,7 @@ describe("LocatorGeneratorImpl", () => {
       });
     });
     describe("重複するLocatorが存在する場合Locatorではなくxpathを返す", () => {
-      const elementInfoList: {
-        tagname: string;
-        text?: string;
-        xpath: string;
-        value?: string;
-        checked?: boolean;
-        attributes?: {
-          [key: string]: string;
-        };
-      }[] = [
+      const elementInfoList: ElementInfo[] = [
         {
           tagname: "BUTTON",
           text: "button",
@@ -165,21 +157,25 @@ describe("LocatorGeneratorImpl", () => {
           tagname: "A",
           xpath: "anchor1",
           text: "anchor",
+          attributes: {},
         },
         {
           tagname: "A",
           xpath: "anchor2",
           text: "anchor",
+          attributes: {},
         },
         {
           tagname: "SPAN",
           xpath: "span1",
           text: "span",
+          attributes: {},
         },
         {
           tagname: "SPAN",
           xpath: "span2",
           text: "span",
+          attributes: {},
         },
       ];
       const generator = new ScreenElementLocatorGenerator(

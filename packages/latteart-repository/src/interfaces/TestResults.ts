@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { SequenceView } from "../lib/sequenceViewGenerator";
+import { SequenceView, TestResult, TestResultViewOption } from "@/lib/types";
 
 /**
  * Test result data for new registration.
@@ -50,112 +50,6 @@ export type GetTestResultResponse = TestResult;
  * Updated test result data.
  */
 export type PatchTestResultResponse = TestResult;
-
-/**
- * Test result.
- */
-export type TestResult = {
-  id: string;
-  name: string;
-  startTimeStamp: number;
-  lastUpdateTimeStamp: number;
-  initialUrl: string;
-  testingTime: number;
-  testSteps: TestStep[];
-  coverageSources: {
-    title: string;
-    url: string;
-    screenElements: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    }[];
-  }[];
-};
-
-/**
- * Test step.
- */
-export type TestStep = {
-  id: string;
-  operation: {
-    input: string;
-    type: string;
-    elementInfo: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    } | null;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    windowHandle: string;
-    inputElements: {
-      tagname: string;
-      text: string;
-      xpath: string;
-      value: string;
-      checked: boolean;
-      attributes: {
-        [key: string]: string;
-      };
-    }[];
-    keywordTexts?: string[];
-    isAutomatic: boolean;
-  };
-  intention: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  } | null;
-  bugs: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  }[];
-  notices: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-  }[];
-};
-
-/**
- * Test result view option.
- */
-export type TestResultViewOption = {
-  node: {
-    unit: "title" | "url";
-    definitions: {
-      name: string;
-      conditions: {
-        target: "title" | "url" | "keyword";
-        method: "contains" | "equals" | "regex";
-        value: string;
-      }[];
-    }[];
-  };
-};
 
 /**
  * Sequence view generation option.

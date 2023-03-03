@@ -4,11 +4,11 @@ import { SessionEntity } from "@/entities/SessionEntity";
 import { SessionsService } from "@/services/SessionsService";
 import { StoryEntity } from "@/entities/StoryEntity";
 import { TimestampService } from "@/services/TimestampService";
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { Session } from "@/interfaces/Sessions";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TransactionRunner } from "@/TransactionRunner";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -195,16 +195,17 @@ function createServiceMock(params: { doneDate: string }) {
     format: jest.fn().mockReturnValue(params.doneDate),
     epochMilliseconds: jest.fn(),
   };
-  const imageFileRepositoryService: ImageFileRepositoryService = {
-    writeBufferToFile: jest.fn(),
-    writeBase64ToFile: jest.fn().mockResolvedValue("testStep.png"),
+  const attachedFileRepository: FileRepository = {
+    outputFile: jest.fn(),
     removeFile: jest.fn(),
+    getFileUrl: jest.fn().mockReturnValue("testStep.png"),
     getFilePath: jest.fn(),
-    getFileUrl: jest.fn(),
+    moveFile: jest.fn(),
+    copyFile: jest.fn(),
   };
 
   return {
     timestampService,
-    imageFileRepositoryService,
+    attachedFileRepository,
   };
 }

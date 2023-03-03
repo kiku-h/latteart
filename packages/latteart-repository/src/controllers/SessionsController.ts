@@ -16,7 +16,6 @@
 
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -30,7 +29,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { attachedFileDirectoryService, transactionRunner } from "..";
+import { transactionRunner } from "..";
 
 import {
   PatchSessionDto,
@@ -38,6 +37,7 @@ import {
   PostSessionResponse,
 } from "../interfaces/Sessions";
 import { SessionsService } from "../services/SessionsService";
+import { createAttachedFileRepository } from "@/gateways/fileRepository";
 
 @Route("projects/{projectId}/sessions")
 @Tags("projects")
@@ -91,10 +91,7 @@ export class SessionsController extends Controller {
     @Path() sessionId: string,
     @Body() requestBody: PatchSessionDto
   ): Promise<PatchSessionResponse> {
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: attachedFileDirectoryService,
-    });
-
+    const attachedFileRepository = createAttachedFileRepository();
     try {
       return await new SessionsService().patchSession(
         projectId,
@@ -102,7 +99,7 @@ export class SessionsController extends Controller {
         requestBody,
         {
           timestampService: new TimestampServiceImpl(),
-          imageFileRepositoryService: imageFileRepositoryService,
+          attachedFileRepository,
         },
         transactionRunner
       );

@@ -221,7 +221,7 @@ type CapturedElementInfo = {
   value?: string;
   xpath: string;
   checked?: boolean;
-  attributes: { [key: string]: any };
+  attributes: { [key: string]: string };
 };
 
 type ElementInfoWithBoundingRect = CapturedElementInfo & {

@@ -103,7 +103,7 @@ export type ElementInfoForRepository = {
   xpath: string;
   value?: string;
   checked?: boolean;
-  attributes: { [key: string]: any };
+  attributes: { [key: string]: string };
 };
 
 export type CoverageSourceForRepository = {

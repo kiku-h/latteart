@@ -18,7 +18,6 @@ import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportServiceImpl } from "@/services/ExportService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -33,12 +32,12 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  exportDirectoryService,
-  screenshotDirectoryService,
-  tempDirectoryService,
-} from "..";
 import { CreateTestResultExportDto } from "../interfaces/TestResultExport";
+import {
+  createExportFileRepository,
+  createScreenshotFileRepository,
+  createTempFileRepository,
+} from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -60,25 +59,24 @@ export class TestResultExportController extends Controller {
     @Body() requestBody?: CreateTestResultExportDto
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
-
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+    const screenshotFileRepository = createScreenshotFileRepository();
+    const tempFileRepository = createTempFileRepository();
+    const exportFileRepository = createExportFileRepository();
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
     });
 
     const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-      staticDirectory: requestBody?.temp
-        ? tempDirectoryService
-        : exportDirectoryService,
-      imageFileRepository: imageFileRepositoryService,
+      exportFileRepository: requestBody?.temp
+        ? tempFileRepository
+        : exportFileRepository,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 
