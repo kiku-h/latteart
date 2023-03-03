@@ -38,14 +38,13 @@ export type TestResultExportDataV0 = {
     imageFileUrl: string;
     tags: string[];
   }[];
-  coverageSources: {
-    title: string;
-    url: string;
-    screenElements: NonNullable<
-      HistoryItemExportDataV0["testStep"]["operation"]["elementInfo"]
-    >[];
-  }[];
+  coverageSources: CoverageSourceExportDataV0[];
   history: { [k: string]: HistoryItemExportDataV0 };
+};
+type CoverageSourceExportDataV0 = {
+  title: string;
+  url: string;
+  screenElements: ElementInfoExportDataV0[];
 };
 type HistoryItemExportDataV0 = {
   testStep: {
@@ -53,26 +52,26 @@ type HistoryItemExportDataV0 = {
     imageFileUrl: string;
     windowInfo: { windowHandle: string };
     pageInfo: { title: string; url: string; keywordTexts: string[] };
-    operation: {
-      input: string;
-      type: string;
-      elementInfo: {
-        tagname: string;
-        text: string;
-        xpath: string;
-        value: string;
-        checked: boolean;
-        attributes: { [key: string]: string };
-      } | null;
-      isAutomatic?: boolean;
-    };
-    inputElements: NonNullable<
-      HistoryItemExportDataV0["testStep"]["operation"]["elementInfo"]
-    >[];
+    operation: OperationExportDataV0;
+    inputElements: ElementInfoExportDataV0[];
   };
   intention: string | null;
   bugs: string[];
   notices: string[];
+};
+type OperationExportDataV0 = {
+  input: string;
+  type: string;
+  elementInfo: ElementInfoExportDataV0 | null;
+  isAutomatic?: boolean;
+};
+type ElementInfoExportDataV0 = {
+  tagname: string;
+  text: string;
+  xpath: string;
+  value: string;
+  checked: boolean;
+  attributes: { [key: string]: string };
 };
 
 // V1 Format
@@ -80,6 +79,7 @@ export type TestResultExportDataV1 = Omit<TestResultExportDataV0, "history"> & {
   version: number;
   history: { [k: string]: HistoryItemExportDataV1 };
 };
+type CoverageSourceExportDataV1 = CoverageSourceExportDataV0;
 export type HistoryItemExportDataV1 = Pick<
   HistoryItemExportDataV0,
   "testStep"
@@ -87,14 +87,50 @@ export type HistoryItemExportDataV1 = Pick<
   testPurpose: string | null;
   notes: string[];
 };
+type OperationExportDataV1 = HistoryItemExportDataV1["testStep"]["operation"];
+type ElementInfoExportDataV1 = ElementInfoExportDataV0;
 
 // V2 Format
 export type TestResultExportDataV2 = Omit<
   TestResultExportDataV1,
-  "endTimeStamp"
+  "endTimeStamp" | "coverageSources" | "history"
 > & {
   lastUpdateTimeStamp: number;
   testingTime: number;
+  coverageSources: CoverageSourceExportDataV2[];
+  history: { [k: string]: HistoryItemExportDataV2 };
+};
+type CoverageSourceExportDataV2 = Omit<
+  CoverageSourceExportDataV1,
+  "screenElements"
+> & {
+  screenElements: ElementInfoExportDataV2[];
+};
+export type HistoryItemExportDataV2 = Omit<
+  HistoryItemExportDataV1,
+  "testStep"
+> & {
+  testStep: Omit<
+    HistoryItemExportDataV1["testStep"],
+    "operation" | "inputElements"
+  > & {
+    operation: OperationExportDataV2;
+    inputElements: ElementInfoExportDataV2[];
+  };
+};
+type OperationExportDataV2 = Omit<OperationExportDataV1, "elementInfo"> & {
+  elementInfo: ElementInfoExportDataV2 | null;
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
+};
+type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  textWithoutChildren?: string;
 };
 
 export type DeserializedTestResult = Omit<
@@ -301,7 +337,7 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
 };
 
 const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
-  const entries: [string, HistoryItemExportDataV1][] = Object.entries(
+  const entries: [string, HistoryItemExportDataV2][] = Object.entries(
     formattedData.history
   );
   const testSteps = entries.map(([_, item]) => {
@@ -333,6 +369,8 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
         inputElements: item.testStep.inputElements,
         keywordTexts: item.testStep.pageInfo.keywordTexts,
         isAutomatic: item.testStep.operation.isAutomatic ?? false,
+        scrollPosition: item.testStep.operation.scrollPosition,
+        clientSize: item.testStep.operation.clientSize,
       },
       testPurpose,
       notes,

@@ -155,14 +155,14 @@ describe("TestStepService", () => {
       const operationData = {
         input: testStepEntity.operationInput,
         type: testStepEntity.operationType,
-        elementInfo: JSON.parse(testStepEntity.operationElement),
+        elementInfo: null,
         title: testStepEntity.pageTitle,
         url: testStepEntity.pageUrl,
         imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
         timestamp: `${testStepEntity.timestamp}`,
-        inputElements: JSON.parse(testStepEntity.inputElements),
+        inputElements: [],
         windowHandle: testStepEntity.windowHandle,
-        keywordTexts: JSON.parse(testStepEntity.keywordTexts),
+        keywordTexts: [],
         isAutomatic: testStepEntity.isAutomatic,
       };
 

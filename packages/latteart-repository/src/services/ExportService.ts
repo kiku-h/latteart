@@ -20,8 +20,7 @@ import path from "path";
 import { GetTestResultResponse } from "@/interfaces/TestResults";
 import { ElementInfo } from "@/lib/types";
 import {
-  HistoryItemExportDataV1,
-  TestResultExportDataV0,
+  HistoryItemExportDataV2,
   TestResultExportDataV2,
 } from "@/lib/deserializeTestResult";
 
@@ -72,7 +71,7 @@ export class ExportServiceImpl implements ExportService {
 
     const { historyEntries, notes } = testResult.testSteps.reduce(
       (acc, testStep, index) => {
-        const testStepEntry: [number, HistoryItemExportDataV1] = [
+        const testStepEntry: [number, HistoryItemExportDataV2] = [
           index + 1,
           {
             testStep: {
@@ -97,6 +96,8 @@ export class ExportServiceImpl implements ExportService {
                     )
                   : null,
                 isAutomatic: testStep.operation.isAutomatic,
+                scrollPosition: testStep.operation.scrollPosition,
+                clientSize: testStep.operation.clientSize,
               },
               inputElements: testStep.operation.inputElements.map((element) =>
                 this.convertToExportableElement(element)
@@ -128,8 +129,8 @@ export class ExportServiceImpl implements ExportService {
         return acc;
       },
       {
-        historyEntries: Array<[number, HistoryItemExportDataV1]>(),
-        notes: [] as TestResultExportDataV0["notes"],
+        historyEntries: Array<[number, HistoryItemExportDataV2]>(),
+        notes: [] as TestResultExportDataV2["notes"],
       }
     );
 
@@ -167,6 +168,8 @@ export class ExportServiceImpl implements ExportService {
       value: element.value ?? "",
       checked: element.checked ?? false,
       attributes: element.attributes,
+      boundingRect: element.boundingRect,
+      textWithoutChildren: element.textWithoutChildren ?? "",
     };
   }
 }
