@@ -1484,10 +1484,20 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        textWithoutChildren: { dataType: "string" },
+        boundingRect: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+            left: { dataType: "double", required: true },
+            top: { dataType: "double", required: true },
+          },
+        },
         attributes: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {},
-          additionalProperties: { dataType: "any" },
+          additionalProperties: { dataType: "string" },
           required: true,
         },
         checked: { dataType: "boolean" },
@@ -1505,6 +1515,20 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        clientSize: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+        },
+        scrollPosition: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            y: { dataType: "double", required: true },
+            x: { dataType: "double", required: true },
+          },
+        },
         isAutomatic: { dataType: "boolean", required: true },
         keywordTexts: { dataType: "array", array: { dataType: "string" } },
         inputElements: {
@@ -1884,34 +1908,7 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         id: { dataType: "string", required: true },
-        operation: {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            isAutomatic: { dataType: "boolean", required: true },
-            keywordTexts: { dataType: "array", array: { dataType: "string" } },
-            windowHandle: { dataType: "string", required: true },
-            inputElements: {
-              dataType: "array",
-              array: { dataType: "refAlias", ref: "ElementInfo" },
-              required: true,
-            },
-            timestamp: { dataType: "string", required: true },
-            imageFileUrl: { dataType: "string", required: true },
-            url: { dataType: "string", required: true },
-            title: { dataType: "string", required: true },
-            elementInfo: {
-              dataType: "union",
-              subSchemas: [
-                { ref: "ElementInfo" },
-                { dataType: "enum", enums: [null] },
-              ],
-              required: true,
-            },
-            type: { dataType: "string", required: true },
-            input: { dataType: "string", required: true },
-          },
-          required: true,
-        },
+        operation: { ref: "Operation", required: true },
       },
       validators: {},
     },
@@ -1983,6 +1980,20 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        clientSize: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+        },
+        scrollPosition: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            y: { dataType: "double", required: true },
+            x: { dataType: "double", required: true },
+          },
+        },
         isAutomatic: { dataType: "boolean" },
         pageSource: { dataType: "string", required: true },
         timestamp: { dataType: "double", required: true },
@@ -2039,34 +2050,7 @@ const models: TsoaRoute.Models = {
           ],
           required: true,
         },
-        operation: {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            isAutomatic: { dataType: "boolean", required: true },
-            keywordTexts: { dataType: "array", array: { dataType: "string" } },
-            windowHandle: { dataType: "string", required: true },
-            inputElements: {
-              dataType: "array",
-              array: { dataType: "refAlias", ref: "ElementInfo" },
-              required: true,
-            },
-            timestamp: { dataType: "string", required: true },
-            imageFileUrl: { dataType: "string", required: true },
-            url: { dataType: "string", required: true },
-            title: { dataType: "string", required: true },
-            elementInfo: {
-              dataType: "union",
-              subSchemas: [
-                { ref: "ElementInfo" },
-                { dataType: "enum", enums: [null] },
-              ],
-              required: true,
-            },
-            type: { dataType: "string", required: true },
-            input: { dataType: "string", required: true },
-          },
-          required: true,
-        },
+        operation: { ref: "Operation", required: true },
         id: { dataType: "string", required: true },
       },
       validators: {},

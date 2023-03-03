@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { CoverageSource, ElementInfo } from "@/lib/types";
+import { CoverageSource, ElementInfo, Operation } from "@/lib/types";
 
 /**
  * Test step data for new registration.
@@ -33,6 +33,8 @@ export type CreateTestStepDto = {
   timestamp: number;
   pageSource: string;
   isAutomatic?: boolean;
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
 };
 
 /**
@@ -40,19 +42,7 @@ export type CreateTestStepDto = {
  */
 export type GetTestStepResponse = {
   id: string;
-  operation: {
-    input: string;
-    type: string;
-    elementInfo: ElementInfo | null;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    inputElements: ElementInfo[];
-    windowHandle: string;
-    keywordTexts?: string[];
-    isAutomatic: boolean;
-  };
+  operation: Operation;
   intention: string | null;
   bugs: string[];
   notices: string[];

@@ -26,11 +26,7 @@ import StandardLogger, { RunningMode } from "./logger/StandardLogger";
 import bodyParser from "body-parser";
 import { SettingsUtility } from "./services/helper/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
-import {
-  ConnectionOptions,
-  createConnection,
-  getConnectionOptions,
-} from "typeorm";
+import { ConnectionOptions, createConnection } from "typeorm";
 import { NoteEntity } from "./entities/NoteEntity";
 import { TagEntity } from "./entities/TagEntity";
 import fs from "fs-extra";
@@ -66,6 +62,7 @@ import { AddTestProgressEntity1657768635961 } from "./migrations/1657768635961-A
 import { DeleteDefaultInputElementEntity1661223982605 } from "./migrations/1661223982605-DeleteDefaultInputElementEntity";
 import { UpdateTestStepEntity1666848612089 } from "./migrations/1666848612089-UpdateTestStepEntity";
 import { UpdateTestResultEntity1671087205573 } from "./migrations/1671087205573-UpdateTestResultEntity";
+import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
 
 LoggingService.initialize(
   new StandardLogger(
@@ -163,6 +160,7 @@ async function initializeOrmConnection() {
       DeleteDefaultInputElementEntity1661223982605,
       UpdateTestStepEntity1666848612089,
       UpdateTestResultEntity1671087205573,
+      UpdateTestStepEntity1677835465468,
     ],
   };
 

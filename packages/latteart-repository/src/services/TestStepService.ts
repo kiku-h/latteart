@@ -30,7 +30,7 @@ import { TimestampService } from "./TimestampService";
 import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ConfigsService } from "./ConfigsService";
-import { ElementInfo } from "@/lib/types";
+import { ElementInfo, Operation } from "@/lib/types";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -50,19 +50,7 @@ export interface TestStepService {
     testPurposeId: string | null
   ): Promise<PatchTestStepResponse>;
 
-  getTestStepOperation(testStepId: string): Promise<{
-    input: string;
-    type: string;
-    elementInfo: any;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    inputElements: any;
-    windowHandle: string;
-    keywordTexts: any;
-    isAutomatic: boolean;
-  }>;
+  getTestStepOperation(testStepId: string): Promise<Operation>;
 
   getTestStepScreenshot(
     testStepId: string
@@ -155,6 +143,10 @@ export class TestStepServiceImpl implements TestStepService {
       timestamp: requestBody.timestamp,
       testResult: savedTestResultEntity,
       isAutomatic: !!requestBody.isAutomatic,
+      scrollPositionX: requestBody.scrollPosition?.x,
+      scrollPositionY: requestBody.scrollPosition?.y,
+      clientSizeWidth: requestBody.clientSize?.width,
+      clientSizeHeight: requestBody.clientSize?.height,
     });
     const screenshot = new ScreenshotEntity({
       fileUrl: await this.service.imageFileRepository.writeBase64ToFile(
@@ -238,19 +230,7 @@ export class TestStepServiceImpl implements TestStepService {
     return this.convertTestStepEntityToTestStep(updatedTestStepEntity);
   }
 
-  public async getTestStepOperation(testStepId: string): Promise<{
-    input: string;
-    type: string;
-    elementInfo: any;
-    title: string;
-    url: string;
-    imageFileUrl: string;
-    timestamp: string;
-    inputElements: any;
-    windowHandle: string;
-    keywordTexts: any;
-    isAutomatic: boolean;
-  }> {
+  public async getTestStepOperation(testStepId: string): Promise<Operation> {
     const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
       testStepId,
       {
@@ -278,18 +258,45 @@ export class TestStepServiceImpl implements TestStepService {
   }
 
   private async getOperationFromTestStepEntity(testStepEntity: TestStepEntity) {
+    const elementInfo: Partial<ElementInfo> = JSON.parse(
+      testStepEntity.operationElement
+    );
+    const inputElements: ElementInfo[] = JSON.parse(
+      testStepEntity.inputElements
+    );
+    const keywordTexts: string[] = JSON.parse(testStepEntity.keywordTexts);
+
     return {
       input: testStepEntity.operationInput,
       type: testStepEntity.operationType,
-      elementInfo: JSON.parse(testStepEntity.operationElement),
+      elementInfo:
+        Object.keys(elementInfo).length > 0
+          ? (elementInfo as ElementInfo)
+          : null,
       title: testStepEntity.pageTitle,
       url: testStepEntity.pageUrl,
       imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
       timestamp: testStepEntity.timestamp.toString(),
-      inputElements: JSON.parse(testStepEntity.inputElements),
+      inputElements,
       windowHandle: testStepEntity.windowHandle,
-      keywordTexts: JSON.parse(testStepEntity.keywordTexts),
+      keywordTexts,
       isAutomatic: !!testStepEntity.isAutomatic,
+      scrollPosition:
+        testStepEntity.scrollPositionX != null &&
+        testStepEntity.scrollPositionY != null
+          ? {
+              x: testStepEntity.scrollPositionX,
+              y: testStepEntity.scrollPositionY,
+            }
+          : undefined,
+      clientSize:
+        testStepEntity.clientSizeWidth != null &&
+        testStepEntity.clientSizeHeight != null
+          ? {
+              width: testStepEntity.clientSizeWidth,
+              height: testStepEntity.clientSizeHeight,
+            }
+          : undefined,
     };
   }
 

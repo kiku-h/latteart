@@ -57,6 +57,8 @@ export type Operation = {
   inputElements: ElementInfo[];
   keywordTexts?: string[];
   isAutomatic: boolean;
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
 };
 
 /**
@@ -90,6 +92,13 @@ export type ElementInfo = {
   value?: string;
   checked?: boolean;
   attributes: { [key: string]: string };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  textWithoutChildren?: string;
 };
 
 /**
