@@ -20,7 +20,7 @@ import {
   PatchStoryDto,
   PatchStoryResponse,
 } from "../interfaces/Stories";
-import { storyEntityToResponse } from "../lib/entityToResponse";
+import { storyEntityToResponse } from "./helper/entityToResponse";
 import { getRepository } from "typeorm";
 
 export class StoriesService {

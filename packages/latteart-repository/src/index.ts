@@ -24,7 +24,7 @@ import { ValidateError } from "tsoa";
 import LoggingService from "./logger/LoggingService";
 import StandardLogger, { RunningMode } from "./logger/StandardLogger";
 import bodyParser from "body-parser";
-import { SettingsUtility } from "./lib/settings/SettingsUtility";
+import { SettingsUtility } from "./services/helper/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
 import {
   ConnectionOptions,

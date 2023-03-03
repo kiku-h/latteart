@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { SettingsUtility } from "@/lib/settings/SettingsUtility";
+import { SettingsUtility } from "@/services/helper/settings/SettingsUtility";
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { CommandExecutionServiceImpl } from "@/services/CommandExecutionService";

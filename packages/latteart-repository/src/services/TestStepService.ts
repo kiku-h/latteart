@@ -24,13 +24,13 @@ import {
   CreateTestStepDto,
   CreateTestStepResponse,
   PatchTestStepResponse,
-  ElementInfo,
 } from "@/interfaces/TestSteps";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ConfigsService } from "./ConfigsService";
+import { ElementInfo } from "@/lib/types";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;

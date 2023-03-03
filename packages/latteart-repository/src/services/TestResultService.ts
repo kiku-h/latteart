@@ -27,7 +27,6 @@ import {
   CreateTestResultResponse,
   GetTestResultResponse,
   PatchTestResultResponse,
-  TestResultViewOption,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
@@ -41,7 +40,8 @@ import ScreenDefFactory, {
 import {
   generateSequenceView,
   SequenceView,
-} from "@/lib/sequenceViewGenerator";
+} from "@/lib/sequenceViewGeneration";
+import { TestResultViewOption } from "@/lib/types";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;

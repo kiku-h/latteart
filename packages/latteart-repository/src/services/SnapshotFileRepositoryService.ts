@@ -17,7 +17,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/lib/FileArchiver";
+import FileArchiver from "@/services/helper/FileArchiver";
 import { StaticDirectoryService } from "./StaticDirectoryService";
 import os from "os";
 import { Project } from "@/interfaces/Projects";
@@ -30,7 +30,7 @@ import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { IssueReportService } from "./IssueReportService";
 import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
-import { convertToExportableConfig } from "@/lib/settings/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/settingsConverter";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;

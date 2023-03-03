@@ -19,7 +19,7 @@ import { ProgressData, Project } from "@/interfaces/Projects";
 import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { TestResultService } from "./TestResultService";
 import path from "path";
-import { readZip } from "@/lib/zipReader";
+import { readZip } from "@/services/helper/zipReader";
 import { TestPurposeService } from "./TestPurposeService";
 import { NotesService } from "./NotesService";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";

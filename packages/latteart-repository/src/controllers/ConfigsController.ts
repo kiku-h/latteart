@@ -32,7 +32,7 @@ import {
   SuccessResponse,
 } from "tsoa";
 import { ConfigsService } from "../services/ConfigsService";
-import { convertToExportableConfig } from "@/lib/settings/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/settingsConverter";
 
 @Route("projects/{projectId}/configs")
 @Tags("projects")

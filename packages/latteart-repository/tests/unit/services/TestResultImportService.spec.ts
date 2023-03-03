@@ -6,10 +6,6 @@ import os from "os";
 import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TimestampService } from "@/services/TimestampService";
-import {
-  TestResultExportDataV1,
-  TestResultExportDataV2,
-} from "@/services/ExportService";
 import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -19,6 +15,10 @@ import { TagEntity } from "@/entities/TagEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
+import {
+  TestResultExportDataV1,
+  TestResultExportDataV2,
+} from "@/lib/deserializeTestResult";
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();

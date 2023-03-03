@@ -18,7 +18,7 @@ import fs from "fs-extra";
 import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TimestampService } from "./TimestampService";
 import { ConfigsService } from "./ConfigsService";
-import { convertToExportableConfig } from "@/lib/settings/settingsConverter";
+import { convertToExportableConfig } from "@/services/helper/settingsConverter";
 
 export class ConfigExportService {
   public async export(

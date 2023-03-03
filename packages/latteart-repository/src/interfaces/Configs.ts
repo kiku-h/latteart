@@ -19,7 +19,7 @@ import {
   AutofillSetting,
   AutoOperationSetting,
   Coverage,
-} from "../lib/settings/Settings";
+} from "../services/helper/settings/Settings";
 
 /**
  * Data for setting update.

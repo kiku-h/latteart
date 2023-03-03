@@ -25,7 +25,7 @@ import {
   PostSessionResponse,
   Session,
 } from "@/interfaces/Sessions";
-import { sessionEntityToResponse } from "@/lib/entityToResponse";
+import { sessionEntityToResponse } from "@/services/helper/entityToResponse";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
 import { ImageFileRepositoryService } from "./ImageFileRepositoryService";

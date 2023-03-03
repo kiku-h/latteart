@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { ElementInfo } from "./types";
+
 export type ElementLocatorFormatter = {
   formatIdLocator: (id: string) => string;
   formatNameAndValueLocator: (name: string, value: string) => string;
@@ -56,16 +58,7 @@ export interface ElementLocatorGenerator {
 export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
   constructor(
     private formatter: ElementLocatorFormatter,
-    private screenElements: {
-      tagname: string;
-      text?: string;
-      xpath: string;
-      value?: string;
-      checked?: boolean;
-      attributes?: {
-        [key: string]: string;
-      };
-    }[],
+    private screenElements: ElementInfo[],
     private maxTextLength = 100
   ) {}
 
@@ -78,7 +71,7 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
 
   private hasSameIdElement(xpath: string, id: string): boolean {
     return this.screenElements.some(
-      (element) => element?.attributes?.id === id && element.xpath !== xpath
+      (element) => element.attributes.id === id && element.xpath !== xpath
     );
   }
 
@@ -89,7 +82,7 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
   ): boolean {
     return this.screenElements.some(
       (element) =>
-        element?.attributes?.name === name &&
+        element.attributes.name === name &&
         element.value === value &&
         element.xpath !== xpath
     );
@@ -97,7 +90,7 @@ export class ScreenElementLocatorGenerator implements ElementLocatorGenerator {
 
   private hasSameNameElement(xpath: string, name: string): boolean {
     return this.screenElements.some(
-      (element) => element?.attributes?.name === name && element.xpath !== xpath
+      (element) => element.attributes.name === name && element.xpath !== xpath
     );
   }
 

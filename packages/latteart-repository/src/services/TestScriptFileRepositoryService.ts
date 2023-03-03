@@ -19,7 +19,7 @@ import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
 import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import FileArchiver from "@/lib/FileArchiver";
+import FileArchiver from "@/services/helper/FileArchiver";
 import { StaticDirectoryService } from "./StaticDirectoryService";
 import os from "os";
 

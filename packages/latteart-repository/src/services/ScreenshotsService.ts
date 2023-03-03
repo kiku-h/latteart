@@ -20,7 +20,7 @@ import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TimestampService } from "./TimestampService";
 
 import path from "path";
-import FileArchiver from "@/lib/FileArchiver";
+import FileArchiver from "@/services/helper/FileArchiver";
 import fs from "fs-extra";
 import os from "os";
 

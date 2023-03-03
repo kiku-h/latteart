@@ -26,7 +26,7 @@ import { getRepository } from "typeorm";
 import { TestMatrixEntity } from "../entities/TestMatrixEntity";
 import { TestTargetGroupEntity } from "../entities/TestTargetGroupEntity";
 import { ViewPointEntity } from "../entities/ViewPointEntity";
-import { storyEntityToResponse } from "@/lib/entityToResponse";
+import { storyEntityToResponse } from "@/services/helper/entityToResponse";
 
 export interface ProjectsService {
   getProjectIdentifiers(): Promise<ProjectListResponse[]>;
