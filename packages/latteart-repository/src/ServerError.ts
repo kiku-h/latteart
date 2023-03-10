@@ -64,7 +64,8 @@ export type ServerErrorCode =
   | "patch_story_failed"
   | "get_story_failed"
   | "export_config_failed"
-  | "generate_sequence_view_failed";
+  | "generate_sequence_view_failed"
+  | "compare_test_results_failed";
 
 /**
  * Server error data.
