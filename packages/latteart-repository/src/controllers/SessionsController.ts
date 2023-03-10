@@ -16,7 +16,7 @@
 
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
+import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -30,7 +30,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { attachedFileDirectoryService, transactionRunner } from "..";
+import { attachedFileRepository, transactionRunner } from "..";
 
 import {
   PatchSessionDto,
@@ -91,8 +91,8 @@ export class SessionsController extends Controller {
     @Path() sessionId: string,
     @Body() requestBody: PatchSessionDto
   ): Promise<PatchSessionResponse> {
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: attachedFileDirectoryService,
+    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
+      fileRepository: attachedFileRepository,
     });
 
     try {
@@ -102,7 +102,7 @@ export class SessionsController extends Controller {
         requestBody,
         {
           timestampService: new TimestampServiceImpl(),
-          imageFileRepositoryService: imageFileRepositoryService,
+          attachedFileRepository: imageFileRepositoryService,
         },
         transactionRunner
       );

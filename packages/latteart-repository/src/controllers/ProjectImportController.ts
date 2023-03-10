@@ -24,9 +24,8 @@ import {
   Tags,
 } from "tsoa";
 import {
-  attachedFileDirectoryService,
-  screenshotDirectoryService,
-  tempDirectoryService,
+  attachedFileRepository,
+  screenshotFileRepository,
   transactionRunner,
 } from "..";
 import { ProjectImportService } from "@/services/ProjectImportService";
@@ -34,7 +33,6 @@ import { CreateProjectImportDto } from "../interfaces/ProjectImport";
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { TimestampServiceImpl } from "@/services/TimestampService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { ConfigsService } from "@/services/ConfigsService";
@@ -69,19 +67,9 @@ export class ProjectImportController extends Controller {
     try {
       const timestampService = new TimestampServiceImpl();
 
-      const screenshotRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: screenshotDirectoryService,
-      });
-      const attachedFileRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: attachedFileDirectoryService,
-      });
-      const importDirectoryRepositoryService =
-        new ImageFileRepositoryServiceImpl({
-          staticDirectory: tempDirectoryService,
-        });
       const configService = new ConfigsService();
       const testStepService = new TestStepServiceImpl({
-        imageFileRepository: screenshotRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: configService,
       });
@@ -91,7 +79,7 @@ export class ProjectImportController extends Controller {
         testStep: testStepService,
       });
       const notesService = new NotesServiceImpl({
-        imageFileRepository: screenshotRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
 
@@ -105,10 +93,8 @@ export class ProjectImportController extends Controller {
           timestampService,
           testResultService,
           testStepService,
-          screenshotRepositoryService,
-          attachedFileRepositoryService,
-          importDirectoryRepositoryService,
-          importDirectoryService: tempDirectoryService,
+          screenshotFileRepository,
+          attachedFileRepository,
           notesService,
           testPurposeService,
           transactionRunner,

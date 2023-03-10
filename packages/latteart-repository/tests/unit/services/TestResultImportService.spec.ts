@@ -1,9 +1,11 @@
-import { StaticDirectoryServiceImpl } from "@/services/StaticDirectoryService";
+import {
+  FileRepositoryImpl,
+  StaticDirectory,
+} from "@/gateways/fileRepository/staticDirectory";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TimestampService } from "@/services/TimestampService";
 import { getRepository } from "typeorm";
@@ -49,21 +51,16 @@ describe("TestResultImportService", () => {
         format: jest.fn().mockReturnValue("0"),
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
+      const staticDirectory = new StaticDirectory(tmpDirPath);
 
-      const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(
-          tmpDirPath,
-          "screenshots"
-        ),
-      });
-      const importFileRepositoryService = new ImportFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(tmpDirPath, "temp"),
-        imageFileRepository: imageFileRepositoryService,
-        timestamp: timestampService,
-      });
+      const screenshotFileRepository = new FileRepositoryImpl(
+        staticDirectory,
+        "screenshots"
+      );
+      const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
       const service = new TestResultImportService({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         importFileRepository: importFileRepositoryService,
         timestamp: timestampService,
       });
@@ -188,11 +185,11 @@ describe("TestResultImportService", () => {
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
-      const testStepImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const testStepImageFileUrl = screenshotFileRepository.getFileUrl(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(testStepScreenshotEntity?.fileUrl).toEqual(testStepImageFileUrl);
-      const testStepImageFilePath = imageFileRepositoryService.getFilePath(
+      const testStepImageFilePath = screenshotFileRepository.getFilePath(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(
@@ -209,11 +206,11 @@ describe("TestResultImportService", () => {
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;
-      const noteImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const noteImageFileUrl = screenshotFileRepository.getFileUrl(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(noteScreenshotEntity?.fileUrl).toEqual(noteImageFileUrl);
-      const noteImageFilePath = imageFileRepositoryService.getFilePath(
+      const noteImageFilePath = screenshotFileRepository.getFilePath(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(
@@ -285,20 +282,16 @@ describe("TestResultImportService", () => {
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
 
-      const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(
-          tmpDirPath,
-          "screenshots"
-        ),
-      });
-      const importFileRepositoryService = new ImportFileRepositoryServiceImpl({
-        staticDirectory: new StaticDirectoryServiceImpl(tmpDirPath, "temp"),
-        imageFileRepository: imageFileRepositoryService,
-        timestamp: timestampService,
-      });
+      const staticDirectory = new StaticDirectory(tmpDirPath);
+
+      const screenshotFileRepository = new FileRepositoryImpl(
+        staticDirectory,
+        "screenshots"
+      );
+      const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
       const service = new TestResultImportService({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         importFileRepository: importFileRepositoryService,
         timestamp: timestampService,
       });
@@ -424,11 +417,11 @@ describe("TestResultImportService", () => {
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
-      const testStepImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const testStepImageFileUrl = screenshotFileRepository.getFileUrl(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(testStepScreenshotEntity?.fileUrl).toEqual(testStepImageFileUrl);
-      const testStepImageFilePath = imageFileRepositoryService.getFilePath(
+      const testStepImageFilePath = screenshotFileRepository.getFilePath(
         `${testStepScreenshotEntity?.id}.webp`
       );
       expect(
@@ -445,11 +438,11 @@ describe("TestResultImportService", () => {
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;
-      const noteImageFileUrl = imageFileRepositoryService.getFileUrl(
+      const noteImageFileUrl = screenshotFileRepository.getFileUrl(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(noteScreenshotEntity?.fileUrl).toEqual(noteImageFileUrl);
-      const noteImageFilePath = imageFileRepositoryService.getFilePath(
+      const noteImageFilePath = screenshotFileRepository.getFilePath(
         `${noteScreenshotEntity?.id}.png`
       );
       expect(

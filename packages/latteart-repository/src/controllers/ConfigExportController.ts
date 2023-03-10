@@ -28,7 +28,7 @@ import {
   Tags,
   SuccessResponse,
 } from "tsoa";
-import { exportDirectoryService } from "..";
+import { exportFileRepository } from "..";
 import { ConfigExportService } from "@/services/ConfigExportService";
 
 @Route("projects/{projectId}/configs/export")
@@ -51,7 +51,7 @@ export class ConfigExportController extends Controller {
     const result = await new ConfigExportService().export(projectId, {
       configService: new ConfigsService(),
       timestampService: new TimestampServiceImpl(),
-      tempDirectoryService: exportDirectoryService,
+      exportFileRepository: exportFileRepository,
     });
 
     try {

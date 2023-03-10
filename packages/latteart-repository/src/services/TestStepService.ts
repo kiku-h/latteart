@@ -27,10 +27,10 @@ import {
 } from "@/interfaces/TestSteps";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ConfigsService } from "./ConfigsService";
 import { ElementInfo, Operation } from "@/lib/types";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -60,7 +60,7 @@ export interface TestStepService {
 export class TestStepServiceImpl implements TestStepService {
   constructor(
     private service: {
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
       config: ConfigsService;
     }
@@ -148,11 +148,14 @@ export class TestStepServiceImpl implements TestStepService {
       clientSizeWidth: requestBody.clientSize?.width,
       clientSizeHeight: requestBody.clientSize?.height,
     });
+    const fileName = `${newTestStepEntity.id}.png`;
+    await this.service.screenshotFileRepository.outputFile(
+      fileName,
+      requestBody.imageData,
+      "base64"
+    );
     const screenshot = new ScreenshotEntity({
-      fileUrl: await this.service.imageFileRepository.writeBase64ToFile(
-        `${newTestStepEntity.id}.png`,
-        requestBody.imageData
-      ),
+      fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
       testResult: savedTestResultEntity,
     });
     newTestStepEntity.screenshot = screenshot;

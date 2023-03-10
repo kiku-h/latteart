@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-import fs from "fs-extra";
-import { StaticDirectoryServiceImpl } from "./StaticDirectoryService";
+export type FileRepository = {
+  outputFile(
+    relativePath: string,
+    data: string | Buffer,
+    encoding?: "utf8" | "base64"
+  ): Promise<void>;
 
-export class TempFileService {
-  public async deleteFile(
-    fileName: string,
-    tempDirService: StaticDirectoryServiceImpl
-  ): Promise<void> {
-    const filePath = tempDirService.getJoinedPath(fileName);
-    await fs.remove(filePath);
-  }
-}
+  removeFile(relativePath: string): Promise<void>;
+
+  getFileUrl(relativePath: string): string;
+
+  getFilePath(relativePath: string): string;
+
+  moveFile(sourceFilePath: string, destRelativePath: string): Promise<void>;
+
+  copyFile(sourceFilePath: string, destRelativePath: string): Promise<void>;
+};

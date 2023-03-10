@@ -30,7 +30,6 @@ import {
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
-import { StaticDirectoryServiceImpl } from "./StaticDirectoryService";
 import { TestStepService } from "./TestStepService";
 import { TimestampService } from "./TimestampService";
 import path from "path";
@@ -42,6 +41,7 @@ import {
   SequenceView,
 } from "@/lib/sequenceViewGeneration";
 import { TestResultViewOption } from "@/lib/types";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 export interface TestResultService {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -172,7 +172,7 @@ export class TestResultServiceImpl implements TestResultService {
   public async deleteTestResult(
     testResultId: string,
     transactionRunner: TransactionRunner,
-    screenshotDirectoryService: StaticDirectoryServiceImpl
+    screenshotFileRepository: FileRepository
   ): Promise<void> {
     await transactionRunner.waitAndRun(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(NoteEntity, {
@@ -201,7 +201,7 @@ export class TestResultServiceImpl implements TestResultService {
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
 
       fileUrls.forEach((fileUrl) => {
-        screenshotDirectoryService.removeFile(path.basename(fileUrl));
+        screenshotFileRepository.removeFile(path.basename(fileUrl));
       });
     });
     return;

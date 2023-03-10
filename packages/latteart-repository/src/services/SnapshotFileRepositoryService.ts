@@ -18,7 +18,6 @@ import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
 import FileArchiver from "@/services/helper/FileArchiver";
-import { StaticDirectoryService } from "./StaticDirectoryService";
 import os from "os";
 import { Project } from "@/interfaces/Projects";
 import { TestResultService } from "./TestResultService";
@@ -26,11 +25,11 @@ import { ConfigsService } from "./ConfigsService";
 import { TestStepService } from "./TestStepService";
 import { NotesServiceImpl } from "./NotesService";
 import { TestPurposeServiceImpl } from "./TestPurposeService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { IssueReportService } from "./IssueReportService";
 import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
 import { convertToExportableConfig } from "@/services/helper/settingsConverter";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -41,8 +40,8 @@ export class SnapshotFileRepositoryServiceImpl
 {
   constructor(
     private service: {
-      staticDirectory: StaticDirectoryService;
-      imageFileRepository: ImageFileRepositoryService;
+      snapshotRepository: FileRepository;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
       testResult: TestResultService;
       testStep: TestStepService;
@@ -50,7 +49,7 @@ export class SnapshotFileRepositoryServiceImpl
       testPurpose: TestPurposeServiceImpl;
       config: ConfigsService;
       issueReport: IssueReportService;
-      attachedFileRepository: StaticDirectoryService;
+      attachedFileRepository: FileRepository;
       testProgress: TestProgressService;
     },
     private template: {
@@ -77,9 +76,9 @@ export class SnapshotFileRepositoryServiceImpl
     }).zip();
 
     const destPath = path.basename(zipFilePath);
-    await this.service.staticDirectory.moveFile(zipFilePath, destPath);
+    await this.service.snapshotRepository.moveFile(zipFilePath, destPath);
 
-    return this.service.staticDirectory.getFileUrl(destPath);
+    return this.service.snapshotRepository.getFileUrl(destPath);
   }
 
   private async outputProject(project: Project, locale: string) {
@@ -179,7 +178,7 @@ export class SnapshotFileRepositoryServiceImpl
       const attachedFileName = attachedFileUrl.split("/").slice(-1)[0];
 
       const attachedFilePath =
-        this.service.attachedFileRepository.getJoinedPath(attachedFileName);
+        this.service.attachedFileRepository.getFilePath(attachedFileName);
 
       await fs.copyFile(
         attachedFilePath,
@@ -380,7 +379,9 @@ export class SnapshotFileRepositoryServiceImpl
       .split("/")
       .slice(-1)[0];
     const sourceScreenshotFilePath =
-      this.service.imageFileRepository.getFilePath(operationScreenshotFileName);
+      this.service.screenshotFileRepository.getFilePath(
+        operationScreenshotFileName
+      );
     const destScreenshotFilePath = path.join(
       destDirectoryName,
       path.basename(sourceScreenshotFilePath)

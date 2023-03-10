@@ -25,10 +25,10 @@ import {
   PostSessionResponse,
   Session,
 } from "@/interfaces/Sessions";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 import { sessionEntityToResponse } from "@/services/helper/entityToResponse";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository } from "typeorm";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { TestProgressServiceImpl } from "./TestProgressService";
 import { TimestampService } from "./TimestampService";
 
@@ -72,7 +72,7 @@ export class SessionsService {
     requestBody: PatchSessionDto,
     service: {
       timestampService: TimestampService;
-      imageFileRepositoryService: ImageFileRepositoryService;
+      attachedFileRepository: FileRepository;
     },
     transactionRunner: TransactionRunner
   ): Promise<PatchSessionResponse> {
@@ -171,7 +171,7 @@ export class SessionsService {
     requestAttachedFiles: PatchSessionDto["attachedFiles"],
     service: {
       timestampService: TimestampService;
-      imageFileRepositoryService: ImageFileRepositoryService;
+      attachedFileRepository: FileRepository;
     }
   ): Promise<AttachedFileEntity[]> {
     if (!requestAttachedFiles) {
@@ -192,13 +192,16 @@ export class SessionsService {
         }
         result.push(existsAttachedFile);
       } else if (attachedFile.fileData) {
+        const fileName = `${service.timestampService.unix().toString()}_${
+          attachedFile.name
+        }`;
+        await service.attachedFileRepository.outputFile(
+          fileName,
+          attachedFile.fileData,
+          "base64"
+        );
         const attachedFileImageUrl =
-          await service.imageFileRepositoryService.writeBase64ToFile(
-            `${service.timestampService.unix().toString()}_${
-              attachedFile.name
-            }`,
-            attachedFile?.fileData as string
-          );
+          service.attachedFileRepository.getFileUrl(fileName);
 
         result.push(
           new AttachedFileEntity({

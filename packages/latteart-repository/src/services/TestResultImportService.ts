@@ -27,16 +27,16 @@ import { TestStepEntity } from "@/entities/TestStepEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { NoteEntity } from "@/entities/NoteEntity";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TagEntity } from "@/entities/TagEntity";
 import { TimestampService } from "./TimestampService";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 export class TestResultImportService {
   constructor(
     private service: {
       importFileRepository: ImportFileRepositoryService;
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -109,11 +109,14 @@ export class TestResultImportService {
             const substrings = screenshot.filePath.split(".");
             const fileExt =
               substrings.length >= 2 ? `.${substrings.pop()}` : "";
+            const fileName = `${screenshotEntity.id}${fileExt}`;
+            await this.service.screenshotFileRepository.outputFile(
+              fileName,
+              screenshot.data,
+              "base64"
+            );
             const imageFileUrl =
-              await this.service.imageFileRepository.writeBase64ToFile(
-                `${screenshotEntity.id}${fileExt}`,
-                screenshot.data
-              );
+              this.service.screenshotFileRepository.getFileUrl(fileName);
             screenshotEntity.fileUrl = imageFileUrl;
 
             return [screenshot.filePath, screenshotEntity];
