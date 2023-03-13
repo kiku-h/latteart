@@ -23,6 +23,15 @@ import { publicDirPath } from "@/common";
 export class StaticDirectory {
   constructor(private staticRootPath: string) {}
 
+  public async readFile(
+    relativePath: string,
+    encoding?: "utf8" | "base64" | "binary"
+  ): Promise<string | Buffer> {
+    return fs.promises.readFile(path.join(this.staticRootPath, relativePath), {
+      encoding,
+    });
+  }
+
   public async outputFile(
     relativePath: string,
     data: string | Buffer,
@@ -72,6 +81,16 @@ export class FileRepositoryImpl implements FileRepository {
     private staticDirectory: StaticDirectory,
     private directoryPath: string
   ) {}
+
+  public async readFile(
+    relativePath: string,
+    encoding?: "utf8" | "base64" | "binary"
+  ): Promise<string | Buffer> {
+    return this.staticDirectory.readFile(
+      path.join(this.directoryPath, relativePath),
+      encoding
+    );
+  }
 
   public async outputFile(
     relativePath: string,

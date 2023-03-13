@@ -20,6 +20,7 @@ describe("NotesService", () => {
   describe("#createNote", () => {
     it("メモを1件新規追加する", async () => {
       const screenshotFileRepository: FileRepository = {
+        readFile: jest.fn(),
         outputFile: jest.fn(),
         removeFile: jest.fn(),
         getFileUrl: jest.fn(),

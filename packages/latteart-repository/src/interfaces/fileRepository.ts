@@ -15,6 +15,11 @@
  */
 
 export type FileRepository = {
+  readFile(
+    relativePath: string,
+    encoding?: "utf8" | "base64" | "binary"
+  ): Promise<string | Buffer>;
+
   outputFile(
     relativePath: string,
     data: string | Buffer,

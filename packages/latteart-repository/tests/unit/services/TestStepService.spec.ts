@@ -23,6 +23,7 @@ describe("TestStepService", () => {
   describe("#createTestStep", () => {
     it("テストステップを1件新規追加する", async () => {
       const screenshotFileRepository: FileRepository = {
+        readFile: jest.fn(),
         outputFile: jest.fn(),
         removeFile: jest.fn(),
         getFileUrl: jest.fn().mockReturnValue("testStep.png"),
@@ -126,6 +127,7 @@ describe("TestStepService", () => {
   describe("#getTestStep", () => {
     it("テストステップを1件取得する", async () => {
       const screenshotFileRepository: FileRepository = {
+        readFile: jest.fn(),
         outputFile: jest.fn(),
         removeFile: jest.fn(),
         getFileUrl: jest.fn(),

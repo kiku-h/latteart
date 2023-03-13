@@ -196,6 +196,7 @@ function createServiceMock(params: { doneDate: string }) {
     epochMilliseconds: jest.fn(),
   };
   const attachedFileRepository: FileRepository = {
+    readFile: jest.fn(),
     outputFile: jest.fn(),
     removeFile: jest.fn(),
     getFileUrl: jest.fn().mockReturnValue("testStep.png"),

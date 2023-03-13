@@ -55,6 +55,7 @@ export const createTestStepServiceMock = (): TestStepService => {
 
 export const createStaticDirectoryServiceMock = (): FileRepository => {
   return {
+    readFile: jest.fn(),
     outputFile: jest.fn(),
     removeFile: jest.fn(),
     getFileUrl: jest.fn(),
