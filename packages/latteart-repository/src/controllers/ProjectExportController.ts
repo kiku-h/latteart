@@ -30,15 +30,14 @@ import {
   Tags,
 } from "tsoa";
 import {
-  exportDirectoryService,
-  screenshotDirectoryService,
+  exportFileRepository,
+  screenshotFileRepository,
   transactionRunner,
 } from "..";
 import { ExportServiceImpl } from "@/services/ExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
@@ -65,19 +64,15 @@ export class ProjectExportController extends Controller {
   ): Promise<{ url: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
-      const screenshotFileRepositoryService =
-        new ImageFileRepositoryServiceImpl({
-          staticDirectory: screenshotDirectoryService,
-        });
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-        staticDirectory: exportDirectoryService,
-        imageFileRepository: screenshotFileRepositoryService,
+        exportFileRepository: exportFileRepository,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
       const testResultService = new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: screenshotFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),

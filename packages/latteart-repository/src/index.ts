@@ -24,7 +24,7 @@ import { ValidateError } from "tsoa";
 import LoggingService from "./logger/LoggingService";
 import StandardLogger, { RunningMode } from "./logger/StandardLogger";
 import bodyParser from "body-parser";
-import { SettingsUtility } from "./services/helper/settings/SettingsUtility";
+import { SettingsUtility } from "./gateways/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
 import { ConnectionOptions, createConnection } from "typeorm";
 import { NoteEntity } from "./entities/NoteEntity";
@@ -37,7 +37,10 @@ import { CoverageSourceEntity } from "./entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "./entities/TestPurposeEntity";
 import { TestResultEntity } from "./entities/TestResultEntity";
 import { ScreenshotEntity } from "./entities/ScreenshotEntity";
-import { StaticDirectoryServiceImpl } from "./services/StaticDirectoryService";
+import {
+  FileRepositoryImpl,
+  StaticDirectory,
+} from "./gateways/fileRepository/staticDirectory";
 import { AttachedFileEntity } from "./entities/AttachedFilesEntity";
 import { ConfigEntity } from "./entities/ConfigEntity";
 import { ProjectEntity } from "./entities/ProjectEntity";
@@ -71,33 +74,30 @@ LoggingService.initialize(
   )
 );
 
-export const screenshotDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
+const staticDirectory = new StaticDirectory(publicDirPath);
+
+export const screenshotFileRepository = new FileRepositoryImpl(
+  staticDirectory,
   "screenshots"
 );
-export const attachedFileDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
+export const attachedFileRepository = new FileRepositoryImpl(
+  staticDirectory,
   "attached-files"
 );
-export const snapshotDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
+export const snapshotRepository = new FileRepositoryImpl(
+  staticDirectory,
   "snapshots"
 );
-export const testScriptDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
+export const testScriptRepository = new FileRepositoryImpl(
+  staticDirectory,
   "test-scripts"
 );
-export const importDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
-  "imports"
-);
-export const exportDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
+export const exportFileRepository = new FileRepositoryImpl(
+  staticDirectory,
   "exports"
 );
-
-export const tempDirectoryService = new StaticDirectoryServiceImpl(
-  publicDirPath,
+export const tempFileRepository = new FileRepositoryImpl(
+  staticDirectory,
   "temp"
 );
 

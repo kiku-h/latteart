@@ -18,10 +18,9 @@ import { TestScriptDocRenderingService } from "./testScriptDocRendering/TestScri
 import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import { ImageFileRepositoryService } from "./ImageFileRepositoryService";
-import FileArchiver from "@/services/helper/FileArchiver";
-import { StaticDirectoryService } from "./StaticDirectoryService";
+import FileArchiver from "@/gateways/fileRepository/FileArchiver";
 import os from "os";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 export interface TestScriptFileRepositoryService {
   write(
@@ -49,9 +48,9 @@ export class TestScriptFileRepositoryServiceImpl
 {
   constructor(
     private service: {
-      staticDirectory: StaticDirectoryService;
+      testScriptRepository: FileRepository;
       testScriptDocRendering: TestScriptDocRenderingService;
-      imageFileRepository: ImageFileRepositoryService;
+      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -79,7 +78,7 @@ export class TestScriptFileRepositoryServiceImpl
     const screenshotFilePaths = screenshots.map(({ fileUrl }) => {
       const fileName = fileUrl.split("/").slice(-1)[0];
 
-      return this.service.imageFileRepository.getFilePath(fileName);
+      return this.service.screenshotFileRepository.getFilePath(fileName);
     });
 
     await this.service.testScriptDocRendering.render(
@@ -91,12 +90,14 @@ export class TestScriptFileRepositoryServiceImpl
       deleteSource: true,
     }).zip();
 
-    await this.service.staticDirectory.moveFile(
+    await this.service.testScriptRepository.moveFile(
       zipFilePath,
       path.basename(zipFilePath)
     );
 
-    return this.service.staticDirectory.getFileUrl(path.basename(zipFilePath));
+    return this.service.testScriptRepository.getFileUrl(
+      path.basename(zipFilePath)
+    );
   }
 
   private async outputScripts(testScripts: {

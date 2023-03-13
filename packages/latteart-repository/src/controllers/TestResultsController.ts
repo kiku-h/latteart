@@ -18,7 +18,6 @@ import { ListSessionResponse } from "../interfaces/Sessions";
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { SessionsService } from "@/services/SessionsService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
@@ -35,7 +34,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, transactionRunner } from "..";
+import { screenshotFileRepository, transactionRunner } from "..";
 import {
   ListTestResultResponse,
   CreateTestResultResponse,
@@ -60,14 +59,11 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getTestResultIdentifiers");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
 
     return new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -95,15 +91,12 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
 
     try {
       const testResult = await new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
@@ -149,15 +142,12 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - createTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
 
     try {
       const result = await new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
@@ -196,15 +186,12 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - updateTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
 
     try {
       return await new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          imageFileRepository: imageFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),
@@ -236,13 +223,11 @@ export class TestResultsController extends Controller {
   @Delete("{testResultId}")
   public async deleteTestResult(@Path() testResultId: string): Promise<void> {
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -252,7 +237,7 @@ export class TestResultsController extends Controller {
       return await service.deleteTestResult(
         testResultId,
         transactionRunner,
-        screenshotDirectoryService
+        screenshotFileRepository
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -299,13 +284,11 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getSequenceView");
 
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
+
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),

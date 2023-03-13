@@ -1,7 +1,5 @@
-import { ImageFileRepositoryService } from "@/services/ImageFileRepositoryService";
 import { NotesService } from "@/services/NotesService";
 import { ProjectImportService } from "@/services/ProjectImportService";
-import { StaticDirectoryService } from "@/services/StaticDirectoryService";
 import { TestPurposeService } from "@/services/TestPurposeService";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
@@ -13,14 +11,14 @@ import {
   createTimestampServiceMock,
   createTestResultServiceMock,
   createTestStepServiceMock,
-  createImageFileRepositoryServiceMock,
-  createStaticDirectoryServiceMock,
   createNotesServiceMock,
   createTestPurposeServiceMock,
+  createStaticDirectoryServiceMock,
 } from "../../helper/createServiceMock";
 import { ProgressData, Project } from "@/interfaces/Projects";
 import { getRepository } from "typeorm";
 import { ProjectEntity } from "@/entities/ProjectEntity";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -37,10 +35,9 @@ describe("ProjectImportService", () => {
     let timestampService: TimestampService;
     let testResultService: TestResultService;
     let testStepService: TestStepService;
-    let screenshotRepositoryService: ImageFileRepositoryService;
-    let attachedFileRepositoryService: ImageFileRepositoryService;
-    let importDirectoryRepositoryService: ImageFileRepositoryService;
-    let importDirectoryService: StaticDirectoryService;
+    let screenshotRepositoryService: FileRepository;
+    let attachedFileRepositoryService: FileRepository;
+    let importDirectoryRepositoryService: FileRepository;
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
 
@@ -48,10 +45,9 @@ describe("ProjectImportService", () => {
       timestampService = createTimestampServiceMock();
       testResultService = createTestResultServiceMock();
       testStepService = createTestStepServiceMock();
-      screenshotRepositoryService = createImageFileRepositoryServiceMock();
-      attachedFileRepositoryService = createImageFileRepositoryServiceMock();
-      importDirectoryRepositoryService = createImageFileRepositoryServiceMock();
-      importDirectoryService = createStaticDirectoryServiceMock();
+      screenshotRepositoryService = createStaticDirectoryServiceMock();
+      attachedFileRepositoryService = createStaticDirectoryServiceMock();
+      importDirectoryRepositoryService = createStaticDirectoryServiceMock();
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
     });
@@ -81,10 +77,8 @@ describe("ProjectImportService", () => {
           timestampService,
           testResultService,
           testStepService,
-          screenshotRepositoryService,
-          attachedFileRepositoryService,
-          importDirectoryRepositoryService,
-          importDirectoryService,
+          screenshotFileRepository: screenshotRepositoryService,
+          attachedFileRepository: attachedFileRepositoryService,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
@@ -123,10 +117,8 @@ describe("ProjectImportService", () => {
           timestampService,
           testResultService,
           testStepService,
-          screenshotRepositoryService,
-          attachedFileRepositoryService,
-          importDirectoryRepositoryService,
-          importDirectoryService,
+          screenshotFileRepository: screenshotRepositoryService,
+          attachedFileRepository: attachedFileRepositoryService,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
@@ -266,8 +258,7 @@ describe("ProjectImportService", () => {
   describe("#importProject", () => {
     it("プロジェクトの登録", async () => {
       const timestampService = createTimestampServiceMock();
-      const attachedFileRepositoryService =
-        createImageFileRepositoryServiceMock();
+      const attachedFileRepositoryService = createStaticDirectoryServiceMock();
       const progressJson = {};
 
       const projectJson: Project & {
@@ -364,7 +355,7 @@ describe("ProjectImportService", () => {
       const service = new ProjectImportService();
       const projectId = await service["importProject"](projectData, new Map(), {
         timestampService,
-        attachedFileRepositoryService,
+        attachedFileRepository: attachedFileRepositoryService,
         transactionRunner: new TransactionRunner(),
       });
 

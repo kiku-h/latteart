@@ -17,7 +17,6 @@
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { IssueReportOutputServiceImpl } from "@/services/IssueReportOutputService";
 import { IssueReportServiceImpl } from "@/services/IssueReportService";
 import { NotesServiceImpl } from "@/services/NotesService";
@@ -38,9 +37,9 @@ import {
   SuccessResponse,
 } from "tsoa";
 import {
-  attachedFileDirectoryService,
-  screenshotDirectoryService,
-  snapshotDirectoryService,
+  attachedFileRepository,
+  screenshotFileRepository,
+  snapshotRepository,
   transactionRunner,
 } from "..";
 import { CreateResponse } from "../interfaces/Snapshots";
@@ -88,12 +87,9 @@ export class SnapshotsController extends Controller {
 
   private createSnapshotsService() {
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
 
     const testStepService = new TestStepServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
       config: new ConfigsService(),
     });
@@ -104,7 +100,7 @@ export class SnapshotsController extends Controller {
     });
 
     const noteService = new NotesServiceImpl({
-      imageFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 
@@ -120,8 +116,8 @@ export class SnapshotsController extends Controller {
 
     const snapshotFileRepositoryService = new SnapshotFileRepositoryServiceImpl(
       {
-        staticDirectory: snapshotDirectoryService,
-        imageFileRepository: imageFileRepositoryService,
+        snapshotRepository: snapshotRepository,
+        screenshotFileRepository,
         timestamp: timestampService,
         testResult: testResultService,
         testStep: testStepService,
@@ -129,7 +125,7 @@ export class SnapshotsController extends Controller {
         testPurpose: testPurposeService,
         config: new ConfigsService(),
         issueReport: issueReportService,
-        attachedFileRepository: attachedFileDirectoryService,
+        attachedFileRepository: attachedFileRepository,
         testProgress: new TestProgressServiceImpl(transactionRunner),
       },
       {

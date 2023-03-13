@@ -17,7 +17,6 @@
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestScriptJSDocRenderingService } from "@/services/testScriptDocRendering/TestScriptJSDocRenderingService";
 import { TestScriptFileRepositoryServiceImpl } from "@/services/TestScriptFileRepositoryService";
@@ -33,7 +32,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, testScriptDirectoryService } from "..";
+import { screenshotFileRepository, testScriptRepository } from "..";
 import { CreateTestScriptDto } from "../interfaces/TestScripts";
 import { TestScriptsService } from "../services/TestScriptsService";
 
@@ -58,14 +57,10 @@ export class TestScriptsController extends Controller {
   ): Promise<{ url: string; invalidOperationTypeExists: boolean }> {
     const timestampService = new TimestampServiceImpl();
 
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
-
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -73,9 +68,9 @@ export class TestScriptsController extends Controller {
 
     const testScriptFileRepositoryService =
       new TestScriptFileRepositoryServiceImpl({
-        staticDirectory: testScriptDirectoryService,
+        testScriptRepository: testScriptRepository,
         testScriptDocRendering: new TestScriptJSDocRenderingService(),
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
 

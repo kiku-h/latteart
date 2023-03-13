@@ -15,7 +15,7 @@
  */
 
 import { exec } from "child_process";
-import LoggingService from "../../../logger/LoggingService";
+import LoggingService from "../../logger/LoggingService";
 import encoding from "encoding-japanese";
 
 /**

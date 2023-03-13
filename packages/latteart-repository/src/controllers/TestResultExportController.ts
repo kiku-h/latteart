@@ -18,7 +18,6 @@ import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportServiceImpl } from "@/services/ExportService";
-import { ImageFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -34,9 +33,9 @@ import {
   SuccessResponse,
 } from "tsoa";
 import {
-  exportDirectoryService,
-  screenshotDirectoryService,
-  tempDirectoryService,
+  exportFileRepository,
+  screenshotFileRepository,
+  tempFileRepository,
 } from "..";
 import { CreateTestResultExportDto } from "../interfaces/TestResultExport";
 
@@ -61,24 +60,20 @@ export class TestResultExportController extends Controller {
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
 
-    const imageFileRepositoryService = new ImageFileRepositoryServiceImpl({
-      staticDirectory: screenshotDirectoryService,
-    });
-
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        imageFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
     });
 
     const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-      staticDirectory: requestBody?.temp
-        ? tempDirectoryService
-        : exportDirectoryService,
-      imageFileRepository: imageFileRepositoryService,
+      exportFileRepository: requestBody?.temp
+        ? tempFileRepository
+        : exportFileRepository,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 

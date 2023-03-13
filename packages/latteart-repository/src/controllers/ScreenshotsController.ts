@@ -27,7 +27,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotDirectoryService, tempDirectoryService } from "..";
+import { screenshotFileRepository, tempFileRepository } from "..";
 
 @Route("test-results/{testResultId}/screenshots")
 @Tags("test-results")
@@ -50,8 +50,8 @@ export class ScreenshotsController extends Controller {
     try {
       const url = await new ScreenshotsService().getScreenshots(
         testResultId,
-        tempDirectoryService,
-        screenshotDirectoryService,
+        tempFileRepository,
+        screenshotFileRepository,
         timestampService
       );
       return { url };

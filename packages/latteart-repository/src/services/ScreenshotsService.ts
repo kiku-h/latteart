@@ -16,19 +16,18 @@
 
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
-import { StaticDirectoryService } from "./StaticDirectoryService";
 import { TimestampService } from "./TimestampService";
-
 import path from "path";
-import FileArchiver from "@/services/helper/FileArchiver";
+import FileArchiver from "@/gateways/fileRepository/FileArchiver";
 import fs from "fs-extra";
 import os from "os";
+import { FileRepository } from "@/interfaces/StaticDirectory";
 
 export class ScreenshotsService {
   public async getScreenshots(
     testResultId: string,
-    tempDirectoryService: StaticDirectoryService,
-    screenshotDirectoryService: StaticDirectoryService,
+    fileRepository: FileRepository,
+    screenshotFileRepository: FileRepository,
     timestampService: TimestampService
   ): Promise<string> {
     const testResult = await getRepository(TestResultEntity).findOne(
@@ -56,7 +55,7 @@ export class ScreenshotsService {
 
     await Promise.all(
       screenshotFileNames.map(async (fileName, index) => {
-        const filePath = screenshotDirectoryService.getJoinedPath(fileName);
+        const filePath = screenshotFileRepository.getFilePath(fileName);
         return await fs.copyFile(
           filePath,
           path.join(dirPath, `${index + 1}${path.extname(fileName)}`)
@@ -71,8 +70,8 @@ export class ScreenshotsService {
     const zipFileName = `screenshots_${
       testResult.name
     }_${timestampService.format("YYYYMMDD_HHmmss")}.zip`;
-    await tempDirectoryService.moveFile(tmpZipFilePath, zipFileName);
+    await fileRepository.moveFile(tmpZipFilePath, zipFileName);
 
-    return tempDirectoryService.getFileUrl(zipFileName);
+    return fileRepository.getFileUrl(zipFileName);
   }
 }
