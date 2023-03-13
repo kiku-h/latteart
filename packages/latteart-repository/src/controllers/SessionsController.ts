@@ -16,7 +16,6 @@
 
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -91,10 +90,6 @@ export class SessionsController extends Controller {
     @Path() sessionId: string,
     @Body() requestBody: PatchSessionDto
   ): Promise<PatchSessionResponse> {
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: attachedFileRepository,
-    });
-
     try {
       return await new SessionsService().patchSession(
         projectId,
@@ -102,7 +97,7 @@ export class SessionsController extends Controller {
         requestBody,
         {
           timestampService: new TimestampServiceImpl(),
-          attachedFileRepository: imageFileRepositoryService,
+          attachedFileRepository,
         },
         transactionRunner
       );

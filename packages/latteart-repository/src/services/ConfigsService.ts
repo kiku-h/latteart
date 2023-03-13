@@ -17,7 +17,7 @@
 import { BackendConfig, PutConfigDto } from "../interfaces/Configs";
 import { getRepository } from "typeorm";
 import { ConfigEntity } from "../entities/ConfigEntity";
-import { SettingsUtility } from "./helper/settings/SettingsUtility";
+import { SettingsUtility } from "../gateways/settings/SettingsUtility";
 
 export class ConfigsService {
   private static imageCompressionCommand = "";

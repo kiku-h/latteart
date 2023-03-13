@@ -1,4 +1,4 @@
-import { executeExternalCommand } from "@/services/helper/settings/util";
+import { executeExternalCommand } from "@/gateways/settings/util";
 
 describe("util.", () => {
   describe("executeExternalCommand", () => {

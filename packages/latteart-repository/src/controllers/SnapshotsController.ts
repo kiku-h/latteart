@@ -17,7 +17,6 @@
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { IssueReportOutputServiceImpl } from "@/services/IssueReportOutputService";
 import { IssueReportServiceImpl } from "@/services/IssueReportService";
 import { NotesServiceImpl } from "@/services/NotesService";
@@ -88,12 +87,9 @@ export class SnapshotsController extends Controller {
 
   private createSnapshotsService() {
     const timestampService = new TimestampServiceImpl();
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
 
     const testStepService = new TestStepServiceImpl({
-      screenshotFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
       config: new ConfigsService(),
     });
@@ -104,7 +100,7 @@ export class SnapshotsController extends Controller {
     });
 
     const noteService = new NotesServiceImpl({
-      screenshotFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 
@@ -121,7 +117,7 @@ export class SnapshotsController extends Controller {
     const snapshotFileRepositoryService = new SnapshotFileRepositoryServiceImpl(
       {
         snapshotRepository: snapshotRepository,
-        screenshotFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         testResult: testResultService,
         testStep: testStepService,

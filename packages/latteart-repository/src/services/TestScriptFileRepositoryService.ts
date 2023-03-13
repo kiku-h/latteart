@@ -18,7 +18,7 @@ import { TestScriptDocRenderingService } from "./testScriptDocRendering/TestScri
 import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/services/helper/FileArchiver";
+import FileArchiver from "@/gateways/fileRepository/FileArchiver";
 import os from "os";
 import { FileRepository } from "@/interfaces/StaticDirectory";
 

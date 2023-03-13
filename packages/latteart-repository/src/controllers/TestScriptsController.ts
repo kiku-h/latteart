@@ -17,7 +17,6 @@
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TestScriptJSDocRenderingService } from "@/services/testScriptDocRendering/TestScriptJSDocRenderingService";
 import { TestScriptFileRepositoryServiceImpl } from "@/services/TestScriptFileRepositoryService";
@@ -58,14 +57,10 @@ export class TestScriptsController extends Controller {
   ): Promise<{ url: string; invalidOperationTypeExists: boolean }> {
     const timestampService = new TimestampServiceImpl();
 
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
-
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        screenshotFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -75,7 +70,7 @@ export class TestScriptsController extends Controller {
       new TestScriptFileRepositoryServiceImpl({
         testScriptRepository: testScriptRepository,
         testScriptDocRendering: new TestScriptJSDocRenderingService(),
-        screenshotFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
 

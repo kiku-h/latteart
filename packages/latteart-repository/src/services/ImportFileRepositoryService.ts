@@ -15,7 +15,7 @@
  */
 
 import path from "path";
-import { readZip } from "@/services/helper/zipReader";
+import { readZip } from "@/gateways/fileRepository/zipReader";
 
 export interface ImportFileRepositoryService {
   readImportFile(base64FileData: string): Promise<{

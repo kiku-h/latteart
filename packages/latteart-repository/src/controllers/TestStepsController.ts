@@ -17,7 +17,6 @@
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
@@ -62,13 +61,9 @@ export class TestStepsController extends Controller {
   ): Promise<CreateTestStepResponse> {
     console.log("TestStepsController - addTestStep");
 
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
-
     try {
       return await new TestStepServiceImpl({
-        screenshotFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: new TimestampServiceImpl(),
         config: new ConfigsService(),
       }).createTestStep(testResultId, requestBody);
@@ -102,12 +97,8 @@ export class TestStepsController extends Controller {
   ): Promise<GetTestStepResponse> {
     console.log("TestStepsController - getTestStep");
 
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
-
     const testStepService = new TestStepServiceImpl({
-      screenshotFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
       config: new ConfigsService(),
     });
@@ -146,12 +137,8 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string,
     @Body() requestBody: PatchTestStepDto
   ): Promise<PatchTestStepResponse> {
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
-
     const testStepService = new TestStepServiceImpl({
-      screenshotFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
       config: new ConfigsService(),
     });

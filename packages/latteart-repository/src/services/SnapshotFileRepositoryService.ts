@@ -17,7 +17,7 @@
 import path from "path";
 import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/services/helper/FileArchiver";
+import FileArchiver from "@/gateways/fileRepository/FileArchiver";
 import os from "os";
 import { Project } from "@/interfaces/Projects";
 import { TestResultService } from "./TestResultService";

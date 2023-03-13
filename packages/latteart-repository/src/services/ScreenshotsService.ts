@@ -18,7 +18,7 @@ import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import path from "path";
-import FileArchiver from "@/services/helper/FileArchiver";
+import FileArchiver from "@/gateways/fileRepository/FileArchiver";
 import fs from "fs-extra";
 import os from "os";
 import { FileRepository } from "@/interfaces/StaticDirectory";

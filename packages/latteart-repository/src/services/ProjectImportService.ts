@@ -18,7 +18,7 @@ import { ProjectEntity } from "@/entities/ProjectEntity";
 import { ProgressData, Project } from "@/interfaces/Projects";
 import { TestResultService } from "./TestResultService";
 import path from "path";
-import { readZip } from "@/services/helper/zipReader";
+import { readZip } from "@/gateways/fileRepository/zipReader";
 import { TestPurposeService } from "./TestPurposeService";
 import { NotesService } from "./NotesService";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";

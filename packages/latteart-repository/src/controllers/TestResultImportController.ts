@@ -16,7 +16,6 @@
 
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import {
   Controller,
@@ -51,16 +50,12 @@ export class TestResultImportController extends Controller {
   ): Promise<{ testResultId: string }> {
     const timestampService = new TimestampServiceImpl();
 
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
-
     const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
     try {
       const result = await new TestResultImportService({
         importFileRepository: importFileRepositoryService,
-        screenshotFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       }).importTestResult(
         requestBody.source.testResultFile,

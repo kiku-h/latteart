@@ -18,7 +18,6 @@ import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportServiceImpl } from "@/services/ExportService";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
@@ -61,14 +60,10 @@ export class TestResultExportController extends Controller {
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
 
-    const imageFileRepositoryService = new BinaryFileRepositoryServiceImpl({
-      fileRepository: screenshotFileRepository,
-    });
-
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
       testStep: new TestStepServiceImpl({
-        screenshotFileRepository: imageFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
         config: new ConfigsService(),
       }),
@@ -78,7 +73,7 @@ export class TestResultExportController extends Controller {
       exportFileRepository: requestBody?.temp
         ? tempFileRepository
         : exportFileRepository,
-      screenshotFileRepository: imageFileRepositoryService,
+      screenshotFileRepository,
       timestamp: timestampService,
     });
 

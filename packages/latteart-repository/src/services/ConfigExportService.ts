@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
 import { ConfigsService } from "./ConfigsService";
 import { convertToExportableConfig } from "@/services/helper/settingsConverter";
@@ -36,8 +35,11 @@ export class ConfigExportService {
     const fileName = `config_${service.timestampService.format(
       "YYYYMMDD_HHmmss"
     )}.json`;
-    const filePath = service.exportFileRepository.getFilePath(fileName);
-    await fs.outputFile(filePath, JSON.stringify(config, null, 2), "utf-8");
+
+    await service.exportFileRepository.outputFile(
+      fileName,
+      JSON.stringify(config, null, 2)
+    );
 
     return service.exportFileRepository.getFileUrl(fileName);
   }

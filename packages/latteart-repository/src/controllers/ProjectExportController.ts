@@ -38,7 +38,6 @@ import { ExportServiceImpl } from "@/services/ExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { TestStepServiceImpl } from "@/services/TestStepService";
-import { BinaryFileRepositoryServiceImpl } from "@/services/ImageFileRepositoryService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
@@ -65,19 +64,15 @@ export class ProjectExportController extends Controller {
   ): Promise<{ url: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
-      const screenshotFileRepositoryService =
-        new BinaryFileRepositoryServiceImpl({
-          fileRepository: screenshotFileRepository,
-        });
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
         exportFileRepository: exportFileRepository,
-        screenshotFileRepository: screenshotFileRepositoryService,
+        screenshotFileRepository,
         timestamp: timestampService,
       });
       const testResultService = new TestResultServiceImpl({
         timestamp: timestampService,
         testStep: new TestStepServiceImpl({
-          screenshotFileRepository: screenshotFileRepositoryService,
+          screenshotFileRepository,
           timestamp: timestampService,
           config: new ConfigsService(),
         }),

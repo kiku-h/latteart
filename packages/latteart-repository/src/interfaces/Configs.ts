@@ -19,7 +19,7 @@ import {
   AutofillSetting,
   AutoOperationSetting,
   Coverage,
-} from "../services/helper/settings/Settings";
+} from "../gateways/settings/Settings";
 
 /**
  * Data for setting update.
