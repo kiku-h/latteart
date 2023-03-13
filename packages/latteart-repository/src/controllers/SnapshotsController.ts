@@ -36,18 +36,18 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  attachedFileRepository,
-  screenshotFileRepository,
-  snapshotRepository,
-  transactionRunner,
-} from "..";
+import { transactionRunner } from "..";
 import { CreateResponse } from "../interfaces/Snapshots";
 import { SnapshotsService } from "../services/SnapshotsService";
 import path from "path";
 import { appRootPath } from "@/common";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import { SnapshotConfig } from "../interfaces/Configs";
+import {
+  createAttachedFileRepository,
+  createScreenshotFileRepository,
+  createSnapshotRepository,
+} from "@/gateways/fileRepository/staticDirectory";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -87,6 +87,9 @@ export class SnapshotsController extends Controller {
 
   private createSnapshotsService() {
     const timestampService = new TimestampServiceImpl();
+    const screenshotFileRepository = createScreenshotFileRepository();
+    const snapshotRepository = createSnapshotRepository();
+    const attachedFileRepository = createAttachedFileRepository();
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,
@@ -116,7 +119,7 @@ export class SnapshotsController extends Controller {
 
     const snapshotFileRepositoryService = new SnapshotFileRepositoryServiceImpl(
       {
-        snapshotRepository: snapshotRepository,
+        snapshotRepository,
         screenshotFileRepository,
         timestamp: timestampService,
         testResult: testResultService,
@@ -125,7 +128,7 @@ export class SnapshotsController extends Controller {
         testPurpose: testPurposeService,
         config: new ConfigsService(),
         issueReport: issueReportService,
-        attachedFileRepository: attachedFileRepository,
+        attachedFileRepository,
         testProgress: new TestProgressServiceImpl(transactionRunner),
       },
       {

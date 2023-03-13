@@ -29,7 +29,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { attachedFileRepository, transactionRunner } from "..";
+import { transactionRunner } from "..";
 
 import {
   PatchSessionDto,
@@ -37,6 +37,7 @@ import {
   PostSessionResponse,
 } from "../interfaces/Sessions";
 import { SessionsService } from "../services/SessionsService";
+import { createAttachedFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 @Route("projects/{projectId}/sessions")
 @Tags("projects")
@@ -90,6 +91,7 @@ export class SessionsController extends Controller {
     @Path() sessionId: string,
     @Body() requestBody: PatchSessionDto
   ): Promise<PatchSessionResponse> {
+    const attachedFileRepository = createAttachedFileRepository();
     try {
       return await new SessionsService().patchSession(
         projectId,

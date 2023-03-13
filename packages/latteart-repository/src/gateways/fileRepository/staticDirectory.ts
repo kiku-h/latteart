@@ -16,7 +16,9 @@
 
 import path from "path";
 import fs from "fs-extra";
+import os from "os";
 import { FileRepository } from "@/interfaces/StaticDirectory";
+import { publicDirPath } from "@/common";
 
 export class StaticDirectory {
   constructor(private staticRootPath: string) {}
@@ -120,4 +122,36 @@ export class FileRepositoryImpl implements FileRepository {
       path.join(this.directoryPath, destRelativePath)
     );
   }
+}
+
+export const createWorkingFileRepository = async () => {
+  const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
+  const workingDirectory = new StaticDirectory(tmpDirPath);
+  return new FileRepositoryImpl(workingDirectory, "work");
+};
+
+const staticDirectory = new StaticDirectory(publicDirPath);
+
+export function createScreenshotFileRepository() {
+  return new FileRepositoryImpl(staticDirectory, "screenshots");
+}
+
+export function createAttachedFileRepository() {
+  return new FileRepositoryImpl(staticDirectory, "attached-files");
+}
+
+export function createSnapshotRepository() {
+  return new FileRepositoryImpl(staticDirectory, "snapshots");
+}
+
+export function createTestScriptRepository() {
+  return new FileRepositoryImpl(staticDirectory, "test-scripts");
+}
+
+export function createExportFileRepository() {
+  return new FileRepositoryImpl(staticDirectory, "exports");
+}
+
+export function createTempFileRepository() {
+  return new FileRepositoryImpl(staticDirectory, "temp");
 }

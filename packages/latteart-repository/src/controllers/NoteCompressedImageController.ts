@@ -31,9 +31,9 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotFileRepository } from "..";
 import { CreateResponseDto } from "../interfaces/NoteCompressedImage";
 import { CompressedImageService } from "../services/CompressedImageService";
+import { createScreenshotFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 @Route("test-results/{testResultId}/notes/{noteId}/compressed-image")
 @Tags("test-results")
@@ -57,6 +57,7 @@ export class NoteCompressedImageController extends Controller {
     console.log("NoteCompressedImageController - compressNoteScreenshot");
 
     const timestampService = new TimestampServiceImpl();
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,

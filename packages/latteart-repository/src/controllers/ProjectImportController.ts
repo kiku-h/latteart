@@ -23,11 +23,7 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import {
-  attachedFileRepository,
-  screenshotFileRepository,
-  transactionRunner,
-} from "..";
+import { transactionRunner } from "..";
 import { ProjectImportService } from "@/services/ProjectImportService";
 import { CreateProjectImportDto } from "../interfaces/ProjectImport";
 import LoggingService from "@/logger/LoggingService";
@@ -38,6 +34,10 @@ import { TestStepServiceImpl } from "@/services/TestStepService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
+import {
+  createAttachedFileRepository,
+  createScreenshotFileRepository,
+} from "@/gateways/fileRepository/staticDirectory";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -66,6 +66,8 @@ export class ProjectImportController extends Controller {
   ): Promise<{ projectId: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
+      const screenshotFileRepository = createScreenshotFileRepository();
+      const attachedFileRepository = createAttachedFileRepository();
 
       const configService = new ConfigsService();
       const testStepService = new TestStepServiceImpl({

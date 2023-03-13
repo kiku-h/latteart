@@ -19,8 +19,8 @@ import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
 import FileArchiver from "@/gateways/fileRepository/FileArchiver";
 import os from "os";
-import { attachedFileRepository } from "..";
 import { FileRepository } from "@/interfaces/StaticDirectory";
+import { createAttachedFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 interface exportProjectData {
   projectId: string;
@@ -120,6 +120,8 @@ export class ExportFileRepositoryServiceImpl
       path.join(projectPath, project.progressesFile.fileName),
       project.progressesFile.data
     );
+
+    const attachedFileRepository = createAttachedFileRepository();
 
     await Promise.all(
       project.stories.map(async (story) => {

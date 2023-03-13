@@ -32,12 +32,12 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  exportFileRepository,
-  screenshotFileRepository,
-  tempFileRepository,
-} from "..";
 import { CreateTestResultExportDto } from "../interfaces/TestResultExport";
+import {
+  createExportFileRepository,
+  createScreenshotFileRepository,
+  createTempFileRepository,
+} from "@/gateways/fileRepository/staticDirectory";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -59,6 +59,9 @@ export class TestResultExportController extends Controller {
     @Body() requestBody?: CreateTestResultExportDto
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
+    const screenshotFileRepository = createScreenshotFileRepository();
+    const tempFileRepository = createTempFileRepository();
+    const exportFileRepository = createExportFileRepository();
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,

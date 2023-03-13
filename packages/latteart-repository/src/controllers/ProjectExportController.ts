@@ -29,11 +29,7 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import {
-  exportFileRepository,
-  screenshotFileRepository,
-  transactionRunner,
-} from "..";
+import { transactionRunner } from "..";
 import { ExportServiceImpl } from "@/services/ExportService";
 import { TestResultServiceImpl } from "@/services/TestResultService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
@@ -42,6 +38,10 @@ import { ConfigsService } from "@/services/ConfigsService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
+import {
+  createExportFileRepository,
+  createScreenshotFileRepository,
+} from "@/gateways/fileRepository/staticDirectory";
 
 @Route("projects/{projectId}/export")
 @Tags("projects")
@@ -64,8 +64,10 @@ export class ProjectExportController extends Controller {
   ): Promise<{ url: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
+      const screenshotFileRepository = createScreenshotFileRepository();
+      const exportFileRepository = createExportFileRepository();
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-        exportFileRepository: exportFileRepository,
+        exportFileRepository,
         screenshotFileRepository,
         timestamp: timestampService,
       });

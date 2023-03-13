@@ -30,9 +30,9 @@ import { TestStepServiceImpl } from "@/services/TestStepService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { TimestampServiceImpl } from "@/services/TimestampService";
-import { screenshotFileRepository } from "..";
 import LoggingService from "@/logger/LoggingService";
 import { ServerError, ServerErrorData } from "../ServerError";
+import { createScreenshotFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 @Route("test-results/{testResultId}/test-steps/{testStepId}/compressed-image")
 @Tags("test-results")
@@ -56,6 +56,7 @@ export class CompressedImageController extends Controller {
     console.log("CompressedImageController - compressTestStepScreenshot");
 
     const timestampService = new TimestampServiceImpl();
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,

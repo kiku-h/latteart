@@ -37,10 +37,6 @@ import { CoverageSourceEntity } from "./entities/CoverageSourceEntity";
 import { TestPurposeEntity } from "./entities/TestPurposeEntity";
 import { TestResultEntity } from "./entities/TestResultEntity";
 import { ScreenshotEntity } from "./entities/ScreenshotEntity";
-import {
-  FileRepositoryImpl,
-  StaticDirectory,
-} from "./gateways/fileRepository/staticDirectory";
 import { AttachedFileEntity } from "./entities/AttachedFilesEntity";
 import { ConfigEntity } from "./entities/ConfigEntity";
 import { ProjectEntity } from "./entities/ProjectEntity";
@@ -72,33 +68,6 @@ LoggingService.initialize(
     RunningMode.Debug,
     path.join(appRootPath, "logs", "latteart-repository.log")
   )
-);
-
-const staticDirectory = new StaticDirectory(publicDirPath);
-
-export const screenshotFileRepository = new FileRepositoryImpl(
-  staticDirectory,
-  "screenshots"
-);
-export const attachedFileRepository = new FileRepositoryImpl(
-  staticDirectory,
-  "attached-files"
-);
-export const snapshotRepository = new FileRepositoryImpl(
-  staticDirectory,
-  "snapshots"
-);
-export const testScriptRepository = new FileRepositoryImpl(
-  staticDirectory,
-  "test-scripts"
-);
-export const exportFileRepository = new FileRepositoryImpl(
-  staticDirectory,
-  "exports"
-);
-export const tempFileRepository = new FileRepositoryImpl(
-  staticDirectory,
-  "temp"
 );
 
 export const transactionRunner = new TransactionRunner();

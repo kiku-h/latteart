@@ -26,10 +26,10 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotFileRepository } from "..";
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import { CreateTestResultImportDto } from "../interfaces/TesResultImport";
+import { createScreenshotFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 @Route("imports/test-results")
 @Tags("imports")
@@ -49,8 +49,8 @@ export class TestResultImportController extends Controller {
     @Body() requestBody: CreateTestResultImportDto
   ): Promise<{ testResultId: string }> {
     const timestampService = new TimestampServiceImpl();
-
     const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     try {
       const result = await new TestResultImportService({

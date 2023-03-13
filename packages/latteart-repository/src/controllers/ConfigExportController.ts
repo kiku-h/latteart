@@ -28,8 +28,8 @@ import {
   Tags,
   SuccessResponse,
 } from "tsoa";
-import { exportFileRepository } from "..";
 import { ConfigExportService } from "@/services/ConfigExportService";
+import { createExportFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 @Route("projects/{projectId}/configs/export")
 @Tags("projects")
@@ -48,10 +48,12 @@ export class ConfigExportController extends Controller {
   public async exportProjectSettings(
     @Path() projectId: string
   ): Promise<{ url: string }> {
+    const exportFileRepository = createExportFileRepository();
+
     const result = await new ConfigExportService().export(projectId, {
       configService: new ConfigsService(),
       timestampService: new TimestampServiceImpl(),
-      exportFileRepository: exportFileRepository,
+      exportFileRepository,
     });
 
     try {

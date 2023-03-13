@@ -31,7 +31,6 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import { screenshotFileRepository } from "..";
 import {
   PatchTestStepDto,
   CreateTestStepDto,
@@ -39,6 +38,7 @@ import {
   CreateTestStepResponse,
   PatchTestStepResponse,
 } from "../interfaces/TestSteps";
+import { createScreenshotFileRepository } from "@/gateways/fileRepository/staticDirectory";
 
 @Route("test-results/{testResultId}/test-steps")
 @Tags("test-results")
@@ -60,6 +60,8 @@ export class TestStepsController extends Controller {
     @Body() requestBody: CreateTestStepDto
   ): Promise<CreateTestStepResponse> {
     console.log("TestStepsController - addTestStep");
+
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     try {
       return await new TestStepServiceImpl({
@@ -96,6 +98,7 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string
   ): Promise<GetTestStepResponse> {
     console.log("TestStepsController - getTestStep");
+    const screenshotFileRepository = createScreenshotFileRepository();
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,
@@ -137,6 +140,8 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string,
     @Body() requestBody: PatchTestStepDto
   ): Promise<PatchTestStepResponse> {
+    const screenshotFileRepository = createScreenshotFileRepository();
+
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
