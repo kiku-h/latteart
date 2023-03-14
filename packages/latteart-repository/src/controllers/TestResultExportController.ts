@@ -27,16 +27,14 @@ import {
   Post,
   Route,
   Path,
-  Body,
   Tags,
   Response,
   SuccessResponse,
 } from "tsoa";
-import { CreateTestResultExportDto } from "../interfaces/TestResultExport";
 import {
   createExportFileRepository,
   createScreenshotFileRepository,
-  createTempFileRepository,
+  createWorkingFileRepository,
 } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/export")
@@ -45,7 +43,6 @@ export class TestResultExportController extends Controller {
   /**
    * Export test result.
    * @param testResultId Target test result id.
-   * @param requestBody Export settings.
    * @returns Download url for exported test result.
    */
   @Response<ServerErrorData<"export_test_result_failed">>(
@@ -55,13 +52,12 @@ export class TestResultExportController extends Controller {
   @SuccessResponse(200, "Success")
   @Post()
   public async exportTestResult(
-    @Path() testResultId: string,
-    @Body() requestBody?: CreateTestResultExportDto
+    @Path() testResultId: string
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
     const screenshotFileRepository = createScreenshotFileRepository();
-    const tempFileRepository = createTempFileRepository();
     const exportFileRepository = createExportFileRepository();
+    const workingFileRepository = await createWorkingFileRepository();
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -73,10 +69,9 @@ export class TestResultExportController extends Controller {
     });
 
     const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
-      exportFileRepository: requestBody?.temp
-        ? tempFileRepository
-        : exportFileRepository,
+      exportFileRepository,
       screenshotFileRepository,
+      workingFileRepository,
       timestamp: timestampService,
     });
 
