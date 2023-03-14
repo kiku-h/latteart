@@ -37,7 +37,6 @@ describe("ProjectImportService", () => {
     let testStepService: TestStepService;
     let screenshotRepositoryService: FileRepository;
     let attachedFileRepositoryService: FileRepository;
-    let importDirectoryRepositoryService: FileRepository;
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
 
@@ -47,7 +46,6 @@ describe("ProjectImportService", () => {
       testStepService = createTestStepServiceMock();
       screenshotRepositoryService = createStaticDirectoryServiceMock();
       attachedFileRepositoryService = createStaticDirectoryServiceMock();
-      importDirectoryRepositoryService = createStaticDirectoryServiceMock();
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
     });

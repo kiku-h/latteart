@@ -26,6 +26,8 @@ export type FileRepository = {
     encoding?: "utf8" | "base64"
   ): Promise<void>;
 
+  outputJSON<T>(relativePath: string, data: T): Promise<void>;
+
   removeFile(relativePath: string): Promise<void>;
 
   getFileUrl(relativePath: string): string;

@@ -42,6 +42,10 @@ export class StaticDirectory {
     await fs.outputFile(path.join(this.staticRootPath, relativePath), decode);
   }
 
+  public async outputJSON<T>(relativePath: string, data: T): Promise<void> {
+    await fs.outputJSON(path.join(this.staticRootPath, relativePath), data);
+  }
+
   public async removeFile(relativePath: string): Promise<void> {
     await fs.remove(path.join(this.staticRootPath, relativePath));
   }
@@ -101,6 +105,13 @@ export class FileRepositoryImpl implements FileRepository {
       path.join(this.directoryPath, relativePath),
       data,
       encoding
+    );
+  }
+
+  public async outputJSON<T>(relativePath: string, data: T): Promise<void> {
+    return this.staticDirectory.outputJSON(
+      path.join(this.directoryPath, relativePath),
+      data
     );
   }
 
