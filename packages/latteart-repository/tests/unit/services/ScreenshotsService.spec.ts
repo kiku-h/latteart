@@ -2,7 +2,11 @@ import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
 import { ScreenshotsService } from "@/services/ScreenshotsService";
-import { FileRepositoryImpl, StaticDirectory } from "@/gateways/fileRepository";
+import {
+  createWorkingFileRepository,
+  FileRepositoryImpl,
+  StaticDirectory,
+} from "@/gateways/fileRepository";
 import { TimestampServiceImpl } from "@/services/TimestampService";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
 import { getRepository } from "typeorm";
@@ -17,14 +21,11 @@ const resourcesDirPath = path.join(
   "../",
   "resources"
 );
-const staticDirectoryService = new StaticDirectory(resourcesDirPath);
-const tempDirectoryService = new FileRepositoryImpl(
-  staticDirectoryService,
-  "temp"
-);
+const staticDirectory = new StaticDirectory(resourcesDirPath);
+const tempFileRepository = new FileRepositoryImpl(staticDirectory, "temp");
 const tempDirPath = path.join(resourcesDirPath, "temp");
-const screenshotDirectoryService = new FileRepositoryImpl(
-  staticDirectoryService,
+const screenshotFileRepository = new FileRepositoryImpl(
+  staticDirectory,
   "screenshots"
 );
 
@@ -45,6 +46,7 @@ afterEach(async () => {
 describe("ScreenshotsService", () => {
   describe("#getScreenshots", () => {
     it("スクリーンショット出力", async () => {
+      const workingFileRepository = await createWorkingFileRepository();
       const testResultEntity = await getRepository(TestResultEntity).save(
         new TestResultEntity({ name: "test" })
       );
@@ -75,12 +77,13 @@ describe("ScreenshotsService", () => {
 
       await new ScreenshotsService().getScreenshots(
         testResultEntity.id,
-        tempDirectoryService,
-        screenshotDirectoryService,
+        tempFileRepository,
+        screenshotFileRepository,
+        workingFileRepository,
         timeStampService
       );
 
-      const zipPath = tempDirectoryService.getFilePath(
+      const zipPath = tempFileRepository.getFilePath(
         `screenshots_${testResultEntity.name}_${datetime}.zip`
       );
       await fs.stat(zipPath);

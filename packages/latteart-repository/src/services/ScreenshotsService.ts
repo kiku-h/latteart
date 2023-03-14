@@ -19,8 +19,6 @@ import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import path from "path";
 import FileArchiver from "@/gateways/FileArchiver";
-import fs from "fs-extra";
-import os from "os";
 import { FileRepository } from "@/interfaces/fileRepository";
 
 export class ScreenshotsService {
@@ -28,18 +26,21 @@ export class ScreenshotsService {
     testResultId: string,
     fileRepository: FileRepository,
     screenshotFileRepository: FileRepository,
+    workingFileRepository: FileRepository,
     timestampService: TimestampService
   ): Promise<string> {
     const testResult = await getRepository(TestResultEntity).findOne(
       testResultId,
       { relations: ["testSteps", "testSteps.screenshot"] }
     );
+
     if (!testResult) {
       throw new Error(`TestResult not found.${testResultId}`);
     }
     if (!testResult.testSteps) {
       throw new Error(`TestSteps not found.${testResultId}`);
     }
+
     const screenshotFileNames = testResult.testSteps
       .sort((testStep1, testStep2) => {
         return testStep1.timestamp - testStep2.timestamp;
@@ -47,23 +48,21 @@ export class ScreenshotsService {
       .map((testStep) => {
         return testStep.screenshot?.fileUrl.split("/")[1] ?? "";
       });
-    const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
     const dirName = `screenshots_${timestampService.format("YYYYMMDD_HHmmss")}`;
-
-    const dirPath = path.join(tmpDirPath, dirName);
-    await fs.mkdir(dirPath);
 
     await Promise.all(
       screenshotFileNames.map(async (fileName, index) => {
         const filePath = screenshotFileRepository.getFilePath(fileName);
-        return await fs.copyFile(
+        return await workingFileRepository.copyFile(
           filePath,
-          path.join(dirPath, `${index + 1}${path.extname(fileName)}`)
+          path.join(dirName, `${index + 1}${path.extname(fileName)}`)
         );
       })
     );
 
-    const tmpZipFilePath = await new FileArchiver(dirPath, {
+    const workingDirPath = workingFileRepository.getFilePath(dirName);
+
+    const tmpZipFilePath = await new FileArchiver(workingDirPath, {
       deleteSource: true,
     }).zip();
 
