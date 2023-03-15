@@ -131,6 +131,14 @@ export class TestStepServiceImpl implements TestStepService {
     });
 
     // add test step.
+    const keywordTexts = requestBody.screenElements
+      .map((screenElement) => {
+        return {
+          tagname: screenElement.tagname,
+          value: screenElement.textWithoutChildren ?? "",
+        };
+      })
+      .filter(({ value }) => value);
     const newTestStepEntity = await getRepository(TestStepEntity).save({
       pageTitle: requestBody.title,
       pageUrl: requestBody.url,
@@ -139,7 +147,7 @@ export class TestStepServiceImpl implements TestStepService {
       operationElement: JSON.stringify(requestBody.elementInfo),
       inputElements: JSON.stringify(requestBody.inputElements),
       windowHandle: requestBody.windowHandle,
-      keywordTexts: JSON.stringify(requestBody.keywordTexts ?? []),
+      keywordTexts: JSON.stringify(keywordTexts),
       timestamp: requestBody.timestamp,
       testResult: savedTestResultEntity,
       isAutomatic: !!requestBody.isAutomatic,
@@ -267,7 +275,8 @@ export class TestStepServiceImpl implements TestStepService {
     const inputElements: ElementInfo[] = JSON.parse(
       testStepEntity.inputElements
     );
-    const keywordTexts: string[] = JSON.parse(testStepEntity.keywordTexts);
+    const keywordTexts: (string | { tagname: string; value: string })[] =
+      JSON.parse(testStepEntity.keywordTexts);
 
     return {
       input: testStepEntity.operationInput,

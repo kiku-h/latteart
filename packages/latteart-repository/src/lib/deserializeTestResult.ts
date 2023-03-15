@@ -112,10 +112,15 @@ export type HistoryItemExportDataV2 = Omit<
 > & {
   testStep: Omit<
     HistoryItemExportDataV1["testStep"],
-    "operation" | "inputElements"
+    "operation" | "inputElements" | "pageInfo"
   > & {
     operation: OperationExportDataV2;
     inputElements: ElementInfoExportDataV2[];
+    pageInfo: {
+      title: string;
+      url: string;
+      keywordTexts: (string | { tagname: string; value: string })[];
+    };
   };
 };
 type OperationExportDataV2 = Omit<OperationExportDataV1, "elementInfo"> & {
@@ -149,7 +154,7 @@ export type DeserializedTestStep = Pick<TestStep, "id"> & {
   > & {
     elementInfo: DeserializedElementInfo | null;
     inputElements: DeserializedElementInfo[];
-    keywordTexts: string[];
+    keywordTexts: (string | { tagname: string; value: string })[];
   };
   testPurpose: Note | null;
   notes: Note[];

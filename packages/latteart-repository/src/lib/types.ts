@@ -55,7 +55,7 @@ export type Operation = {
   timestamp: string;
   windowHandle: string;
   inputElements: ElementInfo[];
-  keywordTexts?: string[];
+  keywordTexts?: (string | { tagname: string; value: string })[];
   isAutomatic: boolean;
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
