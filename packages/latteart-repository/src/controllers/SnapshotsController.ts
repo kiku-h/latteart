@@ -47,7 +47,9 @@ import {
   createAttachedFileRepository,
   createScreenshotFileRepository,
   createSnapshotRepository,
+  createWorkingFileRepository,
 } from "@/gateways/fileRepository";
+import { FileRepository } from "@/interfaces/fileRepository";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -68,11 +70,11 @@ export class SnapshotsController extends Controller {
     @Path() projectId: string,
     @Body() snapshotConfig: SnapshotConfig
   ): Promise<CreateResponse> {
+    const workingFileRepository = await createWorkingFileRepository();
     try {
-      return await this.createSnapshotsService().createSnapshot(
-        projectId,
-        snapshotConfig
-      );
+      return await this.createSnapshotsService(
+        workingFileRepository
+      ).createSnapshot(projectId, snapshotConfig);
     } catch (error) {
       if (error instanceof Error) {
         LoggingService.error("Save snapshot failed.", error);
@@ -85,7 +87,7 @@ export class SnapshotsController extends Controller {
     }
   }
 
-  private createSnapshotsService() {
+  private createSnapshotsService(workingFileRepository: FileRepository) {
     const timestampService = new TimestampServiceImpl();
     const screenshotFileRepository = createScreenshotFileRepository();
     const snapshotRepository = createSnapshotRepository();
@@ -130,6 +132,7 @@ export class SnapshotsController extends Controller {
         issueReport: issueReportService,
         attachedFileRepository,
         testProgress: new TestProgressServiceImpl(transactionRunner),
+        workingFileRepository,
       },
       {
         snapshotViewer: { path: path.join(appRootPath, "snapshot-viewer") },
