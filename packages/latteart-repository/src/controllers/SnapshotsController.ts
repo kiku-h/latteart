@@ -39,15 +39,19 @@ import {
 import { transactionRunner } from "..";
 import { CreateResponse } from "../interfaces/Snapshots";
 import { SnapshotsService } from "../services/SnapshotsService";
-import path from "path";
-import { appRootPath } from "@/common";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import { SnapshotConfig } from "../interfaces/Configs";
 import {
   createAttachedFileRepository,
   createScreenshotFileRepository,
   createSnapshotRepository,
+  createWorkingFileRepository,
 } from "@/gateways/fileRepository";
+import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  createHistoryViewerTemplate,
+  createSnapshotViewerTemplate,
+} from "@/gateways/viewerTemplate";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -68,11 +72,11 @@ export class SnapshotsController extends Controller {
     @Path() projectId: string,
     @Body() snapshotConfig: SnapshotConfig
   ): Promise<CreateResponse> {
+    const workingFileRepository = await createWorkingFileRepository();
     try {
-      return await this.createSnapshotsService().createSnapshot(
-        projectId,
-        snapshotConfig
-      );
+      return await this.createSnapshotsService(
+        workingFileRepository
+      ).createSnapshot(projectId, snapshotConfig);
     } catch (error) {
       if (error instanceof Error) {
         LoggingService.error("Save snapshot failed.", error);
@@ -85,11 +89,15 @@ export class SnapshotsController extends Controller {
     }
   }
 
-  private createSnapshotsService() {
+  private createSnapshotsService(workingFileRepository: FileRepository) {
     const timestampService = new TimestampServiceImpl();
     const screenshotFileRepository = createScreenshotFileRepository();
     const snapshotRepository = createSnapshotRepository();
     const attachedFileRepository = createAttachedFileRepository();
+    const viewerTemplate = {
+      snapshot: createSnapshotViewerTemplate(),
+      history: createHistoryViewerTemplate(),
+    };
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,
@@ -130,10 +138,8 @@ export class SnapshotsController extends Controller {
         issueReport: issueReportService,
         attachedFileRepository,
         testProgress: new TestProgressServiceImpl(transactionRunner),
-      },
-      {
-        snapshotViewer: { path: path.join(appRootPath, "snapshot-viewer") },
-        historyViewer: { path: path.join(appRootPath, "history-viewer") },
+        workingFileRepository,
+        viewerTemplate,
       }
     );
 

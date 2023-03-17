@@ -15,10 +15,7 @@
  */
 
 import path from "path";
-import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/gateways/FileArchiver";
-import os from "os";
 import { Project } from "@/interfaces/Projects";
 import { TestResultService } from "./TestResultService";
 import { ConfigsService } from "./ConfigsService";
@@ -30,6 +27,7 @@ import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
 import { convertToExportableConfig } from "@/services/helper/settingsConverter";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { ViewerTemplate } from "@/interfaces/viewerTemplate";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -51,14 +49,8 @@ export class SnapshotFileRepositoryServiceImpl
       issueReport: IssueReportService;
       attachedFileRepository: FileRepository;
       testProgress: TestProgressService;
-    },
-    private template: {
-      snapshotViewer: {
-        path: string;
-      };
-      historyViewer: {
-        path: string;
-      };
+      workingFileRepository: FileRepository;
+      viewerTemplate: { snapshot: ViewerTemplate; history: ViewerTemplate };
     }
   ) {}
 
@@ -66,14 +58,15 @@ export class SnapshotFileRepositoryServiceImpl
     project: Project,
     snapshotConfig: SnapshotConfig
   ): Promise<string> {
-    const tmpProjectDirectoryPath = await this.outputProject(
+    const outputDirName = await this.outputProject(
       project,
       snapshotConfig.locale
     );
 
-    const zipFilePath = await new FileArchiver(tmpProjectDirectoryPath, {
-      deleteSource: true,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      outputDirName,
+      true
+    );
 
     const destPath = path.basename(zipFilePath);
     await this.service.snapshotRepository.moveFile(zipFilePath, destPath);
@@ -84,21 +77,22 @@ export class SnapshotFileRepositoryServiceImpl
   private async outputProject(project: Project, locale: string) {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
 
-    const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
+    const outputDirPath = this.service.workingFileRepository.getFilePath(
+      `snapshot_${timestamp}`
+    );
+    const outputDirName = `snapshot_${timestamp}`;
 
-    const outputDirectoryPath = path.join(tmpDirPath, `snapshot_${timestamp}`);
-
-    await this.writeSnapshot(project, outputDirectoryPath, locale);
+    await this.writeSnapshot(project, outputDirName, locale);
 
     // Report output
-    await this.service.issueReport.writeReport(project, outputDirectoryPath);
+    await this.service.issueReport.writeReport(project, outputDirPath);
 
-    return outputDirectoryPath;
+    return outputDirName;
   }
 
   private async writeSnapshot(
     project: Project,
-    outputDirPath: string,
+    outputDirName: string,
     locale: string
   ): Promise<void> {
     const stories = await this.buildStoriesForSnapshot(project);
@@ -109,12 +103,12 @@ export class SnapshotFileRepositoryServiceImpl
     };
 
     // copy contents of "snapshot-viewer"
-    await this.copySnapshotViewer(outputDirPath);
+    await this.copySnapshotViewer(outputDirName);
 
     // copy contents of "history-viewer" (other than index.html)
-    await this.copyHistoryViewer(outputDirPath);
+    await this.copyHistoryViewer(outputDirName);
 
-    const destDataDirPath = path.join(outputDirPath, "data");
+    const destDataDirPath = path.join(outputDirName, "data");
 
     // output config file
     await this.outputConfigFile(destDataDirPath, locale);
@@ -171,8 +165,6 @@ export class SnapshotFileRepositoryServiceImpl
       "attached"
     );
 
-    await fs.promises.mkdir(destAttachedFilesDirPath, { recursive: true });
-
     for (const attachedFile of attachedFiles) {
       const attachedFileUrl = attachedFile.fileUrl;
       const attachedFileName = attachedFileUrl.split("/").slice(-1)[0];
@@ -180,7 +172,7 @@ export class SnapshotFileRepositoryServiceImpl
       const attachedFilePath =
         this.service.attachedFileRepository.getFilePath(attachedFileName);
 
-      await fs.copyFile(
+      await this.service.workingFileRepository.copyFile(
         attachedFilePath,
         path.join(destAttachedFilesDirPath, attachedFileName)
       );
@@ -233,7 +225,6 @@ export class SnapshotFileRepositoryServiceImpl
     );
 
     const destTestResultPath = path.join(destSessionPath, "testResult");
-    await fs.promises.mkdir(destTestResultPath, { recursive: true });
 
     const testSteps = await Promise.all(
       testStepIds.map(async (testStepId) => {
@@ -347,22 +338,23 @@ export class SnapshotFileRepositoryServiceImpl
     };
 
     // output log file
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "log.js"),
       `const historyLog = ${JSON.stringify(historyLogData)}`,
-      { encoding: "utf-8" }
+      "utf8"
     );
 
     // output sequence view file
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "sequence-view.js"),
       `const sequenceView = ${JSON.stringify(sequenceViewData)}`,
-      { encoding: "utf-8" }
+      "utf8"
     );
 
     // copy index.html of history-viewer
-    await fs.copyFile(
-      path.join(this.template.historyViewer.path, "index.html"),
+    await this.service.viewerTemplate.history.copyFile(
+      this.service.workingFileRepository,
+      "index.html",
       path.join(destSessionPath, "index.html")
     );
   }
@@ -386,7 +378,10 @@ export class SnapshotFileRepositoryServiceImpl
       destDirectoryName,
       path.basename(sourceScreenshotFilePath)
     );
-    await fs.copyFile(sourceScreenshotFilePath, destScreenshotFilePath);
+    await this.service.workingFileRepository.copyFile(
+      sourceScreenshotFilePath,
+      destScreenshotFilePath
+    );
   }
 
   private buildStoriesForSnapshot(project: Project) {
@@ -511,57 +506,35 @@ export class SnapshotFileRepositoryServiceImpl
     );
   }
 
-  private async copySnapshotViewer(outputDirPath: string) {
-    const viewerTemplatePath = this.template.snapshotViewer.path;
-
-    await fs.mkdirp(outputDirPath);
-    await fs.copyFile(
-      path.join(viewerTemplatePath, "index.html"),
-      path.join(outputDirPath, "index.html")
+  private async copySnapshotViewer(outputDirName: string) {
+    //snapshotディレクトリをそのまま別名でcopy
+    await this.service.viewerTemplate.snapshot.copyDir(
+      this.service.workingFileRepository,
+      outputDirName
     );
-    await this.copyViewer(viewerTemplatePath, outputDirPath);
   }
 
-  private async copyHistoryViewer(outputDirPath: string) {
-    await this.copyViewer(this.template.historyViewer.path, outputDirPath);
-  }
-
-  private async copyViewer(viewerTemplatePath: string, outputDirPath: string) {
-    const destCssDirPath = path.join(outputDirPath, "css");
-    await fs.mkdirp(destCssDirPath);
-    const cssFiles = await fs.promises.readdir(
-      path.join(viewerTemplatePath, "css")
+  private async copyHistoryViewer(outputDirName: string) {
+    // copy css files
+    await this.service.viewerTemplate.history.copyFiles(
+      this.service.workingFileRepository,
+      "css",
+      path.join(outputDirName, "css")
     );
-    for (const cssFile of cssFiles) {
-      await fs.copyFile(
-        path.join(viewerTemplatePath, "css", cssFile),
-        path.join(destCssDirPath, cssFile)
-      );
-    }
 
-    const destFontDirPath = path.join(outputDirPath, "fonts");
-    await fs.mkdirp(destFontDirPath);
-    const fontFiles = await fs.promises.readdir(
-      path.join(viewerTemplatePath, "fonts")
+    // copy fonts files
+    await this.service.viewerTemplate.history.copyFiles(
+      this.service.workingFileRepository,
+      "fonts",
+      path.join(outputDirName, "fonts")
     );
-    for (const fontFile of fontFiles) {
-      await fs.copyFile(
-        path.join(viewerTemplatePath, "fonts", fontFile),
-        path.join(destFontDirPath, fontFile)
-      );
-    }
 
-    const destJsDirPath = path.join(outputDirPath, "js");
-    await fs.mkdirp(destJsDirPath);
-    const jsFiles = await fs.promises.readdir(
-      path.join(viewerTemplatePath, "js")
+    // copy js files
+    await this.service.viewerTemplate.history.copyFiles(
+      this.service.workingFileRepository,
+      "js",
+      path.join(outputDirName, "js")
     );
-    for (const jsFile of jsFiles) {
-      await fs.copyFile(
-        path.join(viewerTemplatePath, "js", jsFile),
-        path.join(destJsDirPath, jsFile)
-      );
-    }
   }
 
   private async outputConfigFile(outputDirPath: string, locale: string) {
@@ -572,10 +545,10 @@ export class SnapshotFileRepositoryServiceImpl
       locale,
     };
     const settingsData = JSON.stringify(configWithLocale);
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(outputDirPath, "latteart.config.js"),
       `const settings = ${settingsData}`,
-      { encoding: "utf-8" }
+      "utf8"
     );
   }
 
@@ -631,10 +604,10 @@ export class SnapshotFileRepositoryServiceImpl
       }[];
     }
   ) {
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(outputDirPath, "project.js"),
       `const snapshot = ${JSON.stringify(projectData)}`,
-      { encoding: "utf-8" }
+      "utf8"
     );
   }
 
@@ -642,10 +615,10 @@ export class SnapshotFileRepositoryServiceImpl
     outputDirPath: string,
     dailyProgresses: DailyTestProgress[]
   ) {
-    await fs.outputFile(
+    await this.service.workingFileRepository.outputFile(
       path.join(outputDirPath, "progress.js"),
       `const dailyTestProgresses = ${JSON.stringify(dailyProgresses)}`,
-      { encoding: "utf-8" }
+      "utf8"
     );
   }
 }

@@ -37,6 +37,7 @@ import { TestScriptsService } from "../services/TestScriptsService";
 import {
   createScreenshotFileRepository,
   createTestScriptRepository,
+  createWorkingFileRepository,
 } from "@/gateways/fileRepository";
 
 @Route("projects/{projectId}/test-scripts")
@@ -61,6 +62,7 @@ export class ProjectTestScriptsController extends Controller {
     const timestampService = new TimestampServiceImpl();
     const screenshotFileRepository = createScreenshotFileRepository();
     const testScriptRepository = createTestScriptRepository();
+    const workingFileRepository = await createWorkingFileRepository();
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -76,6 +78,7 @@ export class ProjectTestScriptsController extends Controller {
         testScriptRepository,
         testScriptDocRendering: new TestScriptJSDocRenderingService(),
         screenshotFileRepository,
+        workingFileRepository,
         timestamp: timestampService,
       });
 

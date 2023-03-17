@@ -41,6 +41,7 @@ import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import {
   createExportFileRepository,
   createScreenshotFileRepository,
+  createWorkingFileRepository,
 } from "@/gateways/fileRepository";
 
 @Route("projects/{projectId}/export")
@@ -66,9 +67,11 @@ export class ProjectExportController extends Controller {
       const timestampService = new TimestampServiceImpl();
       const screenshotFileRepository = createScreenshotFileRepository();
       const exportFileRepository = createExportFileRepository();
+      const workingFileRepository = await createWorkingFileRepository();
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
         exportFileRepository,
         screenshotFileRepository,
+        workingFileRepository,
         timestamp: timestampService,
       });
       const testResultService = new TestResultServiceImpl({

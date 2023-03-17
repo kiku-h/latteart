@@ -25,6 +25,8 @@ describe("TestStepService", () => {
       const screenshotFileRepository: FileRepository = {
         readFile: jest.fn(),
         outputFile: jest.fn(),
+        outputJSON: jest.fn(),
+        outputZip: jest.fn(),
         removeFile: jest.fn(),
         getFileUrl: jest.fn().mockReturnValue("testStep.png"),
         getFilePath: jest.fn(),
@@ -134,6 +136,8 @@ describe("TestStepService", () => {
       const screenshotFileRepository: FileRepository = {
         readFile: jest.fn(),
         outputFile: jest.fn(),
+        outputJSON: jest.fn(),
+        outputZip: jest.fn(),
         removeFile: jest.fn(),
         getFileUrl: jest.fn(),
         getFilePath: jest.fn(),

@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-/**
- * File output destination directory.
- */
-export interface CreateTestResultExportDto {
-  temp: boolean;
-}
+import { FileRepository } from "./fileRepository";
+
+export type ViewerTemplate = {
+  copyDir(fileRepository: FileRepository, relativePath: string): Promise<void>;
+
+  copyFiles(
+    fileRepository: FileRepository,
+    relativePath: string,
+    destRelativePath: string
+  ): Promise<void>;
+
+  copyFile(
+    fileRepository: FileRepository,
+    relativePath: string,
+    destRelativePath: string
+  ): Promise<void>;
+};

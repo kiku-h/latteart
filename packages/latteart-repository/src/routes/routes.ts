@@ -1436,14 +1436,6 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateTestResultExportDto: {
-    dataType: "refObject",
-    properties: {
-      temp: { dataType: "boolean", required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_import_test_result_failed_: {
     dataType: "refAlias",
     type: {
@@ -3704,11 +3696,6 @@ export function RegisterRoutes(app: Router) {
           name: "testResultId",
           required: true,
           dataType: "string",
-        },
-        requestBody: {
-          in: "body",
-          name: "requestBody",
-          ref: "CreateTestResultExportDto",
         },
       };
 
