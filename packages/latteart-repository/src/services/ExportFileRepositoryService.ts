@@ -16,7 +16,6 @@
 
 import path from "path";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/gateways/FileArchiver";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { createAttachedFileRepository } from "@/gateways/fileRepository";
 
@@ -70,8 +69,6 @@ export class ExportFileRepositoryServiceImpl
   ): Promise<string> {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
     const outputDirName = `project_${timestamp}`;
-    const outputDirPath =
-      this.service.workingFileRepository.getFilePath(outputDirName);
 
     if (project) {
       await this.outputProjectFiles(
@@ -89,9 +86,10 @@ export class ExportFileRepositoryServiceImpl
       );
     }
 
-    const zipFilePath = await new FileArchiver(outputDirPath, {
-      deleteSource: false,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      outputDirName,
+      false
+    );
     console.log("<< completed zip!! >>");
 
     await this.service.exportFileRepository.moveFile(
@@ -202,11 +200,12 @@ export class ExportFileRepositoryServiceImpl
     testResultFile: { fileName: string; data: string };
     screenshots: { id: string; fileUrl: string }[];
   }): Promise<string> {
-    const tmpTestResultDirPath = await this.outputFiles(testResult);
+    const outputDirName = await this.outputFiles(testResult);
 
-    const zipFilePath = await new FileArchiver(tmpTestResultDirPath, {
-      deleteSource: true,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      outputDirName,
+      true
+    );
 
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
 
@@ -225,8 +224,9 @@ export class ExportFileRepositoryServiceImpl
     testResultFile: { fileName: string; data: string };
     screenshots: { id: string; fileUrl: string }[];
   }) {
+    const outputDirName = `test_result`;
     await this.service.workingFileRepository.outputFile(
-      path.join(`test_result`, testResult.testResultFile.fileName),
+      path.join(outputDirName, testResult.testResultFile.fileName),
       testResult.testResultFile.data
     );
 
@@ -240,11 +240,11 @@ export class ExportFileRepositoryServiceImpl
       screenshotFilePaths.map((filePath) => {
         return this.service.workingFileRepository.copyFile(
           filePath,
-          path.join(`test_result`, path.basename(filePath))
+          path.join(outputDirName, path.basename(filePath))
         );
       })
     );
 
-    return this.service.workingFileRepository.getFilePath(`test_result`);
+    return outputDirName;
   }
 }

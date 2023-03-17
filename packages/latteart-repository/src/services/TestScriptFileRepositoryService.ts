@@ -17,7 +17,6 @@
 import { TestScriptDocRenderingService } from "./testScriptDocRendering/TestScriptDocRenderingService";
 import path from "path";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/gateways/FileArchiver";
 import { FileRepository } from "@/interfaces/fileRepository";
 
 export interface TestScriptFileRepositoryService {
@@ -86,12 +85,10 @@ export class TestScriptFileRepositoryServiceImpl
       screenshotFilePaths
     );
 
-    const tmpTestScriptDirectoryPath =
-      this.service.workingFileRepository.getFilePath(testScriptDirName);
-
-    const zipFilePath = await new FileArchiver(tmpTestScriptDirectoryPath, {
-      deleteSource: true,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      testScriptDirName,
+      true
+    );
 
     await this.service.testScriptRepository.moveFile(
       zipFilePath,

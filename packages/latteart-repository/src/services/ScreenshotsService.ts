@@ -18,7 +18,6 @@ import { TestResultEntity } from "@/entities/TestResultEntity";
 import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import path from "path";
-import FileArchiver from "@/gateways/FileArchiver";
 import { FileRepository } from "@/interfaces/fileRepository";
 
 export class ScreenshotsService {
@@ -60,11 +59,7 @@ export class ScreenshotsService {
       })
     );
 
-    const workingDirPath = workingFileRepository.getFilePath(dirName);
-
-    const tmpZipFilePath = await new FileArchiver(workingDirPath, {
-      deleteSource: true,
-    }).zip();
+    const tmpZipFilePath = await workingFileRepository.outputZip(dirName, true);
 
     const zipFileName = `screenshots_${
       testResult.name

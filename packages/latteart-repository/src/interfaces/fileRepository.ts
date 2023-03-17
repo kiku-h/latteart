@@ -28,6 +28,8 @@ export type FileRepository = {
 
   outputJSON<T>(relativePath: string, data: T): Promise<void>;
 
+  outputZip(relativePath: string, deleteSource: boolean): Promise<string>;
+
   removeFile(relativePath: string): Promise<void>;
 
   getFileUrl(relativePath: string): string;

@@ -39,8 +39,6 @@ import {
 import { transactionRunner } from "..";
 import { CreateResponse } from "../interfaces/Snapshots";
 import { SnapshotsService } from "../services/SnapshotsService";
-import path from "path";
-import { appRootPath } from "@/common";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import { SnapshotConfig } from "../interfaces/Configs";
 import {
@@ -50,6 +48,10 @@ import {
   createWorkingFileRepository,
 } from "@/gateways/fileRepository";
 import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  createHistoryViewerTemplate,
+  createSnapshotViewerTemplate,
+} from "@/gateways/viewerTemplate";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -92,6 +94,10 @@ export class SnapshotsController extends Controller {
     const screenshotFileRepository = createScreenshotFileRepository();
     const snapshotRepository = createSnapshotRepository();
     const attachedFileRepository = createAttachedFileRepository();
+    const viewerTemplate = {
+      snapshot: createSnapshotViewerTemplate(),
+      history: createHistoryViewerTemplate(),
+    };
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,
@@ -133,10 +139,7 @@ export class SnapshotsController extends Controller {
         attachedFileRepository,
         testProgress: new TestProgressServiceImpl(transactionRunner),
         workingFileRepository,
-      },
-      {
-        snapshotViewer: { path: path.join(appRootPath, "snapshot-viewer") },
-        historyViewer: { path: path.join(appRootPath, "history-viewer") },
+        viewerTemplate,
       }
     );
 

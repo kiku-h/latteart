@@ -19,6 +19,7 @@ import fs from "fs-extra";
 import os from "os";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { publicDirPath } from "@/common";
+import FileArchiver from "./FileArchiver";
 
 export class StaticDirectory {
   constructor(private staticRootPath: string) {}
@@ -44,6 +45,14 @@ export class StaticDirectory {
 
   public async outputJSON<T>(relativePath: string, data: T): Promise<void> {
     await fs.outputJSON(path.join(this.staticRootPath, relativePath), data);
+  }
+
+  public async outputZip(
+    relativePath: string,
+    deleteSource: boolean
+  ): Promise<string> {
+    const dirPath = path.join(this.staticRootPath, relativePath);
+    return new FileArchiver(dirPath, { deleteSource: deleteSource }).zip();
   }
 
   public async removeFile(relativePath: string): Promise<void> {
@@ -112,6 +121,16 @@ export class FileRepositoryImpl implements FileRepository {
     return this.staticDirectory.outputJSON(
       path.join(this.directoryPath, relativePath),
       data
+    );
+  }
+
+  public async outputZip(
+    relativePath: string,
+    deleteSource: boolean
+  ): Promise<string> {
+    return this.staticDirectory.outputZip(
+      path.join(this.directoryPath, relativePath),
+      deleteSource
     );
   }
 

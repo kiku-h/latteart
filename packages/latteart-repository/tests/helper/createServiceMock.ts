@@ -58,6 +58,7 @@ export const createStaticDirectoryServiceMock = (): FileRepository => {
     readFile: jest.fn(),
     outputFile: jest.fn(),
     outputJSON: jest.fn(),
+    outputZip: jest.fn(),
     removeFile: jest.fn(),
     getFileUrl: jest.fn(),
     getFilePath: jest.fn(),

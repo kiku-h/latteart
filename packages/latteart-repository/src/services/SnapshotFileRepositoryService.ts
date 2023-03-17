@@ -15,9 +15,7 @@
  */
 
 import path from "path";
-import fs from "fs-extra";
 import { TimestampService } from "./TimestampService";
-import FileArchiver from "@/gateways/FileArchiver";
 import { Project } from "@/interfaces/Projects";
 import { TestResultService } from "./TestResultService";
 import { ConfigsService } from "./ConfigsService";
@@ -29,6 +27,7 @@ import { DailyTestProgress, TestProgressService } from "./TestProgressService";
 import { SnapshotConfig } from "@/interfaces/Configs";
 import { convertToExportableConfig } from "@/services/helper/settingsConverter";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { ViewerTemplate } from "@/interfaces/viewerTemplate";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -51,14 +50,7 @@ export class SnapshotFileRepositoryServiceImpl
       attachedFileRepository: FileRepository;
       testProgress: TestProgressService;
       workingFileRepository: FileRepository;
-    },
-    private template: {
-      snapshotViewer: {
-        path: string;
-      };
-      historyViewer: {
-        path: string;
-      };
+      viewerTemplate: { snapshot: ViewerTemplate; history: ViewerTemplate };
     }
   ) {}
 
@@ -66,14 +58,15 @@ export class SnapshotFileRepositoryServiceImpl
     project: Project,
     snapshotConfig: SnapshotConfig
   ): Promise<string> {
-    const tmpProjectDirectoryPath = await this.outputProject(
+    const outputDirName = await this.outputProject(
       project,
       snapshotConfig.locale
     );
 
-    const zipFilePath = await new FileArchiver(tmpProjectDirectoryPath, {
-      deleteSource: true,
-    }).zip();
+    const zipFilePath = await this.service.workingFileRepository.outputZip(
+      outputDirName,
+      true
+    );
 
     const destPath = path.basename(zipFilePath);
     await this.service.snapshotRepository.moveFile(zipFilePath, destPath);
@@ -94,7 +87,7 @@ export class SnapshotFileRepositoryServiceImpl
     // Report output
     await this.service.issueReport.writeReport(project, outputDirPath);
 
-    return outputDirPath;
+    return outputDirName;
   }
 
   private async writeSnapshot(
@@ -359,8 +352,9 @@ export class SnapshotFileRepositoryServiceImpl
     );
 
     // copy index.html of history-viewer
-    await this.service.workingFileRepository.copyFile(
-      path.join(this.template.historyViewer.path, "index.html"),
+    await this.service.viewerTemplate.history.copyFile(
+      this.service.workingFileRepository,
+      "index.html",
       path.join(destSessionPath, "index.html")
     );
   }
@@ -513,53 +507,34 @@ export class SnapshotFileRepositoryServiceImpl
   }
 
   private async copySnapshotViewer(outputDirName: string) {
-    const viewerTemplatePath = this.template.snapshotViewer.path;
-
-    await this.service.workingFileRepository.copyFile(
-      path.join(viewerTemplatePath, "index.html"),
-      path.join(outputDirName, "index.html")
+    //snapshotディレクトリをそのまま別名でcopy
+    await this.service.viewerTemplate.snapshot.copyDir(
+      this.service.workingFileRepository,
+      outputDirName
     );
-
-    await this.copyViewer(viewerTemplatePath, outputDirName);
   }
 
   private async copyHistoryViewer(outputDirName: string) {
-    await this.copyViewer(this.template.historyViewer.path, outputDirName);
-  }
-
-  private async copyViewer(viewerTemplatePath: string, outputDirName: string) {
-    const destCssDirPath = path.join(outputDirName, "css");
-    const cssFiles = await fs.promises.readdir(
-      path.join(viewerTemplatePath, "css")
+    // copy css files
+    await this.service.viewerTemplate.history.copyFiles(
+      this.service.workingFileRepository,
+      "css",
+      path.join(outputDirName, "css")
     );
-    for (const cssFile of cssFiles) {
-      await this.service.workingFileRepository.copyFile(
-        path.join(viewerTemplatePath, "css", cssFile),
-        path.join(destCssDirPath, cssFile)
-      );
-    }
 
-    const destFontDirPath = path.join(outputDirName, "fonts");
-    const fontFiles = await fs.promises.readdir(
-      path.join(viewerTemplatePath, "fonts")
+    // copy fonts files
+    await this.service.viewerTemplate.history.copyFiles(
+      this.service.workingFileRepository,
+      "fonts",
+      path.join(outputDirName, "fonts")
     );
-    for (const fontFile of fontFiles) {
-      await this.service.workingFileRepository.copyFile(
-        path.join(viewerTemplatePath, "fonts", fontFile),
-        path.join(destFontDirPath, fontFile)
-      );
-    }
 
-    const destJsDirPath = path.join(outputDirName, "js");
-    const jsFiles = await fs.promises.readdir(
-      path.join(viewerTemplatePath, "js")
+    // copy js files
+    await this.service.viewerTemplate.history.copyFiles(
+      this.service.workingFileRepository,
+      "js",
+      path.join(outputDirName, "js")
     );
-    for (const jsFile of jsFiles) {
-      await this.service.workingFileRepository.copyFile(
-        path.join(viewerTemplatePath, "js", jsFile),
-        path.join(destJsDirPath, jsFile)
-      );
-    }
   }
 
   private async outputConfigFile(outputDirPath: string, locale: string) {
