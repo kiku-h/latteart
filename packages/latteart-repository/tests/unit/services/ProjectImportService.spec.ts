@@ -140,7 +140,7 @@ describe("ProjectImportService", () => {
         },
         {
           filePath: "test-results/testResultId1/aaaa.webp",
-          data: "aaa",
+          data: Buffer.from(""),
         },
         {
           filePath: "test-results/testResultId2/log.json",
@@ -148,7 +148,7 @@ describe("ProjectImportService", () => {
         },
         {
           filePath: "test-results/testResultId2/bbbb.webp",
-          data: "bbb",
+          data: Buffer.from(""),
         },
       ];
       const result = new ProjectImportService()["extractTestResultsData"](
@@ -156,7 +156,7 @@ describe("ProjectImportService", () => {
       );
       expect(result).toEqual([
         {
-          screenshots: [{ data: "", filePath: "aaaa.webp" }],
+          screenshots: [{ data: Buffer.from(""), filePath: "aaaa.webp" }],
           testResultFile: {
             data: "{1}",
             fileName: "test-results/testResultId1/log.json",
@@ -164,7 +164,7 @@ describe("ProjectImportService", () => {
           testResultId: "testResultId1",
         },
         {
-          screenshots: [{ data: "", filePath: "bbbb.webp" }],
+          screenshots: [{ data: Buffer.from(""), filePath: "bbbb.webp" }],
           testResultFile: {
             data: "{2}",
             fileName: "test-results/testResultId2/log.json",

@@ -22,7 +22,7 @@ import { ElementInfo } from "@/lib/types";
 import {
   HistoryItemExportDataV2,
   TestResultExportDataV2,
-} from "@/lib/deserializeTestResult";
+} from "@/interfaces/exportData";
 
 export interface ExportService {
   exportTestResult(testResultId: string): Promise<{ url: string }>;

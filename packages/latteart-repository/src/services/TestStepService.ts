@@ -50,7 +50,9 @@ export interface TestStepService {
     testPurposeId: string | null
   ): Promise<PatchTestStepResponse>;
 
-  getTestStepOperation(testStepId: string): Promise<Operation>;
+  getTestStepOperation(
+    testStepId: string
+  ): Promise<GetTestStepResponse["operation"]>;
 
   getTestStepScreenshot(
     testStepId: string
@@ -241,7 +243,9 @@ export class TestStepServiceImpl implements TestStepService {
     return this.convertTestStepEntityToTestStep(updatedTestStepEntity);
   }
 
-  public async getTestStepOperation(testStepId: string): Promise<Operation> {
+  public async getTestStepOperation(
+    testStepId: string
+  ): Promise<GetTestStepResponse["operation"]> {
     const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
       testStepId,
       {

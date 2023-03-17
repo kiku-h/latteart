@@ -16,11 +16,7 @@
 
 import path from "path";
 import { ImportFileRepositoryService } from "./ImportFileRepositoryService";
-import {
-  deserializeTestResult,
-  DeserializedTestResult,
-  DeserializedTestStep,
-} from "@/lib/deserializeTestResult";
+import { deserializeTestResult } from "@/services/helper/deserializeTestResult";
 import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -31,6 +27,10 @@ import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { TagEntity } from "@/entities/TagEntity";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
+import {
+  DeserializedTestResult,
+  DeserializedTestStep,
+} from "@/interfaces/exportData";
 
 export class TestResultImportService {
   constructor(
@@ -69,7 +69,7 @@ export class TestResultImportService {
         };
         screenshots: {
           filePath: string;
-          data: string;
+          data: Buffer;
         }[];
       };
       testResultId: string | null;
@@ -90,7 +90,7 @@ export class TestResultImportService {
       };
       screenshots: {
         filePath: string;
-        data: string;
+        data: Buffer;
       }[];
     },
     testResultId: string | null
@@ -112,8 +112,7 @@ export class TestResultImportService {
             const fileName = `${screenshotEntity.id}${fileExt}`;
             await this.service.screenshotFileRepository.outputFile(
               fileName,
-              screenshot.data,
-              "base64"
+              screenshot.data
             );
             const imageFileUrl =
               this.service.screenshotFileRepository.getFileUrl(fileName);

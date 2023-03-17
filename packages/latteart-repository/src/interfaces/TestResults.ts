@@ -15,6 +15,8 @@
  */
 
 import { SequenceView, TestResult, TestResultViewOption } from "@/lib/types";
+import { GetNoteResponse } from "./Notes";
+import { GetTestStepResponse } from "./TestSteps";
 
 /**
  * Test result data for new registration.
@@ -44,12 +46,19 @@ export interface CreateTestResultResponse {
 /**
  * Test result data for the specified ID.
  */
-export type GetTestResultResponse = TestResult;
+export type GetTestResultResponse = Omit<TestResult, "testSteps"> & {
+  testSteps: (Pick<TestResult["testSteps"][0], "id"> & {
+    operation: GetTestStepResponse["operation"];
+    intention: GetNoteResponse | null;
+    bugs: GetNoteResponse[];
+    notices: GetNoteResponse[];
+  })[];
+};
 
 /**
  * Updated test result data.
  */
-export type PatchTestResultResponse = TestResult;
+export type PatchTestResultResponse = GetTestResultResponse;
 
 /**
  * Sequence view generation option.

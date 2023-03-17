@@ -33,14 +33,16 @@ export type UpdateNoteDto = Pick<Note, "type" | "value" | "details"> & {
 /**
  * Registered note data.
  */
-export type CreateNoteResponse = Note;
+export type CreateNoteResponse = Omit<Note, "screenshot"> & {
+  imageFileUrl: string;
+};
 
 /**
  * Note data for the specified ID.
  */
-export type GetNoteResponse = Note;
+export type GetNoteResponse = CreateNoteResponse;
 
 /**
  * Updated note data.
  */
-export type UpdateNoteResponse = Note;
+export type UpdateNoteResponse = CreateNoteResponse;

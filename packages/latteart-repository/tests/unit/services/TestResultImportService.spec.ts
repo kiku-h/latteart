@@ -17,7 +17,7 @@ import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import {
   TestResultExportDataV1,
   TestResultExportDataV2,
-} from "@/lib/deserializeTestResult";
+} from "@/interfaces/exportData";
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();
@@ -62,15 +62,13 @@ describe("TestResultImportService", () => {
         timestamp: timestampService,
       });
 
-      const base64TestImage = (
-        await fs.promises.readFile(
-          path.join(packageRootDirPath, "resources", "test.png")
-        )
-      ).toString("base64");
+      const testImage = await fs.promises.readFile(
+        path.join(packageRootDirPath, "resources", "test.png")
+      );
 
       const screenshots = [
-        { filePath: "noteScreenshot.png", data: base64TestImage },
-        { filePath: "testStepScreenshot.webp", data: base64TestImage },
+        { filePath: "noteScreenshot.png", data: testImage },
+        { filePath: "testStepScreenshot.webp", data: testImage },
       ];
       const element1 = {
         tagname: "tagname",
@@ -191,7 +189,7 @@ describe("TestResultImportService", () => {
       );
       expect(
         (await fs.promises.readFile(testStepImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // Noteの確認
       const noteEntities = testStepEntity.notes ?? [];
@@ -212,7 +210,7 @@ describe("TestResultImportService", () => {
       );
       expect(
         (await fs.promises.readFile(noteImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // TestPurposeの確認
       const testPurposeEntity = testStepEntity.testPurpose;
@@ -293,15 +291,13 @@ describe("TestResultImportService", () => {
         timestamp: timestampService,
       });
 
-      const base64TestImage = (
-        await fs.promises.readFile(
-          path.join(packageRootDirPath, "resources", "test.png")
-        )
-      ).toString("base64");
+      const testImage = await fs.promises.readFile(
+        path.join(packageRootDirPath, "resources", "test.png")
+      );
 
       const screenshots = [
-        { filePath: "noteScreenshot.png", data: base64TestImage },
-        { filePath: "testStepScreenshot.webp", data: base64TestImage },
+        { filePath: "noteScreenshot.png", data: testImage },
+        { filePath: "testStepScreenshot.webp", data: testImage },
       ];
       const element1 = {
         tagname: "tagname",
@@ -423,7 +419,7 @@ describe("TestResultImportService", () => {
       );
       expect(
         (await fs.promises.readFile(testStepImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // Noteの確認
       const noteEntities = testStepEntity.notes ?? [];
@@ -444,7 +440,7 @@ describe("TestResultImportService", () => {
       );
       expect(
         (await fs.promises.readFile(noteImageFilePath)).toString("base64")
-      ).toEqual(base64TestImage);
+      ).toEqual(testImage.toString("base64"));
 
       // TestPurposeの確認
       const testPurposeEntity = testStepEntity.testPurpose;

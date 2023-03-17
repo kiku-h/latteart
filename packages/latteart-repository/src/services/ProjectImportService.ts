@@ -42,7 +42,7 @@ import { FileRepository } from "@/interfaces/fileRepository";
 interface TestResultData {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
-  screenshots: { filePath: string; data: string }[];
+  screenshots: { filePath: string; data: Buffer }[];
 }
 
 interface ProjectData {
@@ -202,14 +202,12 @@ export class ProjectImportService {
           data: testResultFile.data as string,
         };
       } else if (
-        [".png", ".webp"].includes(path.extname(testResultFile.filePath))
+        [".png", ".webp"].includes(path.extname(testResultFile.filePath)) &&
+        typeof testResultFile.data !== "string"
       ) {
         testResultObj.screenshots.push({
           filePath: path.basename(testResultFile.filePath),
-          data:
-            typeof testResultFile.data !== "string"
-              ? testResultFile.data.toString("base64")
-              : "",
+          data: testResultFile.data,
         });
       }
       testResultMap.set(testResultId, testResultObj);

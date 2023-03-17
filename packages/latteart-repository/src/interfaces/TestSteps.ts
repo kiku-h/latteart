@@ -41,7 +41,7 @@ export type CreateTestStepDto = {
  */
 export type GetTestStepResponse = {
   id: string;
-  operation: Operation;
+  operation: Omit<Operation, "screenshot"> & { imageFileUrl: string };
   intention: string | null;
   bugs: string[];
   notices: string[];

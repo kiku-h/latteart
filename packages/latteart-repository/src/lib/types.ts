@@ -51,7 +51,6 @@ export type Operation = {
   elementInfo: ElementInfo | null;
   title: string;
   url: string;
-  imageFileUrl: string;
   timestamp: string;
   windowHandle: string;
   inputElements: ElementInfo[];
@@ -59,6 +58,7 @@ export type Operation = {
   isAutomatic: boolean;
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
+  screenshot: { data: () => Promise<Buffer> };
 };
 
 /**
@@ -69,8 +69,8 @@ export type Note = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl: string;
   tags: string[];
+  screenshot: { data: () => Promise<Buffer> };
 };
 
 /**
