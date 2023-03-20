@@ -41,13 +41,7 @@ import { CreateResponse } from "../interfaces/Snapshots";
 import { SnapshotsService } from "../services/SnapshotsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
 import { SnapshotConfig } from "../interfaces/Configs";
-import {
-  createAttachedFileRepository,
-  createScreenshotFileRepository,
-  createSnapshotRepository,
-  createWorkingFileRepository,
-} from "@/gateways/fileRepository";
-import { FileRepository } from "@/interfaces/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 import {
   createHistoryViewerTemplate,
   createSnapshotViewerTemplate,
@@ -72,11 +66,12 @@ export class SnapshotsController extends Controller {
     @Path() projectId: string,
     @Body() snapshotConfig: SnapshotConfig
   ): Promise<CreateResponse> {
-    const workingFileRepository = await createWorkingFileRepository();
     try {
-      return await this.createSnapshotsService(
-        workingFileRepository
-      ).createSnapshot(projectId, snapshotConfig);
+      const createSnapshotsService = await this.createSnapshotsService();
+      return await createSnapshotsService.createSnapshot(
+        projectId,
+        snapshotConfig
+      );
     } catch (error) {
       if (error instanceof Error) {
         LoggingService.error("Save snapshot failed.", error);
@@ -89,11 +84,12 @@ export class SnapshotsController extends Controller {
     }
   }
 
-  private createSnapshotsService(workingFileRepository: FileRepository) {
+  private async createSnapshotsService() {
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
-    const snapshotRepository = createSnapshotRepository();
-    const attachedFileRepository = createAttachedFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
+    const snapshotRepository = await createFileRepository("snapshot");
+    const attachedFileRepository = await createFileRepository("attachedFile");
+    const workingFileRepository = await createFileRepository("screenshot");
     const viewerTemplate = {
       snapshot: createSnapshotViewerTemplate(),
       history: createHistoryViewerTemplate(),
@@ -128,7 +124,6 @@ export class SnapshotsController extends Controller {
     const snapshotFileRepositoryService = new SnapshotFileRepositoryServiceImpl(
       {
         snapshotRepository,
-        screenshotFileRepository,
         timestamp: timestampService,
         testResult: testResultService,
         testStep: testStepService,

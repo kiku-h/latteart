@@ -38,5 +38,18 @@ export type FileRepository = {
 
   moveFile(sourceFilePath: string, destRelativePath: string): Promise<void>;
 
-  copyFile(sourceFilePath: string, destRelativePath: string): Promise<void>;
+  copyFile(
+    sourceFileName: string,
+    destRelativePath: string,
+    sourceRepositoryName: RepositoryName
+  ): Promise<void>;
 };
+
+export type RepositoryName =
+  | "screenshot"
+  | "attachedFile"
+  | "snapshot"
+  | "testScript"
+  | "export"
+  | "temp"
+  | "work";

@@ -25,7 +25,7 @@ export class TestScriptJSDocRenderingService
   public async render(
     workingFileRepository: FileRepository,
     testScriptDirName: string,
-    screenshotFilePaths: string[]
+    screenshotFileNames: string[]
   ): Promise<void> {
     const confFilePath = path.join(testScriptDirName, "conf.json");
     const assetsDir = path.join(testScriptDirName, "assets");
@@ -33,10 +33,11 @@ export class TestScriptJSDocRenderingService
     const screenshotDirPath = path.join(assetsDir, "screenshots");
 
     await Promise.all(
-      screenshotFilePaths.map((filePath) => {
+      screenshotFileNames.map((fileName) => {
         return workingFileRepository.copyFile(
-          filePath,
-          path.join(screenshotDirPath, path.basename(filePath))
+          fileName,
+          path.join(screenshotDirPath, fileName),
+          "screenshot"
         );
       })
     );

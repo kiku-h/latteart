@@ -34,11 +34,7 @@ import {
 } from "tsoa";
 import { CreateTestScriptDto } from "../interfaces/TestScripts";
 import { TestScriptsService } from "../services/TestScriptsService";
-import {
-  createScreenshotFileRepository,
-  createTestScriptRepository,
-  createWorkingFileRepository,
-} from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/test-scripts")
 @Tags("test-results")
@@ -60,9 +56,9 @@ export class TestScriptsController extends Controller {
     @Body() requestBody: CreateTestScriptDto
   ): Promise<{ url: string; invalidOperationTypeExists: boolean }> {
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
-    const testScriptRepository = createTestScriptRepository();
-    const workingFileRepository = await createWorkingFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
+    const testScriptRepository = await createFileRepository("testScript");
+    const workingFileRepository = await createFileRepository("work");
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,

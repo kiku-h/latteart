@@ -31,11 +31,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  createExportFileRepository,
-  createScreenshotFileRepository,
-  createWorkingFileRepository,
-} from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -55,9 +51,9 @@ export class TestResultExportController extends Controller {
     @Path() testResultId: string
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
-    const exportFileRepository = createExportFileRepository();
-    const workingFileRepository = await createWorkingFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
+    const exportFileRepository = await createFileRepository("export");
+    const workingFileRepository = await createFileRepository("work");
 
     const testResultService = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -70,7 +66,6 @@ export class TestResultExportController extends Controller {
 
     const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
       exportFileRepository,
-      screenshotFileRepository,
       workingFileRepository,
       timestamp: timestampService,
     });

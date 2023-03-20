@@ -37,7 +37,7 @@ import {
   PostSessionResponse,
 } from "../interfaces/Sessions";
 import { SessionsService } from "../services/SessionsService";
-import { createAttachedFileRepository } from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("projects/{projectId}/sessions")
 @Tags("projects")
@@ -91,7 +91,7 @@ export class SessionsController extends Controller {
     @Path() sessionId: string,
     @Body() requestBody: PatchSessionDto
   ): Promise<PatchSessionResponse> {
-    const attachedFileRepository = createAttachedFileRepository();
+    const attachedFileRepository = await createFileRepository("attachedFile");
     try {
       return await new SessionsService().patchSession(
         projectId,

@@ -29,7 +29,7 @@ import {
 import { ImportFileRepositoryServiceImpl } from "@/services/ImportFileRepositoryService";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import { CreateTestResultImportDto } from "../interfaces/TesResultImport";
-import { createScreenshotFileRepository } from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("imports/test-results")
 @Tags("imports")
@@ -50,7 +50,7 @@ export class TestResultImportController extends Controller {
   ): Promise<{ testResultId: string }> {
     const timestampService = new TimestampServiceImpl();
     const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       const result = await new TestResultImportService({

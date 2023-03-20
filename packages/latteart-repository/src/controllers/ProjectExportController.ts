@@ -38,11 +38,7 @@ import { ConfigsService } from "@/services/ConfigsService";
 import { ExportFileRepositoryServiceImpl } from "@/services/ExportFileRepositoryService";
 import { ProjectsServiceImpl } from "@/services/ProjectsService";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
-import {
-  createExportFileRepository,
-  createScreenshotFileRepository,
-  createWorkingFileRepository,
-} from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("projects/{projectId}/export")
 @Tags("projects")
@@ -65,12 +61,11 @@ export class ProjectExportController extends Controller {
   ): Promise<{ url: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
-      const screenshotFileRepository = createScreenshotFileRepository();
-      const exportFileRepository = createExportFileRepository();
-      const workingFileRepository = await createWorkingFileRepository();
+      const screenshotFileRepository = await createFileRepository("screenshot");
+      const exportFileRepository = await createFileRepository("export");
+      const workingFileRepository = await createFileRepository("work");
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
         exportFileRepository,
-        screenshotFileRepository,
         workingFileRepository,
         timestamp: timestampService,
       });

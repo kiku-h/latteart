@@ -27,11 +27,7 @@ import {
   Response,
   SuccessResponse,
 } from "tsoa";
-import {
-  createScreenshotFileRepository,
-  createTempFileRepository,
-  createWorkingFileRepository,
-} from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/screenshots")
 @Tags("test-results")
@@ -51,14 +47,12 @@ export class ScreenshotsController extends Controller {
     @Path() testResultId: string
   ): Promise<{ url: string }> {
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
-    const tempFileRepository = createTempFileRepository();
-    const workingFileRepository = await createWorkingFileRepository();
+    const tempFileRepository = await createFileRepository("temp");
+    const workingFileRepository = await createFileRepository("work");
     try {
       const url = await new ScreenshotsService().getScreenshots(
         testResultId,
         tempFileRepository,
-        screenshotFileRepository,
         workingFileRepository,
         timestampService
       );

@@ -39,7 +39,6 @@ export class SnapshotFileRepositoryServiceImpl
   constructor(
     private service: {
       snapshotRepository: FileRepository;
-      screenshotFileRepository: FileRepository;
       timestamp: TimestampService;
       testResult: TestResultService;
       testStep: TestStepService;
@@ -169,12 +168,10 @@ export class SnapshotFileRepositoryServiceImpl
       const attachedFileUrl = attachedFile.fileUrl;
       const attachedFileName = attachedFileUrl.split("/").slice(-1)[0];
 
-      const attachedFilePath =
-        this.service.attachedFileRepository.getFilePath(attachedFileName);
-
       await this.service.workingFileRepository.copyFile(
-        attachedFilePath,
-        path.join(destAttachedFilesDirPath, attachedFileName)
+        attachedFileName,
+        path.join(destAttachedFilesDirPath, attachedFileName),
+        "attachedFile"
       );
     }
   }
@@ -367,20 +364,12 @@ export class SnapshotFileRepositoryServiceImpl
       return;
     }
 
-    const operationScreenshotFileName = sourceImageFileUrl
-      .split("/")
-      .slice(-1)[0];
-    const sourceScreenshotFilePath =
-      this.service.screenshotFileRepository.getFilePath(
-        operationScreenshotFileName
-      );
-    const destScreenshotFilePath = path.join(
-      destDirectoryName,
-      path.basename(sourceScreenshotFilePath)
-    );
+    const fileName = sourceImageFileUrl.split("/").slice(-1)[0];
+
     await this.service.workingFileRepository.copyFile(
-      sourceScreenshotFilePath,
-      destScreenshotFilePath
+      fileName,
+      path.join(destDirectoryName, fileName),
+      "screenshot"
     );
   }
 
@@ -507,7 +496,7 @@ export class SnapshotFileRepositoryServiceImpl
   }
 
   private async copySnapshotViewer(outputDirName: string) {
-    //snapshotディレクトリをそのまま別名でcopy
+    // copy snapshot directory
     await this.service.viewerTemplate.snapshot.copyDir(
       this.service.workingFileRepository,
       outputDirName

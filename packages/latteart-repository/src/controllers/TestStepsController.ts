@@ -38,7 +38,7 @@ import {
   CreateTestStepResponse,
   PatchTestStepResponse,
 } from "../interfaces/TestSteps";
-import { createScreenshotFileRepository } from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/test-steps")
 @Tags("test-results")
@@ -61,7 +61,7 @@ export class TestStepsController extends Controller {
   ): Promise<CreateTestStepResponse> {
     console.log("TestStepsController - addTestStep");
 
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       return await new TestStepServiceImpl({
@@ -98,7 +98,7 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string
   ): Promise<GetTestStepResponse> {
     console.log("TestStepsController - getTestStep");
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,
@@ -140,7 +140,7 @@ export class TestStepsController extends Controller {
     @Path() testStepId: string,
     @Body() requestBody: PatchTestStepDto
   ): Promise<PatchTestStepResponse> {
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     const testStepService = new TestStepServiceImpl({
       screenshotFileRepository,

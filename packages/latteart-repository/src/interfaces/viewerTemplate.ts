@@ -27,7 +27,7 @@ export type ViewerTemplate = {
 
   copyFile(
     fileRepository: FileRepository,
-    relativePath: string,
+    fileName: string,
     destRelativePath: string
   ): Promise<void>;
 };

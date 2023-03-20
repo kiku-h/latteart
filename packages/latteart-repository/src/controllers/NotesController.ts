@@ -39,7 +39,7 @@ import {
   UpdateNoteResponse,
 } from "../interfaces/Notes";
 import { NotesServiceImpl } from "../services/NotesService";
-import { createScreenshotFileRepository } from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results/{testResultId}/notes")
 @Tags("test-results")
@@ -61,7 +61,7 @@ export class NotesController extends Controller {
     console.log("NotesController - addNote");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     if (!["notice", "intention"].includes(requestBody.type)) {
       LoggingService.error(`invalid note type: ${requestBody.type}`);
@@ -112,7 +112,7 @@ export class NotesController extends Controller {
     console.log("NotesController - getNote");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       const note = await new NotesServiceImpl({
@@ -168,7 +168,7 @@ export class NotesController extends Controller {
     console.log("NotesController - updateNote");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       const note = await new NotesServiceImpl({
@@ -227,7 +227,7 @@ export class NotesController extends Controller {
     console.log("NotesController - deleteNote");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       const note = await new NotesServiceImpl({

@@ -45,7 +45,7 @@ import {
   GetSequenceViewResponse,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
-import { createScreenshotFileRepository } from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("test-results")
 @Tags("test-results")
@@ -60,7 +60,7 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getTestResultIdentifiers");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     return new TestResultServiceImpl({
       timestamp: timestampService,
@@ -93,7 +93,7 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       const testResult = await new TestResultServiceImpl({
@@ -145,7 +145,7 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - createTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       const result = await new TestResultServiceImpl({
@@ -190,7 +190,7 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - updateTestResult");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     try {
       return await new TestResultServiceImpl({
@@ -228,7 +228,7 @@ export class TestResultsController extends Controller {
   @Delete("{testResultId}")
   public async deleteTestResult(@Path() testResultId: string): Promise<void> {
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     const service = new TestResultServiceImpl({
       timestamp: timestampService,
@@ -290,7 +290,7 @@ export class TestResultsController extends Controller {
     console.log("TestResultsController - getSequenceView");
 
     const timestampService = new TimestampServiceImpl();
-    const screenshotFileRepository = createScreenshotFileRepository();
+    const screenshotFileRepository = await createFileRepository("screenshot");
 
     const service = new TestResultServiceImpl({
       timestamp: timestampService,

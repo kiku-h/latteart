@@ -73,16 +73,14 @@ export class TestScriptFileRepositoryServiceImpl
   ): Promise<string> {
     const testScriptDirName = await this.outputScripts(testScripts);
 
-    const screenshotFilePaths = screenshots.map(({ fileUrl }) => {
-      const fileName = fileUrl.split("/").slice(-1)[0];
-
-      return this.service.screenshotFileRepository.getFilePath(fileName);
+    const screenshotFileNames = screenshots.map(({ fileUrl }) => {
+      return fileUrl.split("/").slice(-1)[0];
     });
 
     await this.service.testScriptDocRendering.render(
       this.service.workingFileRepository,
       testScriptDirName,
-      screenshotFilePaths
+      screenshotFileNames
     );
 
     const zipFilePath = await this.service.workingFileRepository.outputZip(

@@ -34,10 +34,7 @@ import { TestStepServiceImpl } from "@/services/TestStepService";
 import { ConfigsService } from "@/services/ConfigsService";
 import { NotesServiceImpl } from "@/services/NotesService";
 import { TestPurposeServiceImpl } from "@/services/TestPurposeService";
-import {
-  createAttachedFileRepository,
-  createScreenshotFileRepository,
-} from "@/gateways/fileRepository";
+import { createFileRepository } from "@/gateways/fileRepository";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -66,8 +63,8 @@ export class ProjectImportController extends Controller {
   ): Promise<{ projectId: string }> {
     try {
       const timestampService = new TimestampServiceImpl();
-      const screenshotFileRepository = createScreenshotFileRepository();
-      const attachedFileRepository = createAttachedFileRepository();
+      const screenshotFileRepository = await createFileRepository("screenshot");
+      const attachedFileRepository = await createFileRepository("attachedFile");
 
       const configService = new ConfigsService();
       const testStepService = new TestStepServiceImpl({

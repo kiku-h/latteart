@@ -17,7 +17,6 @@
 import path from "path";
 import { TimestampService } from "./TimestampService";
 import { FileRepository } from "@/interfaces/fileRepository";
-import { createAttachedFileRepository } from "@/gateways/fileRepository";
 
 interface exportProjectData {
   projectId: string;
@@ -57,7 +56,6 @@ export class ExportFileRepositoryServiceImpl
   constructor(
     private service: {
       exportFileRepository: FileRepository;
-      screenshotFileRepository: FileRepository;
       workingFileRepository: FileRepository;
       timestamp: TimestampService;
     }
@@ -118,8 +116,6 @@ export class ExportFileRepositoryServiceImpl
       project.progressesFile.data
     );
 
-    const attachedFileRepository = createAttachedFileRepository();
-
     await Promise.all(
       project.stories.map(async (story) => {
         await Promise.all(
@@ -135,17 +131,11 @@ export class ExportFileRepositoryServiceImpl
                   );
 
                   const fileName = attachedFile.fileUrl.split("/").slice(-1)[0];
-                  const srcFilePath =
-                    attachedFileRepository.getFilePath(fileName);
-                  console.log(
-                    `attached: ${srcFilePath} => ${path.join(
-                      distAttachedDirPath,
-                      fileName
-                    )}`
-                  );
+
                   await this.service.workingFileRepository.copyFile(
-                    srcFilePath,
-                    path.join(distAttachedDirPath, fileName)
+                    fileName,
+                    path.join(distAttachedDirPath, fileName),
+                    "attachedFile"
                   );
                 }
                 return;
@@ -180,13 +170,10 @@ export class ExportFileRepositoryServiceImpl
       testResult.screenshots.map(async (screenshot) => {
         const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
 
-        const srcFilePath =
-          this.service.screenshotFileRepository.getFilePath(fileName);
-        const distFilePath = path.join(testResultPath, "screenshot", fileName);
-        console.log(`${srcFilePath} => ${distFilePath}`);
         return await this.service.workingFileRepository.copyFile(
-          srcFilePath,
-          distFilePath
+          fileName,
+          path.join(testResultPath, "screenshot", fileName),
+          "screenshot"
         );
       })
     ).catch((e) => {
@@ -230,17 +217,16 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    const screenshotFilePaths = testResult.screenshots.map(({ fileUrl }) => {
-      const fileName = fileUrl.split("/").slice(-1)[0];
-
-      return this.service.screenshotFileRepository.getFilePath(fileName);
+    const screenshotFileNames = testResult.screenshots.map(({ fileUrl }) => {
+      return fileUrl.split("/").slice(-1)[0];
     });
 
     await Promise.all(
-      screenshotFilePaths.map((filePath) => {
+      screenshotFileNames.map((fileName) => {
         return this.service.workingFileRepository.copyFile(
-          filePath,
-          path.join(outputDirName, path.basename(filePath))
+          fileName,
+          path.join(outputDirName, path.basename(fileName)),
+          "screenshot"
         );
       })
     );

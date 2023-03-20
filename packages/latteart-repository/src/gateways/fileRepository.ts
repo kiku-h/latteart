@@ -17,18 +17,18 @@
 import path from "path";
 import fs from "fs-extra";
 import os from "os";
-import { FileRepository } from "@/interfaces/fileRepository";
+import { FileRepository, RepositoryName } from "@/interfaces/fileRepository";
 import { publicDirPath } from "@/common";
 import FileArchiver from "./FileArchiver";
 
 export class StaticDirectory {
-  constructor(private staticRootPath: string) {}
+  constructor(private staticDirPath: string) {}
 
   public async readFile(
     relativePath: string,
     encoding?: "utf8" | "base64" | "binary"
   ): Promise<string | Buffer> {
-    return fs.promises.readFile(path.join(this.staticRootPath, relativePath), {
+    return fs.promises.readFile(path.join(this.staticDirPath, relativePath), {
       encoding,
     });
   }
@@ -40,23 +40,23 @@ export class StaticDirectory {
   ): Promise<void> {
     const decode =
       typeof data === "string" ? Buffer.from(data, encoding) : data;
-    await fs.outputFile(path.join(this.staticRootPath, relativePath), decode);
+    await fs.outputFile(path.join(this.staticDirPath, relativePath), decode);
   }
 
   public async outputJSON<T>(relativePath: string, data: T): Promise<void> {
-    await fs.outputJSON(path.join(this.staticRootPath, relativePath), data);
+    await fs.outputJSON(path.join(this.staticDirPath, relativePath), data);
   }
 
   public async outputZip(
     relativePath: string,
     deleteSource: boolean
   ): Promise<string> {
-    const dirPath = path.join(this.staticRootPath, relativePath);
+    const dirPath = path.join(this.staticDirPath, relativePath);
     return new FileArchiver(dirPath, { deleteSource: deleteSource }).zip();
   }
 
   public async removeFile(relativePath: string): Promise<void> {
-    await fs.remove(path.join(this.staticRootPath, relativePath));
+    await fs.remove(path.join(this.staticDirPath, relativePath));
   }
 
   public getFileUrl(relativePath: string): string {
@@ -64,14 +64,14 @@ export class StaticDirectory {
   }
 
   public getFilePath(relativePath: string): string {
-    return path.join(this.staticRootPath, relativePath);
+    return path.join(this.staticDirPath, relativePath);
   }
 
   public async moveFile(
     sourceFilePath: string,
     destRelativePath: string
   ): Promise<void> {
-    const destFilePath = path.join(this.staticRootPath, destRelativePath);
+    const destFilePath = path.join(this.staticDirPath, destRelativePath);
 
     await fs.mkdirp(path.dirname(destFilePath));
     await fs.copyFile(sourceFilePath, destFilePath);
@@ -82,27 +82,54 @@ export class StaticDirectory {
     sourceFilePath: string,
     destRelativePath: string
   ): Promise<void> {
-    const destFilePath = path.join(this.staticRootPath, destRelativePath);
+    const destFilePath = path.join(this.staticDirPath, destRelativePath);
+
+    console.log(`${sourceFilePath} => ${destFilePath}`);
 
     await fs.mkdirp(path.dirname(destFilePath));
     await fs.copyFile(sourceFilePath, destFilePath);
   }
 }
 
-export class FileRepositoryImpl implements FileRepository {
+export async function createFileRepository(name: RepositoryName) {
+  const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
+  const fileRepositories = new Map([
+    [
+      "screenshot",
+      new StaticDirectory(path.join(publicDirPath, "screenshots")),
+    ],
+    [
+      "attachedFile",
+      new StaticDirectory(path.join(publicDirPath, "attached-files")),
+    ],
+    ["snapshot", new StaticDirectory(path.join(publicDirPath, "snapshots"))],
+    [
+      "testScript",
+      new StaticDirectory(path.join(publicDirPath, "test-scripts")),
+    ],
+    ["export", new StaticDirectory(path.join(publicDirPath, "exports"))],
+    ["temp", new StaticDirectory(path.join(publicDirPath, "temp"))],
+    ["work", new StaticDirectory(path.join(tmpDirPath, "work"))],
+  ]);
+
+  return new MultipleFileRepository(name, fileRepositories);
+}
+
+export class MultipleFileRepository implements FileRepository {
   constructor(
-    private staticDirectory: StaticDirectory,
-    private directoryPath: string
+    private name: RepositoryName,
+    private fileRepositories: Map<string, StaticDirectory>
   ) {}
 
   public async readFile(
     relativePath: string,
     encoding?: "utf8" | "base64" | "binary"
   ): Promise<string | Buffer> {
-    return this.staticDirectory.readFile(
-      path.join(this.directoryPath, relativePath),
-      encoding
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.readFile(relativePath, encoding);
   }
 
   public async outputFile(
@@ -110,97 +137,86 @@ export class FileRepositoryImpl implements FileRepository {
     data: string | Buffer,
     encoding?: "utf8" | "base64"
   ): Promise<void> {
-    return this.staticDirectory.outputFile(
-      path.join(this.directoryPath, relativePath),
-      data,
-      encoding
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.outputFile(relativePath, data, encoding);
   }
 
   public async outputJSON<T>(relativePath: string, data: T): Promise<void> {
-    return this.staticDirectory.outputJSON(
-      path.join(this.directoryPath, relativePath),
-      data
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.outputJSON(relativePath, data);
   }
 
   public async outputZip(
     relativePath: string,
     deleteSource: boolean
   ): Promise<string> {
-    return this.staticDirectory.outputZip(
-      path.join(this.directoryPath, relativePath),
-      deleteSource
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.outputZip(relativePath, deleteSource);
   }
 
   public async removeFile(relativePath: string): Promise<void> {
-    return this.staticDirectory.removeFile(
-      path.join(this.directoryPath, relativePath)
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.removeFile(relativePath);
   }
 
   public getFileUrl(relativePath: string): string {
-    return this.staticDirectory.getFileUrl(
-      path.join(this.directoryPath, relativePath)
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.getFileUrl(relativePath);
   }
 
   public getFilePath(relativePath: string): string {
-    return this.staticDirectory.getFilePath(
-      path.join(this.directoryPath, relativePath)
-    );
+    const repository = this.fileRepositories.get(this.name);
+    if (!repository) {
+      throw new Error("File repository not found.");
+    }
+    return repository.getFilePath(relativePath);
   }
 
   public async moveFile(
     sourceFilePath: string,
     destRelativePath: string
   ): Promise<void> {
-    return this.staticDirectory.moveFile(
-      sourceFilePath,
-      path.join(this.directoryPath, destRelativePath)
-    );
+    const fileRepository = this.fileRepositories.get(this.name);
+    if (!fileRepository) {
+      throw new Error("File repository not found.");
+    }
+
+    return fileRepository.moveFile(sourceFilePath, destRelativePath);
   }
 
   public async copyFile(
-    sourceFilePath: string,
-    destRelativePath: string
+    sourceFileName: string,
+    destRelativePath: string,
+    sourceRepositoryName: RepositoryName
   ): Promise<void> {
-    return this.staticDirectory.copyFile(
-      sourceFilePath,
-      path.join(this.directoryPath, destRelativePath)
-    );
+    const destFileRepository = this.fileRepositories.get(this.name);
+    if (!destFileRepository) {
+      throw new Error("File repository not found.");
+    }
+
+    const sourceFileRepository =
+      this.fileRepositories.get(sourceRepositoryName);
+    if (!sourceFileRepository) {
+      throw new Error("File repository not found.");
+    }
+
+    const sourceFilePath = sourceFileRepository.getFilePath(sourceFileName);
+
+    return destFileRepository.copyFile(sourceFilePath, destRelativePath);
   }
-}
-
-export const createWorkingFileRepository = async () => {
-  const tmpDirPath = await fs.mkdtemp(path.join(os.tmpdir(), "latteart-"));
-  const workingDirectory = new StaticDirectory(tmpDirPath);
-  return new FileRepositoryImpl(workingDirectory, "work");
-};
-
-const staticDirectory = new StaticDirectory(publicDirPath);
-
-export function createScreenshotFileRepository() {
-  return new FileRepositoryImpl(staticDirectory, "screenshots");
-}
-
-export function createAttachedFileRepository() {
-  return new FileRepositoryImpl(staticDirectory, "attached-files");
-}
-
-export function createSnapshotRepository() {
-  return new FileRepositoryImpl(staticDirectory, "snapshots");
-}
-
-export function createTestScriptRepository() {
-  return new FileRepositoryImpl(staticDirectory, "test-scripts");
-}
-
-export function createExportFileRepository() {
-  return new FileRepositoryImpl(staticDirectory, "exports");
-}
-
-export function createTempFileRepository() {
-  return new FileRepositoryImpl(staticDirectory, "temp");
 }

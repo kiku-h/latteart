@@ -1,4 +1,4 @@
-import { FileRepositoryImpl, StaticDirectory } from "@/gateways/fileRepository";
+import { StaticDirectory } from "@/gateways/fileRepository";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import fs from "fs-extra";
 import path from "path";
@@ -48,11 +48,9 @@ describe("TestResultImportService", () => {
         format: jest.fn().mockReturnValue("0"),
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
-      const staticDirectory = new StaticDirectory(tmpDirPath);
 
-      const screenshotFileRepository = new FileRepositoryImpl(
-        staticDirectory,
-        "screenshots"
+      const screenshotFileRepository = new StaticDirectory(
+        path.join(tmpDirPath, "screenshots")
       );
       const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
@@ -277,12 +275,10 @@ describe("TestResultImportService", () => {
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
 
-      const staticDirectory = new StaticDirectory(tmpDirPath);
-
-      const screenshotFileRepository = new FileRepositoryImpl(
-        staticDirectory,
-        "screenshots"
+      const screenshotFileRepository = new StaticDirectory(
+        path.join(tmpDirPath, "screenshots")
       );
+
       const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
 
       const service = new TestResultImportService({

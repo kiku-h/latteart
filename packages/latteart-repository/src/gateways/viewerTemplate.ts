@@ -50,7 +50,8 @@ export class ViewerTemplateImpl implements ViewerTemplate {
     const destDirPath = fileRepository.getFilePath(destRelativePath);
 
     for (const file of files) {
-      await fileRepository.copyFile(
+      await fs.mkdirp(destDirPath);
+      await fs.copyFile(
         path.join(viewerTemplatePath, file),
         path.join(destDirPath, file)
       );
@@ -59,16 +60,19 @@ export class ViewerTemplateImpl implements ViewerTemplate {
 
   public async copyFile(
     fileRepository: FileRepository,
-    relativePath: string,
+    fileName: string,
     destRelativePath: string
   ): Promise<void> {
     const viewerTemplatePath = path.join(
       this.appDirPath,
       this.dirPath,
-      relativePath
+      fileName
     );
 
-    await fileRepository.copyFile(viewerTemplatePath, destRelativePath);
+    const destFilePath = fileRepository.getFilePath(destRelativePath);
+
+    await fs.mkdirp(destFilePath);
+    await fs.copyFile(viewerTemplatePath, destFilePath);
   }
 }
 

@@ -24,7 +24,6 @@ export class ScreenshotsService {
   public async getScreenshots(
     testResultId: string,
     fileRepository: FileRepository,
-    screenshotFileRepository: FileRepository,
     workingFileRepository: FileRepository,
     timestampService: TimestampService
   ): Promise<string> {
@@ -51,10 +50,10 @@ export class ScreenshotsService {
 
     await Promise.all(
       screenshotFileNames.map(async (fileName, index) => {
-        const filePath = screenshotFileRepository.getFilePath(fileName);
         return await workingFileRepository.copyFile(
-          filePath,
-          path.join(dirName, `${index + 1}${path.extname(fileName)}`)
+          fileName,
+          path.join(dirName, `${index + 1}${path.extname(fileName)}`),
+          "screenshot"
         );
       })
     );

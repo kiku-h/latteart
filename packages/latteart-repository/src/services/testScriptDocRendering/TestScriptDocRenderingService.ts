@@ -20,6 +20,6 @@ export interface TestScriptDocRenderingService {
   render(
     workingFileRepository: FileRepository,
     testScriptDirName: string,
-    screenshotFilePaths: string[]
+    screenshotFileNames: string[]
   ): Promise<void>;
 }
