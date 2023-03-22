@@ -30,7 +30,11 @@ import { TimestampService } from "./TimestampService";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ConfigsService } from "./ConfigsService";
 import { FileRepository } from "@/interfaces/fileRepository";
-import { ElementInfo, Operation } from "@/lib/types";
+import { ElementInfo } from "@/lib/types";
+import {
+  convertTestStepEntityToResponse,
+  convertToTestStepOperation,
+} from "./helper/entityToResponse";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -71,7 +75,7 @@ export class TestStepServiceImpl implements TestStepService {
   public async getTestStep(testStepId: string): Promise<GetTestStepResponse> {
     const testStepEntity = await this.getTestStepEntity(testStepId);
 
-    return this.convertTestStepEntityToTestStep(testStepEntity);
+    return convertTestStepEntityToResponse(testStepEntity);
   }
 
   public async createTestStep(
@@ -174,9 +178,7 @@ export class TestStepServiceImpl implements TestStepService {
     );
 
     // result operation.
-    const operation = await this.getOperationFromTestStepEntity(
-      savedTestStepEntity
-    );
+    const operation = convertToTestStepOperation(savedTestStepEntity);
 
     // result coverage source.
     const savedCoverageSourceEntity =
@@ -221,7 +223,7 @@ export class TestStepServiceImpl implements TestStepService {
       testStepEntity
     );
 
-    return this.convertTestStepEntityToTestStep(updatedTestStepEntity);
+    return convertTestStepEntityToResponse(updatedTestStepEntity);
   }
 
   public async attachTestPurposeToTestStep(
@@ -240,7 +242,7 @@ export class TestStepServiceImpl implements TestStepService {
       testStepEntity
     );
 
-    return this.convertTestStepEntityToTestStep(updatedTestStepEntity);
+    return convertTestStepEntityToResponse(updatedTestStepEntity);
   }
 
   public async getTestStepOperation(
@@ -253,7 +255,7 @@ export class TestStepServiceImpl implements TestStepService {
       }
     );
 
-    return this.getOperationFromTestStepEntity(testStepEntity);
+    return convertToTestStepOperation(testStepEntity);
   }
 
   public async getTestStepScreenshot(
@@ -269,60 +271,6 @@ export class TestStepServiceImpl implements TestStepService {
     return {
       id: testStepEntity?.screenshot?.id ?? "",
       fileUrl: testStepEntity?.screenshot?.fileUrl ?? "",
-    };
-  }
-
-  private async getOperationFromTestStepEntity(testStepEntity: TestStepEntity) {
-    const elementInfo: Partial<ElementInfo> = JSON.parse(
-      testStepEntity.operationElement
-    );
-    const inputElements: ElementInfo[] = JSON.parse(
-      testStepEntity.inputElements
-    );
-    const keywordTexts: (string | { tagname: string; value: string })[] =
-      JSON.parse(testStepEntity.keywordTexts);
-
-    return {
-      input: testStepEntity.operationInput,
-      type: testStepEntity.operationType,
-      elementInfo:
-        Object.keys(elementInfo).length > 0
-          ? (elementInfo as ElementInfo)
-          : null,
-      title: testStepEntity.pageTitle,
-      url: testStepEntity.pageUrl,
-      imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
-      timestamp: testStepEntity.timestamp.toString(),
-      inputElements,
-      windowHandle: testStepEntity.windowHandle,
-      keywordTexts,
-      isAutomatic: !!testStepEntity.isAutomatic,
-      scrollPosition:
-        testStepEntity.scrollPositionX != null &&
-        testStepEntity.scrollPositionY != null
-          ? {
-              x: testStepEntity.scrollPositionX,
-              y: testStepEntity.scrollPositionY,
-            }
-          : undefined,
-      clientSize:
-        testStepEntity.clientSizeWidth != null &&
-        testStepEntity.clientSizeHeight != null
-          ? {
-              width: testStepEntity.clientSizeWidth,
-              height: testStepEntity.clientSizeHeight,
-            }
-          : undefined,
-    };
-  }
-
-  private async convertTestStepEntityToTestStep(entity: TestStepEntity) {
-    return {
-      id: entity.id,
-      operation: await this.getOperationFromTestStepEntity(entity),
-      intention: entity.testPurpose ? entity.testPurpose.id : null,
-      bugs: [],
-      notices: entity.notes?.map((note) => note.id) ?? [],
     };
   }
 

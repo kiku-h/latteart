@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { BackendConfig, ExportableConfig } from "@/interfaces/Configs";
+import {
+  BackendConfig,
+  ExportableConfig,
+  ProjectConfig,
+} from "@/interfaces/Configs";
 
 export function convertToExportableConfig(
   settings: BackendConfig
@@ -30,4 +34,25 @@ export function convertToExportableConfig(
     defaultTagList: settings.defaultTagList,
     viewPointsPreset: settings.viewPointsPreset,
   };
+}
+
+export function convertToConfigText(
+  text: string,
+  projectConfig: ProjectConfig,
+  command: string
+): string {
+  const configText = JSON.parse(text) as BackendConfig;
+  const settings: BackendConfig = {
+    ...projectConfig,
+    config: {
+      ...projectConfig.config,
+      imageCompression: {
+        ...projectConfig.config.imageCompression,
+        command,
+      },
+    },
+    captureSettings: configText.captureSettings,
+  };
+
+  return JSON.stringify(settings);
 }

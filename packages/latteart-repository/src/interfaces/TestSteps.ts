@@ -39,28 +39,26 @@ export type CreateTestStepDto = {
 /**
  * Test step data for the specified ID.
  */
-export type GetTestStepResponse = {
-  id: string;
-  operation: Omit<Operation, "screenshot"> & { imageFileUrl: string };
-  intention: string | null;
-  bugs: string[];
-  notices: string[];
+export type GetTestStepResponse = TestStep;
+
+/**
+ * Test step operation.
+ */
+export type TestStepOperation = Omit<Operation, "screenshot"> & {
+  imageFileUrl: string;
 };
 
 /**
  * Registered test step and coverage data.
  */
-export type CreateTestStepResponse = Pick<
-  GetTestStepResponse,
-  "id" | "operation"
-> & {
+export type CreateTestStepResponse = Pick<TestStep, "id" | "operation"> & {
   coverageSource: CoverageSource;
 };
 
 /**
  * Updated test step data.
  */
-export type PatchTestStepResponse = GetTestStepResponse;
+export type PatchTestStepResponse = TestStep;
 
 /**
  * Test step data for update.
@@ -70,3 +68,14 @@ export interface PatchTestStepDto {
   bugs?: string[];
   notices?: string[];
 }
+
+/**
+ * Test step.
+ */
+export type TestStep = {
+  id: string;
+  operation: TestStepOperation;
+  intention: string | null;
+  bugs: string[];
+  notices: string[];
+};

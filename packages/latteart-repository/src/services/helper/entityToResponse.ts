@@ -15,10 +15,17 @@
  */
 
 import { NoteEntity } from "@/entities/NoteEntity";
+import { ProjectEntity } from "@/entities/ProjectEntity";
 import { SessionEntity } from "@/entities/SessionEntity";
 import { StoryEntity } from "@/entities/StoryEntity";
+import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
+import { TestStepEntity } from "@/entities/TestStepEntity";
+import { Project } from "@/interfaces/Projects";
 import { Session } from "@/interfaces/Sessions";
 import { Story } from "@/interfaces/Stories";
+import { TestMatrix } from "@/interfaces/TestMatrices";
+import { TestStep, TestStepOperation } from "@/interfaces/TestSteps";
+import { ElementInfo } from "@/lib/types";
 
 type issue = {
   details: string;
@@ -130,5 +137,167 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
       : [],
     testerName: session.testUser,
     testingTime: session.testResult?.testingTime ?? 0,
+  };
+};
+
+export const projectEntityToResponse = (project: ProjectEntity): Project => {
+  const stories: Project["stories"] = [];
+  for (const testMatrix of project.testMatrices) {
+    for (const story of testMatrix.stories) {
+      stories.push(storyEntityToResponse(story));
+    }
+  }
+
+  const ascSortFunc = (a: any, b: any) => (a.index > b.index ? 1 : -1);
+
+  return {
+    id: project.id,
+    name: project.name,
+    testMatrices: project.testMatrices.sort(ascSortFunc).map((testMatrix) => {
+      return {
+        id: testMatrix.id,
+        name: testMatrix.name,
+        index: testMatrix.index,
+        groups: testMatrix.testTargetGroups
+          .sort(ascSortFunc)
+          .map((testTargetGroup) => {
+            return {
+              id: testTargetGroup.id,
+              name: testTargetGroup.name,
+              index: testTargetGroup.index,
+              testTargets: testTargetGroup.testTargets
+                .sort(ascSortFunc)
+                .map((testTarget) => {
+                  const plans = JSON.parse(testTarget.text) as {
+                    value: number;
+                    viewPointId: string;
+                  }[];
+                  for (const v of testMatrix.viewPoints) {
+                    if (!plans.find((plan) => plan.viewPointId === v.id)) {
+                      plans.push({
+                        viewPointId: v.id,
+                        value: 0,
+                      });
+                    }
+                  }
+                  return {
+                    id: testTarget.id,
+                    name: testTarget.name,
+                    index: testTarget.index,
+                    plans,
+                  };
+                }),
+            };
+          }),
+        viewPoints: testMatrix.sortedViewPoint().map((viewPoint) => {
+          return {
+            id: viewPoint.id,
+            name: viewPoint.name,
+            index: viewPoint.index,
+            description: viewPoint.description ?? "",
+          };
+        }),
+      };
+    }),
+    stories,
+  };
+};
+
+export const testMatrixEntityToResponse = (
+  testMatrixEntity: TestMatrixEntity
+): TestMatrix => {
+  const orderByIndex = (val1: any, val2: any) => {
+    return val1.index - val2.index;
+  };
+
+  return {
+    id: testMatrixEntity.id,
+    name: testMatrixEntity.name,
+    index: testMatrixEntity.index,
+    groups: (testMatrixEntity.testTargetGroups ?? [])
+      .sort(orderByIndex)
+      .map((group) => {
+        return {
+          id: group.id,
+          name: group.name,
+          index: group.index,
+          testTargets: (group.testTargets ?? [])
+            .sort(orderByIndex)
+            .map((testTarget) => {
+              return {
+                id: testTarget.id,
+                name: testTarget.name,
+                index: testTarget.index,
+                plans: JSON.parse(testTarget.text),
+              };
+            }),
+        };
+      }),
+    viewPoints: (testMatrixEntity.viewPoints ?? [])
+      .sort(orderByIndex)
+      .map((viewPoint, index) => {
+        return {
+          id: viewPoint.id,
+          name: viewPoint.name,
+          index,
+          description: viewPoint.description ?? "",
+        };
+      }),
+  };
+};
+
+export const convertTestStepEntityToResponse = (
+  testStepEntity: TestStepEntity
+): TestStep => {
+  return {
+    id: testStepEntity.id,
+    operation: convertToTestStepOperation(testStepEntity),
+    intention: testStepEntity.testPurpose
+      ? testStepEntity.testPurpose.id
+      : null,
+    bugs: [],
+    notices: testStepEntity.notes?.map((note) => note.id) ?? [],
+  };
+};
+
+export const convertToTestStepOperation = (
+  testStepEntity: TestStepEntity
+): TestStepOperation => {
+  const elementInfo: Partial<ElementInfo> = JSON.parse(
+    testStepEntity.operationElement
+  );
+  const inputElements: ElementInfo[] = JSON.parse(testStepEntity.inputElements);
+  const keywordTexts: (string | { tagname: string; value: string })[] =
+    JSON.parse(testStepEntity.keywordTexts);
+
+  return {
+    input: testStepEntity.operationInput,
+    type: testStepEntity.operationType,
+    elementInfo:
+      Object.keys(elementInfo).length > 0 ? (elementInfo as ElementInfo) : null,
+    title: testStepEntity.pageTitle,
+    url: testStepEntity.pageUrl,
+    imageFileUrl: testStepEntity.screenshot?.fileUrl ?? "",
+    timestamp: testStepEntity.timestamp.toString(),
+    inputElements,
+    windowHandle: testStepEntity.windowHandle,
+    keywordTexts,
+    isAutomatic: !!testStepEntity.isAutomatic,
+    scrollPosition:
+      testStepEntity.scrollPositionX != null &&
+      testStepEntity.scrollPositionY != null
+        ? {
+            x: testStepEntity.scrollPositionX,
+            y: testStepEntity.scrollPositionY,
+          }
+        : undefined,
+    clientSize:
+      testStepEntity.clientSizeWidth != null &&
+      testStepEntity.clientSizeHeight != null
+        ? {
+            width: testStepEntity.clientSizeWidth,
+            height: testStepEntity.clientSizeHeight,
+          }
+        : undefined,
   };
 };

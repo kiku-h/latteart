@@ -275,55 +275,61 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectConfig: {
-    dataType: "refObject",
-    properties: {
-      viewPointsPreset: {
-        dataType: "array",
-        array: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        config: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
-            viewPoints: {
-              dataType: "array",
-              array: {
-                dataType: "nestedObjectLiteral",
-                nestedProperties: {
-                  description: { dataType: "string", required: true },
-                  name: { dataType: "string", required: true },
-                },
+            imageCompression: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                isDeleteSrcImage: { dataType: "boolean", required: true },
+                isEnabled: { dataType: "boolean", required: true },
               },
               required: true,
             },
-            name: { dataType: "string", required: true },
-            id: { dataType: "string", required: true },
+            coverage: { ref: "Coverage", required: true },
+            screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
+            autoOperationSetting: {
+              ref: "AutoOperationSetting",
+              required: true,
+            },
+            autofillSetting: { ref: "AutofillSetting", required: true },
           },
+          required: true,
         },
-        required: true,
-      },
-      defaultTagList: {
-        dataType: "array",
-        array: { dataType: "string" },
-        required: true,
-      },
-      config: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: {
-          imageCompression: {
+        defaultTagList: {
+          dataType: "array",
+          array: { dataType: "string" },
+          required: true,
+        },
+        viewPointsPreset: {
+          dataType: "array",
+          array: {
             dataType: "nestedObjectLiteral",
             nestedProperties: {
-              isDeleteSrcImage: { dataType: "boolean", required: true },
-              isEnabled: { dataType: "boolean", required: true },
+              viewPoints: {
+                dataType: "array",
+                array: {
+                  dataType: "nestedObjectLiteral",
+                  nestedProperties: {
+                    description: { dataType: "string", required: true },
+                    name: { dataType: "string", required: true },
+                  },
+                },
+                required: true,
+              },
+              name: { dataType: "string", required: true },
+              id: { dataType: "string", required: true },
             },
-            required: true,
           },
-          coverage: { ref: "Coverage", required: true },
-          screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
-          autoOperationSetting: { ref: "AutoOperationSetting", required: true },
-          autofillSetting: { ref: "AutofillSetting", required: true },
+          required: true,
         },
-        required: true,
       },
+      validators: {},
     },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ExportableConfig: {
@@ -1661,6 +1667,23 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TestStepOperation: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "Omit_Operation.screenshot_" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            imageFileUrl: { dataType: "string", required: true },
+          },
+        },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   GetTestResultResponse: {
     dataType: "refAlias",
     type: {
@@ -1697,22 +1720,7 @@ const models: TsoaRoute.Models = {
                         ],
                         required: true,
                       },
-                      operation: {
-                        dataType: "intersection",
-                        subSchemas: [
-                          { ref: "Omit_Operation.screenshot_" },
-                          {
-                            dataType: "nestedObjectLiteral",
-                            nestedProperties: {
-                              imageFileUrl: {
-                                dataType: "string",
-                                required: true,
-                              },
-                            },
-                          },
-                        ],
-                        required: true,
-                      },
+                      operation: { ref: "TestStepOperation", required: true },
                     },
                   },
                 ],
@@ -2003,25 +2011,13 @@ const models: TsoaRoute.Models = {
     type: { ref: "TestResultViewOption", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  "Pick_GetTestStepResponse.id-or-operation_": {
+  "Pick_TestStep.id-or-operation_": {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         id: { dataType: "string", required: true },
-        operation: {
-          dataType: "intersection",
-          subSchemas: [
-            { ref: "Omit_Operation.screenshot_" },
-            {
-              dataType: "nestedObjectLiteral",
-              nestedProperties: {
-                imageFileUrl: { dataType: "string", required: true },
-              },
-            },
-          ],
-          required: true,
-        },
+        operation: { ref: "TestStepOperation", required: true },
       },
       validators: {},
     },
@@ -2049,7 +2045,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "intersection",
       subSchemas: [
-        { ref: "Pick_GetTestStepResponse.id-or-operation_" },
+        { ref: "Pick_TestStep.id-or-operation_" },
         {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -2139,7 +2135,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  GetTestStepResponse: {
+  TestStep: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
@@ -2162,23 +2158,16 @@ const models: TsoaRoute.Models = {
           ],
           required: true,
         },
-        operation: {
-          dataType: "intersection",
-          subSchemas: [
-            { ref: "Omit_Operation.screenshot_" },
-            {
-              dataType: "nestedObjectLiteral",
-              nestedProperties: {
-                imageFileUrl: { dataType: "string", required: true },
-              },
-            },
-          ],
-          required: true,
-        },
+        operation: { ref: "TestStepOperation", required: true },
         id: { dataType: "string", required: true },
       },
       validators: {},
     },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  GetTestStepResponse: {
+    dataType: "refAlias",
+    type: { ref: "TestStep", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_get_test_step_failed_: {
@@ -2210,7 +2199,7 @@ const models: TsoaRoute.Models = {
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   PatchTestStepResponse: {
     dataType: "refAlias",
-    type: { ref: "GetTestStepResponse", validators: {} },
+    type: { ref: "TestStep", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_edit_test_step_failed_: {

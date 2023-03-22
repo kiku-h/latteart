@@ -1,4 +1,7 @@
-import { StaticDirectory } from "@/gateways/fileRepository";
+import {
+  MultipleFileRepository,
+  StaticDirectory,
+} from "@/gateways/fileRepository";
 import { TestResultImportService } from "@/services/TestResultImportService";
 import fs from "fs-extra";
 import path from "path";
@@ -275,8 +278,14 @@ describe("TestResultImportService", () => {
         epochMilliseconds: jest.fn().mockReturnValue(0),
       };
 
-      const screenshotFileRepository = new StaticDirectory(
-        path.join(tmpDirPath, "screenshots")
+      const screenshotFileRepository = new MultipleFileRepository(
+        "screenshot",
+        new Map([
+          [
+            "screenshot",
+            new StaticDirectory(path.join(tmpDirPath, "screenshots")),
+          ],
+        ])
       );
 
       const importFileRepositoryService = new ImportFileRepositoryServiceImpl();
