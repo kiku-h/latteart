@@ -19,7 +19,7 @@ import { TestResultService } from "./TestResultService";
 import { TestStepService } from "./TestStepService";
 import { TestPurposeServiceImpl } from "./TestPurposeService";
 import { NotesServiceImpl } from "./NotesService";
-import { IssueReportOutputService } from "./IssueReportOutputService";
+import { IssueReportCreator } from "@/interfaces/issueReportCreator";
 
 export interface IssueReportService {
   writeReport(project: Project, outputDirectoryPath: string): Promise<void>;
@@ -28,7 +28,7 @@ export interface IssueReportService {
 export class IssueReportServiceImpl implements IssueReportService {
   constructor(
     private service: {
-      issueReportOutput: IssueReportOutputService;
+      issueReportCreator: IssueReportCreator;
       testResult: TestResultService;
       testStep: TestStepService;
       testPurpose: TestPurposeServiceImpl;
@@ -43,7 +43,7 @@ export class IssueReportServiceImpl implements IssueReportService {
     const reportSources = await this.buildReportSources(project);
 
     for (const report of reportSources) {
-      this.service.issueReportOutput.output(outputDirectoryPath, report);
+      this.service.issueReportCreator.output(outputDirectoryPath, report);
     }
   }
 

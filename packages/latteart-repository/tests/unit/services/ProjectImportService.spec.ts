@@ -6,7 +6,6 @@ import { TestStepService } from "@/services/TestStepService";
 import { TimestampService } from "@/services/TimestampService";
 import { TransactionRunner } from "@/TransactionRunner";
 import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
-
 import {
   createTimestampServiceMock,
   createTestResultServiceMock,
@@ -14,11 +13,18 @@ import {
   createNotesServiceMock,
   createTestPurposeServiceMock,
   createStaticDirectoryServiceMock,
+  createImportFileRepositoryMock,
 } from "../../helper/createServiceMock";
 import { ProgressData, Project } from "@/interfaces/Projects";
 import { getRepository } from "typeorm";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
+import { ImportFileRepository } from "@/interfaces/importFileRepository";
+import {
+  extractProjectData,
+  extractTestResultsData,
+} from "@/domain/dataExtractor";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -35,19 +41,21 @@ describe("ProjectImportService", () => {
     let timestampService: TimestampService;
     let testResultService: TestResultService;
     let testStepService: TestStepService;
-    let screenshotRepositoryService: FileRepository;
-    let attachedFileRepositoryService: FileRepository;
+    let screenshotFileRepository: FileRepository;
+    let attachedFileRepository: FileRepository;
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
+    let importFileRepository: ImportFileRepository;
 
     beforeEach(() => {
       timestampService = createTimestampServiceMock();
       testResultService = createTestResultServiceMock();
       testStepService = createTestStepServiceMock();
-      screenshotRepositoryService = createStaticDirectoryServiceMock();
-      attachedFileRepositoryService = createStaticDirectoryServiceMock();
+      screenshotFileRepository = createStaticDirectoryServiceMock();
+      attachedFileRepository = createStaticDirectoryServiceMock();
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
+      importFileRepository = createImportFileRepositoryMock();
     });
 
     it("includeProject: true, includeTestResults: true", async () => {
@@ -60,10 +68,14 @@ describe("ProjectImportService", () => {
           { filePath: "projects/projectId/project.json", data: "{}" },
         ],
       });
-      service["extractTestResultsData"] = jest.fn().mockReturnValue([]);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
-      service["extractProjectData"] = jest.fn().mockReturnValue({});
       service["importProject"] = jest.fn().mockResolvedValue("1");
+
+      const testResultImportService = new TestResultImportServiceImpl({
+        importFileRepository,
+        screenshotFileRepository: screenshotFileRepository,
+        timestamp: timestampService,
+      });
 
       const importFile = { data: "data", name: "importFileName" };
       const option = { includeProject: true, includeTestResults: true };
@@ -75,18 +87,22 @@ describe("ProjectImportService", () => {
           timestampService,
           testResultService,
           testStepService,
-          screenshotFileRepository: screenshotRepositoryService,
-          attachedFileRepository: attachedFileRepositoryService,
+          screenshotFileRepository: screenshotFileRepository,
+          attachedFileRepository: attachedFileRepository,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
+          testResultImportService,
+          importFileRepository,
         }
       );
 
-      expect(service["readImportFile"]).toBeCalledWith(importFile.data, option);
-      expect(service["extractTestResultsData"]).toBeCalledTimes(1);
+      expect(service["readImportFile"]).toBeCalledWith(
+        importFileRepository,
+        importFile.data,
+        option
+      );
       expect(service["importTestResults"]).toBeCalledTimes(1);
-      expect(service["extractProjectData"]).toBeCalledTimes(1);
       expect(service["importProject"]).toBeCalledTimes(1);
     });
 
@@ -100,10 +116,14 @@ describe("ProjectImportService", () => {
           { filePath: "projects/projectId/project.json", data: "{}" },
         ],
       });
-      service["extractTestResultsData"] = jest.fn().mockReturnValue([]);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
-      service["extractProjectData"] = jest.fn().mockReturnValue({});
       service["importProject"] = jest.fn().mockResolvedValue("1");
+
+      const testResultImportService = new TestResultImportServiceImpl({
+        importFileRepository,
+        screenshotFileRepository: screenshotFileRepository,
+        timestamp: timestampService,
+      });
 
       const importFile = { data: "data", name: "importFileName" };
       const option = { includeProject: false, includeTestResults: false };
@@ -115,18 +135,22 @@ describe("ProjectImportService", () => {
           timestampService,
           testResultService,
           testStepService,
-          screenshotFileRepository: screenshotRepositoryService,
-          attachedFileRepository: attachedFileRepositoryService,
+          screenshotFileRepository: screenshotFileRepository,
+          attachedFileRepository: attachedFileRepository,
           notesService,
           testPurposeService,
           transactionRunner: new TransactionRunner(),
+          testResultImportService,
+          importFileRepository,
         }
       );
 
-      expect(service["readImportFile"]).toBeCalledWith(importFile.data, option);
-      expect(service["extractTestResultsData"]).toBeCalledTimes(0);
+      expect(service["readImportFile"]).toBeCalledWith(
+        importFileRepository,
+        importFile.data,
+        option
+      );
       expect(service["importTestResults"]).toBeCalledTimes(0);
-      expect(service["extractProjectData"]).toBeCalledTimes(0);
       expect(service["importProject"]).toBeCalledTimes(0);
     });
   });
@@ -151,9 +175,7 @@ describe("ProjectImportService", () => {
           data: Buffer.from(""),
         },
       ];
-      const result = new ProjectImportService()["extractTestResultsData"](
-        testResultFiles
-      );
+      const result = extractTestResultsData(testResultFiles);
       expect(result).toEqual([
         {
           screenshots: [{ data: Buffer.from(""), filePath: "aaaa.webp" }],
@@ -199,8 +221,7 @@ describe("ProjectImportService", () => {
           data: "",
         },
       ];
-      const service = new ProjectImportService();
-      const result = service["extractProjectData"](files);
+      const result = extractProjectData(files);
 
       const projectData = {
         projectId: "projectId1",

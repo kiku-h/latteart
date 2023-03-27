@@ -3,8 +3,6 @@ import { getRepository } from "typeorm";
 import { ProjectExportService } from "@/services/ProjectExportService";
 import { ProjectsService } from "@/services/ProjectsService";
 import { TestResultService } from "@/services/TestResultService";
-
-import { ExportService } from "@/services/ExportService";
 import { ExportFileRepositoryService } from "@/services/ExportFileRepositoryService";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestProgressService } from "@/services/TestProgressService";
@@ -40,6 +38,18 @@ describe("ProjectExportService", () => {
         },
       ],
     };
+
+    const testResultData = {
+      id: "testResultId",
+      name: "testResulttName",
+      startTimeStamp: 0,
+      lastUpdateTimeStamp: 0,
+      initialUrl: "",
+      testingTime: 0,
+      testSteps: [],
+      coverageSources: [],
+    };
+
     const projectService: ProjectsService = {
       getProjectIdentifiers: jest.fn(),
       createProject: jest.fn(),
@@ -48,9 +58,7 @@ describe("ProjectExportService", () => {
 
     const testResultService: TestResultService = {
       getTestResultIdentifiers: jest.fn(),
-      getTestResult: jest.fn().mockResolvedValue({
-        id: "testResultId",
-      }),
+      getTestResult: jest.fn().mockResolvedValue(testResultData),
       createTestResult: jest.fn(),
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
@@ -67,11 +75,6 @@ describe("ProjectExportService", () => {
     const exportFileRepositoryService: ExportFileRepositoryService = {
       exportProject: jest.fn(),
       exportTestResult: jest.fn(),
-    };
-
-    const exportService: ExportService = {
-      exportTestResult: jest.fn(),
-      serializeTestResult: jest.fn().mockReturnValue("serializedTestResult"),
     };
 
     const testProgressService: TestProgressService = {
@@ -98,7 +101,6 @@ describe("ProjectExportService", () => {
       await new ProjectExportService().export("1", true, true, {
         projectService,
         testResultService,
-        exportService,
         exportFileRepositoryService,
         testProgressService,
       });
@@ -118,7 +120,6 @@ describe("ProjectExportService", () => {
       await new ProjectExportService().export("1", false, false, {
         projectService,
         testResultService,
-        exportService,
         exportFileRepositoryService,
         testProgressService,
       });

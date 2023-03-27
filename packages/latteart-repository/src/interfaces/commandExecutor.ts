@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-import { FileRepository } from "./fileRepository";
-
 /**
- * Viewer template.
+ * Command executor.
  */
-export type ViewerTemplate = {
-  copyDir(fileRepository: FileRepository, relativePath: string): Promise<void>;
-
-  copyFiles(
-    fileRepository: FileRepository,
-    relativePath: string,
-    destRelativePath: string
-  ): Promise<void>;
-
-  copyFile(
-    fileRepository: FileRepository,
-    fileName: string,
-    destRelativePath: string
-  ): Promise<void>;
+export type CommandExecutor = {
+  /**
+   * Execute an external command.
+   * @param command
+   */
+  execute(command: string): Promise<{ stdout: string; stderr: string }>;
 };

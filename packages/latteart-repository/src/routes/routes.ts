@@ -715,26 +715,29 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateProjectImportDto: {
-    dataType: "refObject",
-    properties: {
-      source: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: {
-          projectFile: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              name: { dataType: "string", required: true },
-              data: { dataType: "string", required: true },
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        includeProject: { dataType: "boolean", required: true },
+        includeTestResults: { dataType: "boolean", required: true },
+        source: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            projectFile: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                name: { dataType: "string", required: true },
+                data: { dataType: "string", required: true },
+              },
+              required: true,
             },
-            required: true,
           },
+          required: true,
         },
-        required: true,
       },
-      includeTestResults: { dataType: "boolean", required: true },
-      includeProject: { dataType: "boolean", required: true },
+      validators: {},
     },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectListResponse: {
@@ -1399,28 +1402,31 @@ const models: TsoaRoute.Models = {
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   CreateTestResultImportDto: {
-    dataType: "refObject",
-    properties: {
-      source: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: {
-          testResultFile: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              name: { dataType: "string", required: true },
-              data: { dataType: "string", required: true },
-            },
-            required: true,
-          },
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        dest: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { testResultId: { dataType: "string" } },
         },
-        required: true,
+        source: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            testResultFile: {
+              dataType: "nestedObjectLiteral",
+              nestedProperties: {
+                name: { dataType: "string", required: true },
+                data: { dataType: "string", required: true },
+              },
+              required: true,
+            },
+          },
+          required: true,
+        },
       },
-      dest: {
-        dataType: "nestedObjectLiteral",
-        nestedProperties: { testResultId: { dataType: "string" } },
-      },
+      validators: {},
     },
-    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ListTestResultResponse: {
