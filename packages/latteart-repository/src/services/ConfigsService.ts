@@ -57,7 +57,7 @@ export class ConfigsService {
     if (!config[0]) {
       const settings = SettingsUtility.settingsProvider.settings;
       ConfigsService.imageCompressionCommand =
-        settings.config.imageCompression.command;
+        settings.config.captureMediaSetting.imageCompression.command;
       console.log(settings);
       const deviceSettings = {
         config: {

@@ -484,6 +484,8 @@ const mutations: MutationTree<OperationHistoryState> = {
       id: string;
       name: string;
       parentTestResultId: string;
+      mediaType: "image" | "movie";
+      movieStartTimestamp: number;
     }
   ) {
     state.testResultInfo = {
@@ -491,6 +493,8 @@ const mutations: MutationTree<OperationHistoryState> = {
       id: payload.id,
       name: payload.name,
       parentTestResultId: payload.parentTestResultId,
+      mediaType: payload.mediaType,
+      movieStartTimestamp: payload.movieStartTimestamp,
     };
   },
 

@@ -22,6 +22,7 @@ import express, {
 } from "express";
 import { ValidateError } from "tsoa";
 import bodyParser from "body-parser";
+import cors from "cors";
 import { SettingsUtility } from "./gateways/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
 import { ConnectionOptions, createConnection } from "typeorm";
@@ -62,6 +63,8 @@ import { UpdateTestResultEntity1671087205573 } from "./migrations/1671087205573-
 import { createLogger } from "./logger/logger";
 import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
 import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-UpdateTestResultEntity";
+import { UpdateTestResultEntity1680848000173 } from "./migrations/1680848000173-UpdateTestResultEntity";
+import { UpdateTestResultEntity1681594421053 } from "./migrations/1681594421053-UpdateTestResultEntity";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -124,6 +127,8 @@ async function initializeOrmConnection() {
       UpdateTestResultEntity1671087205573,
       UpdateTestStepEntity1677835465468,
       UpdateTestResultEntity1680078703857,
+      UpdateTestResultEntity1680848000173,
+      UpdateTestResultEntity1681594421053,
     ],
   };
 
@@ -159,7 +164,7 @@ async function initializeOrmConnection() {
 
 function runServer(port: number, timeout?: number) {
   const app = express();
-
+  app.use(cors());
   app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader(

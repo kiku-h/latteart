@@ -18,24 +18,42 @@
   <v-container class="mt-0 pt-0">
     <v-row>
       <v-col cols="12">
+        <h4>メディアタイプ</h4>
+        <v-radio-group
+          :value="tempConfig.mediaType"
+          @change="changeCaptureMediaType"
+          class="py-0 my-0"
+          row
+        >
+          <v-radio label="静止画" value="image" />
+          <v-radio label="動画" value="movie" />
+        </v-radio-group>
+      </v-col>
+      <v-col cols="12" style="margin-top: 10p; margin-left: 8px">
+        <h4>画像圧縮設定</h4>
         <v-checkbox
-          v-model="tempConfig.isEnabled"
+          v-model="tempConfig.imageCompression.isEnabled"
           :label="
             $store.getters.message('config-view.image-compression-enabled')
           "
+          :disabled="tempConfig.mediaType === 'movie'"
           @change="saveConfig"
+          class="py-0 my-0"
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12">
         <v-checkbox
-          v-model="tempConfig.isDeleteSrcImage"
+          v-model="tempConfig.imageCompression.isDeleteSrcImage"
           :label="
             $store.getters.message(
               'config-view.image-compression-delete-source-image'
             )
           "
-          :disabled="!tempConfig.isEnabled"
+          :disabled="
+            !tempConfig.imageCompression.isEnabled ||
+            tempConfig.mediaType === 'movie'
+          "
           @change="saveConfig"
         >
         </v-checkbox>
@@ -45,33 +63,45 @@
 </template>
 
 <script lang="ts">
-import { ImageCompressionSetting } from "@/lib/common/settings/Settings";
+import { CaptureMediaSetting } from "@/lib/common/settings/Settings";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 @Component
-export default class ImageCompressionConfig extends Vue {
+export default class CaptureMediaConfig extends Vue {
   @Prop({ type: Boolean, required: true })
   public readonly opened!: boolean;
   @Prop({ type: Object, default: null })
-  public readonly imageCompression!: ImageCompressionSetting;
+  public readonly captureMediaSetting!: CaptureMediaSetting;
 
-  private tempConfig: { isEnabled: boolean; isDeleteSrcImage: boolean } = {
-    ...this.imageCompression,
+  private tempConfig: {
+    mediaType: "image" | "movie";
+    imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+  } = {
+    ...this.captureMediaSetting,
   };
 
-  @Watch("imageCompression")
+  @Watch("captureMediaSetting")
   private updateTempConfig() {
+    console.log({ captureMediaSetting: this.captureMediaSetting });
     if (!this.opened) {
-      this.tempConfig = { ...this.imageCompression };
+      this.tempConfig = { ...this.captureMediaSetting };
     }
   }
 
+  @Watch("tempConfig")
   private saveConfig() {
     if (this.opened) {
       this.$emit("save-config", {
-        imageCompression: this.tempConfig,
+        captureMediaSetting: this.tempConfig,
       });
     }
+  }
+
+  private changeCaptureMediaType(mediaType: "image" | "movie") {
+    this.tempConfig = {
+      ...this.tempConfig,
+      mediaType,
+    };
   }
 }
 </script>

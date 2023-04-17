@@ -26,9 +26,15 @@ export function convertToExportableConfig(
   return {
     config: {
       ...settings.config,
-      imageCompression: {
-        isEnabled: settings.config.imageCompression.isEnabled,
-        isDeleteSrcImage: settings.config.imageCompression.isDeleteSrcImage,
+      captureMediaSetting: {
+        mediaType: settings.config.captureMediaSetting.mediaType,
+        imageCompression: {
+          isDeleteSrcImage:
+            settings.config.captureMediaSetting.imageCompression
+              .isDeleteSrcImage,
+          isEnabled:
+            settings.config.captureMediaSetting.imageCompression.isEnabled,
+        },
       },
     },
     defaultTagList: settings.defaultTagList,
@@ -46,9 +52,12 @@ export function convertToConfigText(
     ...projectConfig,
     config: {
       ...projectConfig.config,
-      imageCompression: {
-        ...projectConfig.config.imageCompression,
-        command,
+      captureMediaSetting: {
+        mediaType: projectConfig.config.captureMediaSetting.mediaType,
+        imageCompression: {
+          ...projectConfig.config.captureMediaSetting.imageCompression,
+          command,
+        },
       },
     },
     captureSettings: configText.captureSettings,

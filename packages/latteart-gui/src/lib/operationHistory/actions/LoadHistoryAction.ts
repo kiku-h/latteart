@@ -51,7 +51,13 @@ export class LoadHistoryAction {
       coverageSources: CoverageSource[];
       historyItems: OperationHistoryItem[];
       url: string;
-      testResultInfo: { id: string; name: string; parentTestResultId?: string };
+      testResultInfo: {
+        id: string;
+        name: string;
+        parentTestResultId?: string;
+        mediaType?: "image" | "movie";
+        movieStartTimestamp: number;
+      };
       testStepIds: string[];
       testingTime: number;
     }>
@@ -90,7 +96,6 @@ export class LoadHistoryAction {
         return { operation, intention, bugs, notices };
       }
     );
-
     return {
       coverageSources: testResult.coverageSources,
       historyItems: operationHistoryItems,
@@ -99,6 +104,8 @@ export class LoadHistoryAction {
         id: testResult.id,
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId,
+        movieStartTimestamp: testResult.movieStartTimestamp,
+        mediaType: testResult.mediaType,
       },
       testStepIds: testResult.testSteps.map(({ id }) => id),
       testingTime: testResult.testingTime,

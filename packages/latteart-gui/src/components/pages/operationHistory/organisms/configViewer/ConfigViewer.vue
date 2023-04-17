@@ -112,6 +112,7 @@ import {
   CoverageSetting,
   ImageCompressionSetting,
   ScreenDefinitionSetting,
+  CaptureMediaSetting,
 } from "@/lib/common/settings/Settings";
 import {
   AutofillSetting,
@@ -214,7 +215,7 @@ export default class ConfigViewer extends Vue {
     autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinitionSetting;
     coverage?: CoverageSetting;
-    imageCompression?: ImageCompressionSetting;
+    captureMediaSetting?: CaptureMediaSetting;
   }) {
     const projectConfig = {
       ...config,
@@ -224,6 +225,7 @@ export default class ConfigViewer extends Vue {
           }
         : undefined,
     };
+    console.log(config);
     this.$store.dispatch("writeConfig", {
       config: projectConfig,
     });

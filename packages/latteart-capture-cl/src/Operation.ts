@@ -60,6 +60,11 @@ export interface ElementInfo {
     height: number;
   };
 
+  innerHeight: number;
+  innerWidth: number;
+  outerHeight: number;
+  outerWidth: number;
+
   /**
    * The text of the element without children.
    */

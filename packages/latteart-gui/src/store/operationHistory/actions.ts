@@ -55,6 +55,7 @@ import { extractWindowHandles } from "@/lib/common/windowHandle";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
+import { CapturedMovieManager } from "@/lib/captureControl/CapturedMovieManager";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -227,7 +228,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,
         compressScreenshot:
           payload.noteEditInfo.shouldTakeScreenshot &&
-          context.rootState.projectSettings.config.imageCompression.isEnabled,
+          context.rootState.projectSettings.config.captureMediaSetting
+            .imageCompression.isEnabled,
       };
 
       const testResult =
@@ -439,7 +441,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       repositoryUrl: context.rootState.repositoryService.serviceUrl,
       id: result.data.testResultInfo.id,
       name: result.data.testResultInfo.name,
+      mediaType: result.data.testResultInfo.mediaType ?? "image",
       parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
+      movieStartTimestamp: result.data.testResultInfo.movieStartTimestamp ?? 0,
     });
     context.commit(
       "operationHistory/setWindows",
@@ -461,6 +465,21 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { isResuming: false },
       { root: true }
     );
+
+    if (result.data.testResultInfo.mediaType === "movie") {
+      const capturedMovieManager = new CapturedMovieManager(
+        result.data.testResultInfo.id,
+        context.rootState.repositoryService.movieRepository,
+        (url: string) => {
+          context.commit(
+            "captureControl/setCapturedMovieUrl",
+            { url },
+            { root: true }
+          );
+        }
+      );
+      await capturedMovieManager.fetchChunksFromRepository();
+    }
   },
 
   /**
@@ -540,6 +559,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       id: "",
       name: "",
       parentTestResultId: "",
+      movieStartTimestamp: 0,
     });
     context.commit("clearTestStepIds");
   },
@@ -941,18 +961,25 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async createTestResult(
     context,
-    payload: { initialUrl: string; name: string; parentTestResultId?: string }
+    payload: {
+      initialUrl: string;
+      name: string;
+      parentTestResultId?: string;
+      mediaType: "image" | "movie";
+    }
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
     const parentTestResultId = payload.parentTestResultId
       ? payload.parentTestResultId
       : undefined;
+    const mediaType = payload.mediaType;
     const result =
       await context.rootState.repositoryService.createEmptyTestResult({
         initialUrl,
         name,
         parentTestResultId,
+        mediaType,
       });
 
     if (result.isFailure()) {
@@ -970,6 +997,8 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       id: testResultInfo.id,
       name: testResultInfo.name,
       parentTestResultId: payload.parentTestResultId ?? "",
+      mediaType: testResultInfo.mediaType,
+      movieStartTimestamp: 0,
     });
   },
 

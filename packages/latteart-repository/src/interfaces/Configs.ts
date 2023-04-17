@@ -18,6 +18,7 @@ import { ScreenDefinitionConfig } from "../domain/ScreenDefFactory";
 import {
   AutofillSetting,
   AutoOperationSetting,
+  CaptureMediaSetting,
   Coverage,
 } from "../gateways/settings/Settings";
 
@@ -56,8 +57,10 @@ export type BackendConfig = ProjectConfig & ServerConfig;
  */
 type ServerConfig = {
   config: {
-    imageCompression: {
-      command: string;
+    captureMediaSetting: {
+      imageCompression: {
+        command: string;
+      };
     };
   };
   captureSettings: {
@@ -80,10 +83,7 @@ export type ProjectConfig = {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinitionConfig;
     coverage: Coverage;
-    imageCompression: {
-      isEnabled: boolean;
-      isDeleteSrcImage: boolean;
-    };
+    captureMediaSetting: CaptureMediaSetting;
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;

@@ -80,7 +80,7 @@ export class CompressedImageController extends Controller {
         logger,
       }).compressImage(testStepId, {
         shouldDeleteOriginalFile: (await new ConfigsService().getConfig(""))
-          .config.imageCompression.isDeleteSrcImage,
+          .config.captureMediaSetting.imageCompression.isDeleteSrcImage,
       });
     } catch (error) {
       if (error instanceof Error) {

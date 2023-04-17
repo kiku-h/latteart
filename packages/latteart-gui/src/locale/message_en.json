@@ -147,7 +147,7 @@
     "browser2": "Capture Browser Window Only",
     "fullscreen": "Capture Full Screen",
     "setting-inclusion-tags": "Web Element Coverage Settings",
-    "setting-image-compression": "Image Compression Settings",
+    "setting-capture-media": "Capture Media Settings",
     "image-compression-enabled": "Compress Screenshots",
     "image-compression-delete-source-image": "Delete Original Screenshots",
     "include-coverage": "Tags to include in coverage calculation",

@@ -59,9 +59,12 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
+          captureMediaSetting: {
+            imageCompression: {
+              isEnabled: false,
+              isDeleteSrcImage: false,
+            },
+            mediaType: "image",
           },
           testResultComparison: {
             excludeItems: {
@@ -83,7 +86,7 @@ describe("ConfigsService", () => {
         config: {
           ...requestBody.config,
           imageCompression: {
-            ...requestBody.config.imageCompression,
+            ...requestBody.config.captureMediaSetting.imageCompression,
             command: "",
           },
         },

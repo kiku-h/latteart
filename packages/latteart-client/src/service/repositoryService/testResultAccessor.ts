@@ -49,6 +49,7 @@ import {
   NoteRepository,
   ProjectRepository,
   TestResultComparisonRepository,
+  MovieRepository,
 } from "../../gateway/repository";
 import { TestResultAccessor, SequenceView, GraphView } from "./types";
 
@@ -71,6 +72,7 @@ export type RepositoryContainer = {
   readonly viewPointRepository: ViewPointRepository;
   readonly storyRepository: StoryRepository;
   readonly testResultComparisonRepository: TestResultComparisonRepository;
+  readonly movieRepository: MovieRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
@@ -547,7 +549,6 @@ export class TestResultAccessorImpl implements TestResultAccessor {
 
     return new ServiceSuccess(result.data);
   }
-
   async generateGraphView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<GraphView>> {
@@ -561,6 +562,27 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       const error: ServiceError = {
         errorCode: "generate_graph_view_failed",
         message: "Generate Graph View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async updateMovieStartTimestamp(
+    movieStartTimestamp: number
+  ): Promise<ServiceResult<void>> {
+    const result =
+      await this.repositories.testResultRepository.setMovieStartTimestamp(
+        this.testResultId,
+        movieStartTimestamp
+      );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "update_movie_startt_imestamp_failed",
+        message: "Update movie starttimestamp failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);

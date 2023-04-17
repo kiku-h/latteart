@@ -48,15 +48,19 @@ export class CaptureClClientImpl implements CaptureClClient {
 
   async startCapture(
     url: string,
-    option: { compressScreenshots?: boolean } = {}
+    option: {
+      compressScreenshots?: boolean;
+      mediaType?: "image" | "movie";
+    } = {}
   ): Promise<ServiceResult<CaptureSession>> {
     const compressScreenshots = option?.compressScreenshots ?? false;
+    const mediaType = option?.mediaType ?? "image";
 
     return this.startCaptureSession(
       {
         url,
         config: this.option.config,
-        option: { compressScreenshots },
+        option: { compressScreenshots, mediaType },
       },
       this.option.testResult
     );
@@ -66,7 +70,7 @@ export class CaptureClClientImpl implements CaptureClClient {
     payload: {
       url: string;
       config: CaptureConfig;
-      option: { compressScreenshots: boolean };
+      option: { compressScreenshots: boolean; mediaType: "image" | "movie" };
     },
     destTestResultAccessor?: TestResultAccessor
   ) {
@@ -218,7 +222,11 @@ class CaptureSessionImpl implements CaptureSession {
 
           const result = await this.testResult.addOperation(
             { ...capturedOperation, isAutomatic: this.isAutomated },
-            { compressScreenshot: payload.option.compressScreenshots }
+            {
+              compressScreenshot:
+                payload.config.mediaType === "image" &&
+                payload.option.compressScreenshots,
+            }
           );
 
           if (result.isFailure()) {

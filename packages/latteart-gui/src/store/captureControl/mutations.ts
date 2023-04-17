@@ -19,6 +19,7 @@ import { CaptureControlState } from ".";
 import { AutofillConditionGroup } from "@/lib/operationHistory/types";
 import { CaptureSession } from "latteart-client";
 import { ElementInfo } from "latteart-client";
+import { CapturedMovieManager } from "@/lib/captureControl/CapturedMovieManager";
 
 const mutations: MutationTree<CaptureControlState> = {
   /**
@@ -137,6 +138,21 @@ const mutations: MutationTree<CaptureControlState> = {
     } | null
   ) {
     state.autofillRegisterDialogData = payload;
+  },
+
+  setCapturedMovieManager(
+    state,
+    payload: { capturedMovieManager: CapturedMovieManager }
+  ) {
+    state.capturedMovieManager = payload.capturedMovieManager;
+  },
+
+  setCapturedMovieUrl(state, payload: { url: string }) {
+    state.capturedMovieUrl = payload.url;
+  },
+
+  setMovieStartTimestamp(state, payload: { movieStartTimestamp: number }) {
+    state.movieStartTimestamp = payload.movieStartTimestamp;
   },
 };
 

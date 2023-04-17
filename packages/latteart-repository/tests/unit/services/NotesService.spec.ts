@@ -28,6 +28,7 @@ describe("NotesService", () => {
     getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
+    appendFile: jest.fn(),
   };
   const timestampService: TimestampService = {
     unix: jest.fn().mockReturnValue(0),

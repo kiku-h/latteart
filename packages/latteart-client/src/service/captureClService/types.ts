@@ -78,7 +78,7 @@ export type CaptureClClient = {
    */
   startCapture(
     url: string,
-    option?: { compressScreenshots?: boolean }
+    option?: { compressScreenshots?: boolean; mediaType: "image" | "movie" }
   ): Promise<ServiceResult<CaptureSession>>;
 };
 
