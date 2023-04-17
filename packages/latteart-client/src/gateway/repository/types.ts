@@ -155,6 +155,10 @@ export type ElementInfoForRepository = {
     width: number;
     height: number;
   };
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
   textWithoutChildren?: string;
 };
 
@@ -226,7 +230,10 @@ export type SettingsForRepository = {
       }[];
     };
     coverage: { include: { tags: string[] } };
-    imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+    captureMediaSetting: {
+      mediaType: "image" | "movie";
+      imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+    };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;
@@ -351,11 +358,13 @@ export type TestResultForRepository = {
   }[];
   coverageSources: CoverageSourceForRepository[];
   parentTestResultId?: string;
+  mediaType: "image" | "movie";
+  movieStartTimestamp: number;
 };
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId"
+  "id" | "name" | "parentTestResultId" | "mediaType"
 >;
 
 export type TestResultComparisonResultForRepository = {

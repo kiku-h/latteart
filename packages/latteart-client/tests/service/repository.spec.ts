@@ -8,6 +8,7 @@ const baseRestClient: RESTClient = {
   httpPut: jest.fn(),
   httpPatch: jest.fn(),
   httpDelete: jest.fn(),
+  httpGetFile: jest.fn(),
 };
 
 describe("createEmptyTestResult", () => {

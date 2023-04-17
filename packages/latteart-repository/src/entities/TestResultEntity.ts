@@ -57,6 +57,13 @@ export class TestResultEntity {
   @Column({ name: "testing_time" })
   testingTime: number = 0;
 
+  @Column({ name: "media_type" })
+  mediaType: "image" | "movie" | "" = "";
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "movie_start_timestamp" })
+  movieStartTimestamp: number = 0;
+
   @OneToMany(() => SessionEntity, (session) => session.testResult)
   sessions?: SessionEntity[];
 

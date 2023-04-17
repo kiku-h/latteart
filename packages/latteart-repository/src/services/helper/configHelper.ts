@@ -22,9 +22,15 @@ export function convertToExportableConfig(
   return {
     config: {
       ...settings.config,
-      imageCompression: {
-        isEnabled: settings.config.imageCompression.isEnabled,
-        isDeleteSrcImage: settings.config.imageCompression.isDeleteSrcImage,
+      captureMediaSetting: {
+        mediaType: settings.config.captureMediaSetting.mediaType,
+        imageCompression: {
+          isDeleteSrcImage:
+            settings.config.captureMediaSetting.imageCompression
+              .isDeleteSrcImage,
+          isEnabled:
+            settings.config.captureMediaSetting.imageCompression.isEnabled,
+        },
       },
     },
     defaultTagList: settings.defaultTagList,
@@ -43,7 +49,10 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      imageCompression: config.config.imageCompression,
+      captureMediaSetting: {
+        mediaType: config.config.captureMediaSetting.mediaType,
+        imageCompression: config.config.captureMediaSetting.imageCompression,
+      },
       testResultComparison: config.config.testResultComparison,
     },
   };

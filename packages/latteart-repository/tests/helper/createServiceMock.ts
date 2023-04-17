@@ -67,6 +67,7 @@ export const createStaticDirectoryServiceMock = (): FileRepository => {
     getFilePath: jest.fn(),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
+    appendFile: jest.fn(),
   };
 };
 

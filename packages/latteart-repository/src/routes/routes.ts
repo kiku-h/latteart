@@ -18,6 +18,8 @@ import { ConfigExportController } from "./../controllers/ConfigExportController"
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ConfigsController } from "./../controllers/ConfigsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { Movies } from "./../controllers/MovieController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { NoteCompressedImageController } from "./../controllers/NoteCompressedImageController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { NotesController } from "./../controllers/NotesController";
@@ -276,6 +278,29 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CaptureMediaSetting: {
+    dataType: "refObject",
+    properties: {
+      mediaType: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["movie"] },
+          { dataType: "enum", enums: ["image"] },
+        ],
+        required: true,
+      },
+      imageCompression: {
+        dataType: "nestedObjectLiteral",
+        nestedProperties: {
+          isDeleteSrcImage: { dataType: "boolean", required: true },
+          isEnabled: { dataType: "boolean", required: true },
+        },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ProjectConfig: {
     dataType: "refAlias",
     type: {
@@ -327,14 +352,7 @@ const models: TsoaRoute.Models = {
               },
               required: true,
             },
-            imageCompression: {
-              dataType: "nestedObjectLiteral",
-              nestedProperties: {
-                isDeleteSrcImage: { dataType: "boolean", required: true },
-                isEnabled: { dataType: "boolean", required: true },
-              },
-              required: true,
-            },
+            captureMediaSetting: { ref: "CaptureMediaSetting", required: true },
             coverage: { ref: "Coverage", required: true },
             screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
             autoOperationSetting: {
@@ -1497,6 +1515,10 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         textWithoutChildren: { dataType: "string" },
+        outerWidth: { dataType: "double" },
+        outerHeight: { dataType: "double" },
+        innerWidth: { dataType: "double" },
+        innerHeight: { dataType: "double" },
         boundingRect: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -1533,6 +1555,15 @@ const models: TsoaRoute.Models = {
         lastUpdateTimeStamp: { dataType: "double", required: true },
         initialUrl: { dataType: "string", required: true },
         testingTime: { dataType: "double", required: true },
+        mediaType: {
+          dataType: "union",
+          subSchemas: [
+            { dataType: "enum", enums: ["image"] },
+            { dataType: "enum", enums: ["movie"] },
+          ],
+          required: true,
+        },
+        movieStartTimestamp: { dataType: "double", required: true },
         coverageSources: {
           dataType: "array",
           array: {
@@ -1739,6 +1770,14 @@ const models: TsoaRoute.Models = {
     properties: {
       id: { dataType: "string", required: true },
       name: { dataType: "string", required: true },
+      mediaType: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["image"] },
+          { dataType: "enum", enums: ["movie"] },
+        ],
+        required: true,
+      },
     },
     additionalProperties: false,
   },
@@ -1777,6 +1816,13 @@ const models: TsoaRoute.Models = {
       name: { dataType: "string" },
       startTimeStamp: { dataType: "double" },
       parentTestResultId: { dataType: "string" },
+      mediaType: {
+        dataType: "union",
+        subSchemas: [
+          { dataType: "enum", enums: ["movie"] },
+          { dataType: "enum", enums: ["image"] },
+        ],
+      },
     },
     additionalProperties: false,
   },
@@ -3373,6 +3419,47 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.patch(
+    "/api/v1/movies/:testResultId",
+    ...fetchMiddlewares<RequestHandler>(Movies),
+    ...fetchMiddlewares<RequestHandler>(Movies.prototype.patch),
+
+    function Movies_patch(request: any, response: any, next: any) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "nestedObjectLiteral",
+          nestedProperties: { base64: { dataType: "string", required: true } },
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new Movies();
+
+        const promise = controller.patch.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, undefined, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/notes/:noteId/compressed-image",
     ...fetchMiddlewares<RequestHandler>(NoteCompressedImageController),
@@ -4275,6 +4362,7 @@ export function RegisterRoutes(app: Router) {
           required: true,
           dataType: "nestedObjectLiteral",
           nestedProperties: {
+            movieStartTimestamp: { dataType: "double" },
             initialUrl: { dataType: "string" },
             startTime: { dataType: "double" },
             name: { dataType: "string" },
@@ -4420,6 +4508,55 @@ export function RegisterRoutes(app: Router) {
           validatedArgs as any
         );
         promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.patch(
+    "/api/v1/test-results/:testResultId/start-movie",
+    ...fetchMiddlewares<RequestHandler>(TestResultsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TestResultsController.prototype.startMovie
+    ),
+
+    function TestResultsController_startMovie(
+      request: any,
+      response: any,
+      next: any
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            startTimestamp: { dataType: "double", required: true },
+          },
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TestResultsController();
+
+        const promise = controller.startMovie.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, undefined, next);
       } catch (err) {
         return next(err);
       }

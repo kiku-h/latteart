@@ -139,12 +139,18 @@ export default class WebBrowserWindow {
     await this.client.sleep(ms);
   }
 
-  public async getReadyToCapture(): Promise<void> {
+  public async getReadyToCapture(shouldTakeScreenshot: boolean): Promise<void> {
     const isReadyToCapture =
-      (await this.client.execute(captureScript.isReadyToCapture)) ?? false;
+      (await this.client.execute(
+        captureScript.isReadyToCapture,
+        shouldTakeScreenshot
+      )) ?? false;
 
     if (isReadyToCapture) {
       return;
+    }
+    if (shouldTakeScreenshot) {
+      await this.injectFunctionToEnqueueEventForReFire();
     }
 
     (await this.injectFunctionToGetAttributesFromElement()) &&
@@ -152,9 +158,10 @@ export default class WebBrowserWindow {
       (await this.injectFunctionToExtractElements()) &&
       (await this.injectFunctionToEnqueueEventForReFire()) &&
       (await this.injectFunctionToBuildOperationInfo()) &&
-      (await this.injectFunctionToHandleCapturedEvent([
-        WebBrowser.SHIELD_ID,
-      ])) &&
+      (await this.injectFunctionToHandleCapturedEvent(
+        [WebBrowser.SHIELD_ID],
+        shouldTakeScreenshot
+      )) &&
       (await this.resetEventListeners());
   }
 
@@ -205,6 +212,25 @@ export default class WebBrowserWindow {
     });
   }
 
+  public async registerCapturedOperationsByPost(
+    capturedData: SuspendedCapturedData
+  ): Promise<void> {
+    const clientSize = await this.client.getClientSize();
+    capturedData.suspendedEvent as any;
+    const capturedOperations = await this.convertToCapturedOperations(
+      [capturedData],
+      clientSize,
+      false
+    );
+    if (
+      capturedOperations[0] &&
+      this.shouldRegisterOperation(capturedOperations[0], this.beforeOperation)
+    ) {
+      this.noticeCapturedOperations(...capturedOperations);
+    }
+    this.beforeOperation = capturedOperations[0] ?? null;
+  }
+
   /**
    * Check if operations are captured and if so, call the callback function.
    */
@@ -223,7 +249,8 @@ export default class WebBrowserWindow {
 
       const capturedOperations = await this.convertToCapturedOperations(
         [capturedData],
-        clientSize
+        clientSize,
+        true
       );
 
       if (
@@ -495,7 +522,8 @@ export default class WebBrowserWindow {
 
   private async convertToCapturedOperations(
     capturedDatas: SuspendedCapturedData[],
-    clientSize: { width: number; height: number }
+    clientSize: { width: number; height: number },
+    shouldTakeScreenshot: boolean
   ) {
     const filteredDatas = capturedDatas.filter((data) => {
       // Ignore the click event when dropdown list is opened because Selenium can not take a screenshot when dropdown list is opened.
@@ -527,12 +555,15 @@ export default class WebBrowserWindow {
     }
 
     // Take a screenshot.
-    const boundingRects = filteredDatas.map(
-      (data) => data.operation.elementInfo.boundingRect
-    );
-    const screenShotBase64 = await new MarkedScreenShotTaker(
-      this.client
-    ).takeScreenshotWithMarkOf(boundingRects);
+    let screenShotBase64 = "";
+    if (shouldTakeScreenshot) {
+      const boundingRects = filteredDatas.map(
+        (data) => data.operation.elementInfo.boundingRect
+      );
+      screenShotBase64 = await new MarkedScreenShotTaker(
+        this.client
+      ).takeScreenshotWithMarkOf(boundingRects);
+    }
 
     return Promise.all(
       filteredDatas.map(async (data) => {
@@ -549,6 +580,10 @@ export default class WebBrowserWindow {
           xpath: data.operation.elementInfo.xpath,
           attributes: data.operation.elementInfo.attributes,
           boundingRect: data.operation.elementInfo.boundingRect,
+          innerHeight: data.operation.elementInfo.innerHeight,
+          innerWidth: data.operation.elementInfo.innerWidth,
+          outerHeight: data.operation.elementInfo.outerHeight,
+          outerWidth: data.operation.elementInfo.outerWidth,
         };
         if (data.operation.elementInfo.checked !== undefined) {
           elementInfo.checked = data.operation.elementInfo.checked;
@@ -670,11 +705,12 @@ export default class WebBrowserWindow {
   }
 
   private async injectFunctionToHandleCapturedEvent(
-    ignoreElementIds: string[]
+    ignoreElementIds: string[],
+    shouldEventReFire: boolean
   ): Promise<boolean | null> {
     return await this.client.execute(
       captureScript.setFunctionToHandleCapturedEvent,
-      ignoreElementIds
+      { ignoreElementIds, shouldEventReFire }
     );
   }
 
