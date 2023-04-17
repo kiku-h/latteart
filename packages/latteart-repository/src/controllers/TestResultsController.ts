@@ -42,10 +42,12 @@ import {
   CreateTestResultDto,
   GetSequenceViewDto,
   GetSequenceViewResponse,
+  PatchTestResultDto,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { VideoInfo } from "@/interfaces/Videos";
 
 @Route("test-results")
 @Tags("test-results")
@@ -176,7 +178,7 @@ export class TestResultsController extends Controller {
         screenshotFileRepository,
         workingFileRepository,
         compareReportRepository,
-      }).createTestResult(requestBody, null);
+      }).createTestResult(requestBody);
 
       return result;
     } catch (error) {
@@ -206,7 +208,7 @@ export class TestResultsController extends Controller {
   public async updateTestResult(
     @Path() testResultId: string,
     @Body()
-    requestBody: { name?: string; startTime?: number; initialUrl?: string }
+    requestBody: PatchTestResultDto
   ): Promise<PatchTestResultResponse> {
     console.log("TestResultsController - updateTestResult");
 
@@ -259,6 +261,7 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const videoFileRepository = fileRepositoryManager.getRepository("video");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
@@ -278,7 +281,8 @@ export class TestResultsController extends Controller {
       return await service.deleteTestResult(
         testResultId,
         transactionRunner,
-        screenshotFileRepository
+        screenshotFileRepository,
+        videoFileRepository
       );
     } catch (error) {
       if (error instanceof Error) {
@@ -348,6 +352,52 @@ export class TestResultsController extends Controller {
         createLogger().error("Generate sequence view failed.", error);
         throw new ServerError(500, {
           code: "generate_sequence_view_failed",
+        });
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Create video.
+   * @param testResultId Target test result id.
+   * @param requestBody.startTimestamp Start timestamp.
+   * @returns Video url and start timestamp.
+   */
+  @Response<ServerErrorData<"create_video_failed">>(500, "Create video failed")
+  @SuccessResponse(200, "Success")
+  @Post("{testResultId}/video")
+  public async createVideo(
+    @Path() testResultId: string,
+    @Body() requestBody: { startTimestamp: number }
+  ): Promise<VideoInfo> {
+    try {
+      const timestampService = new TimestampServiceImpl();
+      const fileRepositoryManager = await createFileRepositoryManager();
+      const screenshotFileRepository =
+        fileRepositoryManager.getRepository("screenshot");
+      const workingFileRepository = fileRepositoryManager.getRepository("work");
+      const compareReportRepository =
+        fileRepositoryManager.getRepository("temp");
+      const videoFileRepository = fileRepositoryManager.getRepository("video");
+
+      return await new TestResultServiceImpl({
+        timestamp: timestampService,
+        testStep: new TestStepServiceImpl({
+          screenshotFileRepository,
+          timestamp: timestampService,
+          config: new ConfigsService(),
+        }),
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
+        videoFileRepository,
+      }).createVideo(testResultId, requestBody.startTimestamp);
+    } catch (error) {
+      if (error instanceof Error) {
+        createLogger().error("Create video failed", error);
+        throw new ServerError(500, {
+          code: "create_video_failed",
         });
       }
       throw error;

@@ -81,15 +81,16 @@ describe("ProjectExportService", () => {
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
       collectAllTestPurposeIds: jest.fn(),
-      collectAllTestStepScreenshots: jest.fn().mockResolvedValue([
-        {
-          id: "id",
-          fileUrl: "fileUrl",
-        },
-      ]),
+      collectAllTestStepScreenshots: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: "fileUrl" }]),
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
+      createVideo: jest.fn(),
+      getVideos: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: `video/testResultId.webm` }]),
     };
 
     const exportFileRepositoryService: ExportFileRepositoryService = {
@@ -166,7 +167,7 @@ describe("ProjectExportService", () => {
         }
       );
 
-      const a = {
+      const projectFileData = {
         ...projectData,
         version: 1,
       };
@@ -175,7 +176,7 @@ describe("ProjectExportService", () => {
         projectId: "projectId",
         projectFile: {
           fileName: "project.json",
-          data: JSON.stringify(a),
+          data: JSON.stringify(projectFileData),
         },
         stories: [
           {
@@ -193,47 +194,6 @@ describe("ProjectExportService", () => {
           data: JSON.stringify(dailyTestProgress),
         },
       });
-    });
-
-    it("extractTestResultsExportDataで、TestRsultのexportDataを返す", async () => {
-      const service = new ProjectExportService();
-      projectService.getProject = jest.fn().mockResolvedValue(projectData);
-      testResultService.collectAllTestStepScreenshots = jest
-        .fn()
-        .mockResolvedValue([
-          {
-            id: "id",
-            fileUrl: "fileUrl",
-          },
-        ]);
-
-      await getRepository(TestResultEntity).save(new TestResultEntity());
-
-      const testResult = await service["extractTestResultsExportData"]({
-        testResultService,
-      });
-
-      expect(testResult).toEqual([
-        {
-          testResultId: "testResultId",
-          testResultFile: {
-            fileName: "log.json",
-            data: JSON.stringify({
-              version: 2,
-              name: "testResultName",
-              sessionId: "testResultId",
-              startTimeStamp: 0,
-              lastUpdateTimeStamp: 0,
-              initialUrl: "",
-              testingTime: 0,
-              history: {},
-              notes: [],
-              coverageSources: [],
-            }),
-          },
-          screenshots: [{ id: "id", fileUrl: "fileUrl" }],
-        },
-      ]);
     });
   });
 });

@@ -73,6 +73,7 @@ export class ProjectImportController extends Controller {
       const workingFileRepository = fileRepositoryManager.getRepository("work");
       const compareReportRepository =
         fileRepositoryManager.getRepository("temp");
+      const videoFileRepository = fileRepositoryManager.getRepository("video");
 
       const configService = new ConfigsService();
       const testStepService = new TestStepServiceImpl({
@@ -99,7 +100,8 @@ export class ProjectImportController extends Controller {
 
       const testResultImportService = new TestResultImportServiceImpl({
         importFileRepository,
-        screenshotFileRepository: screenshotFileRepository,
+        screenshotFileRepository,
+        videoFileRepository,
         timestamp: timestampService,
       });
 

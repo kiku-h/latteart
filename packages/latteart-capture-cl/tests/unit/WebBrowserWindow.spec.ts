@@ -81,7 +81,7 @@ describe("WebBrowserWindow", () => {
 
       const window = new WebBrowserWindow("", clientMock, "");
 
-      await window.getReadyToCapture();
+      await window.getReadyToCapture(true);
 
       expect(captureScript.setFunctionToGetAttributesFromElement).toBeCalled();
       expect(captureScript.setFunctionToCollectVisibleElements).toBeCalled();
@@ -144,6 +144,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
               ];
               (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -176,6 +180,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -225,6 +233,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath1,
                 attributes: targetAttributes1,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const e2 = {
                 tagname: targetTagname2,
@@ -232,6 +244,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath2,
                 attributes: targetAttributes2,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const elements: CapturedData["operation"]["elementInfo"][] =
                 e1.xpath === e2.xpath ? [e1] : [e1, e2];
@@ -262,6 +278,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath1,
                   attributes: targetAttributes1,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -283,6 +303,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath2,
                   attributes: targetAttributes2,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -326,6 +350,10 @@ describe("WebBrowserWindow", () => {
                   xpath: "xpath",
                   attributes: targetAttributes,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
               ];
               (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -387,6 +415,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath1,
                 attributes: targetAttributes1,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const e2 = {
                 tagname: targetTagname2,
@@ -394,6 +426,10 @@ describe("WebBrowserWindow", () => {
                 xpath: targetXpath2,
                 attributes: targetAttributes2,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               };
               const elements: CapturedData["operation"]["elementInfo"][] =
                 e1.xpath === e2.xpath ? [e1] : [e1, e2];
@@ -424,6 +460,10 @@ describe("WebBrowserWindow", () => {
                   xpath: targetXpath1,
                   attributes: targetAttributes1,
                   boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                  innerHeight: 0,
+                  innerWidth: 0,
+                  outerHeight: 0,
+                  outerWidth: 0,
                 },
                 input: expect.any(String),
                 title: expect.any(String),
@@ -464,6 +504,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -515,6 +559,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([
@@ -567,6 +615,10 @@ describe("WebBrowserWindow", () => {
                 xpath: "xpath",
                 attributes: targetAttributes,
                 boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+                innerHeight: 0,
+                innerWidth: 0,
+                outerHeight: 0,
+                outerWidth: 0,
               },
             ];
             (captureScript.pullCapturedDatas as jest.Mock).mockReturnValue([

@@ -28,6 +28,7 @@ import { ScreenshotEntity } from "./ScreenshotEntity";
 import { TagEntity } from "./TagEntity";
 import { TestResultEntity } from "./TestResultEntity";
 import { TestStepEntity } from "./TestStepEntity";
+import { VideoEntity } from "./VideoEntity";
 
 @Entity("NOTES")
 export class NoteEntity {
@@ -71,6 +72,12 @@ export class NoteEntity {
   })
   @JoinColumn({ name: "screenshot_id" })
   screenshot?: ScreenshotEntity;
+
+  @ManyToOne(() => VideoEntity, (video) => video.note, {
+    cascade: true,
+  })
+  @JoinColumn({ name: "video_id" })
+  video?: VideoEntity;
 
   constructor(props: Partial<Omit<NoteEntity, "id">> = {}) {
     Object.assign(this, props);

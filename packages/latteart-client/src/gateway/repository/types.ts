@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { Video } from "@/service";
+
 export type TestResultViewOptionForRepository = {
   node: {
     unit: "title" | "url";
@@ -71,6 +73,8 @@ export type GraphViewForRepository = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
+      videoId?: string;
     }[];
   };
 };
@@ -87,7 +91,9 @@ export type GraphViewNodeForRepository = {
     testPurposeId?: string;
     pageUrl: string;
     pageTitle: string;
+    timestamp: number;
     imageFileUrl?: string;
+    videoId?: string;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -97,8 +103,10 @@ export type NoteForRepository = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string;
-  tags?: string[];
+  imageFileUrl: string;
+  tags: string[];
+  timestamp: number;
+  videoId?: string;
 };
 
 export type CapturedOperationForRepository = {
@@ -116,6 +124,7 @@ export type CapturedOperationForRepository = {
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
   isAutomatic?: boolean;
+  videoId?: string;
 };
 
 export type TestStepForRepository = {
@@ -140,6 +149,7 @@ export type OperationForRepository = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
+  videoId?: string;
 };
 
 export type ElementInfoForRepository = {
@@ -155,6 +165,10 @@ export type ElementInfoForRepository = {
     width: number;
     height: number;
   };
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
   textWithoutChildren?: string;
 };
 
@@ -226,7 +240,10 @@ export type SettingsForRepository = {
       }[];
     };
     coverage: { include: { tags: string[] } };
-    imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+    captureMediaSetting: {
+      mediaType: "image" | "video";
+      imageCompression: { isEnabled: boolean; isDeleteSrcImage: boolean };
+    };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;
@@ -275,8 +292,8 @@ export type SessionForRepository = {
   attachedFiles: { name: string; fileUrl: string }[];
   testResultFiles: TestResultFileForRepository[];
   initialUrl: string;
-  testPurposes: ApiNoteForRepository[];
-  notes: ApiNoteForRepository[];
+  testPurposes: NoteForRepository[];
+  notes: NoteForRepository[];
   testingTime: number;
 };
 
@@ -289,6 +306,7 @@ export type AttachedFileForRepository = {
 export type TestResultFileForRepository = {
   name: string;
   id: string;
+  videos?: Video[];
 };
 
 export type StoryForRepository = {
@@ -345,17 +363,18 @@ export type TestResultForRepository = {
   testSteps: {
     id: string;
     operation: OperationForRepository;
-    intention: ApiNoteForRepository | null;
-    bugs: ApiNoteForRepository[];
-    notices: ApiNoteForRepository[];
+    intention: NoteForRepository | null;
+    bugs: NoteForRepository[];
+    notices: NoteForRepository[];
   }[];
   coverageSources: CoverageSourceForRepository[];
   parentTestResultId?: string;
+  videos?: Video[];
 };
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId"
+  "id" | "name" | "parentTestResultId" | "videos"
 >;
 
 export type TestResultComparisonResultForRepository = {
@@ -383,15 +402,6 @@ export type ProjectForRepository = {
   name: string;
   testMatrices: TestMatrixForRepository[];
   stories: StoryForRepository[];
-};
-
-type ApiNoteForRepository = {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
 };
 
 export type SnapshotConfigForRepository = { locale: string };

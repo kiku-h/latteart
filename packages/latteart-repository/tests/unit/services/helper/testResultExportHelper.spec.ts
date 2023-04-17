@@ -1,4 +1,4 @@
-import { TestResultExportDataV2 } from "@/interfaces/exportData";
+import { TestResultExportDataV3 } from "@/interfaces/exportData";
 import { GetTestResultResponse } from "@/interfaces/TestResults";
 import { serializeTestResult } from "@/services/helper/testResultExportHelper";
 
@@ -24,6 +24,7 @@ describe("testResultExportHelper", () => {
         details: "intention1",
         tags: [],
         imageFileUrl: "",
+        timestamp: 0,
       };
       const testResult: GetTestResultResponse = {
         id: "testResultId",
@@ -59,8 +60,8 @@ describe("testResultExportHelper", () => {
         inputElements: [],
       };
 
-      const resultData: TestResultExportDataV2 = {
-        version: 2,
+      const resultData: TestResultExportDataV3 = {
+        version: 3,
         name: "testResultName",
         sessionId: "testResultId",
         startTimeStamp: 0,

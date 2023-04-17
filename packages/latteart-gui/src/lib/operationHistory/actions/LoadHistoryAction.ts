@@ -49,7 +49,11 @@ export class LoadHistoryAction {
     ActionResult<{
       historyItems: OperationHistoryItem[];
       url: string;
-      testResultInfo: { id: string; name: string; parentTestResultId?: string };
+      testResultInfo: {
+        id: string;
+        name: string;
+        parentTestResultId?: string;
+      };
       testStepIds: string[];
       testingTime: number;
     }>
@@ -88,7 +92,6 @@ export class LoadHistoryAction {
         return { operation, intention, bugs, notices };
       }
     );
-
     return {
       historyItems: operationHistoryItems,
       url: testResult.initialUrl,

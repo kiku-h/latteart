@@ -27,6 +27,7 @@ import { TestPurposeEntity } from "./TestPurposeEntity";
 import { NoteEntity } from "./NoteEntity";
 import { ScreenshotEntity } from "./ScreenshotEntity";
 import { SessionEntity } from "./SessionEntity";
+import { VideoEntity } from "./VideoEntity";
 
 @Entity("TEST_RESULTS")
 export class TestResultEntity {
@@ -99,11 +100,24 @@ export class TestResultEntity {
   @RelationId((testResult: TestResultEntity) => testResult.screenshots)
   screenshotIds?: string[];
 
+  @OneToMany(() => VideoEntity, (video) => video.testResult, {
+    cascade: true,
+  })
+  videos?: VideoEntity[];
+
+  @RelationId((testResult: TestResultEntity) => testResult.videos)
+  videoIds?: string[];
+
   constructor(
     props: Partial<
       Omit<
         TestResultEntity,
-        "id" | "testStepIds" | "testPurposeIds" | "noteIds" | "screenshotIds"
+        | "id"
+        | "testStepIds"
+        | "testPurposeIds"
+        | "noteIds"
+        | "screenshotIds"
+        | "videoIds"
       >
     > = {}
   ) {

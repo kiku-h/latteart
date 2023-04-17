@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { OperationWithNotes, WindowInfo } from "@/lib/operationHistory/types";
+import {
+  ScreenImage,
+  OperationWithNotes,
+  WindowInfo,
+} from "@/lib/operationHistory/types";
 import { Module } from "vuex";
 import { RootState } from "..";
 import getters from "./getters";
@@ -22,6 +26,7 @@ import mutations from "./mutations";
 import actions from "./actions";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { VideoFrame } from "latteart-client";
 
 /**
  * State for operation history.
@@ -146,6 +151,23 @@ export interface OperationHistoryState {
        * Screenshot URL.
        */
       imageFileUrl?: string;
+
+      videoFrame?: VideoFrame;
+
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+
+      innerHeight?: number;
+
+      innerWidth?: number;
+
+      outerHeight?: number;
+
+      outerWidth?: number;
     }>;
   }>;
 
@@ -180,9 +202,9 @@ export interface OperationHistoryState {
   displayedOperations: number[];
 
   /**
-   * Displayed screenshot url.
+   * Screen image.
    */
-  displayedScreenshotUrl: string;
+  screenImage: ScreenImage | null;
 
   /**
    * Note information being edited.
@@ -194,6 +216,8 @@ export interface OperationHistoryState {
   } | null;
 
   checkedOperations: { index: number; operation: OperationForGUI }[];
+
+  isPictureInPictureWindowDisplayed: boolean;
 
   /**
    * The function to open the dialog for editing a note.
@@ -256,9 +280,10 @@ const state: OperationHistoryState = {
   selectedOperationSequence: 0,
   selectedOperationNote: { sequence: null, index: null },
   displayedOperations: [],
-  displayedScreenshotUrl: "",
+  screenImage: null,
   tmpNoteInfoForEdit: null,
   checkedOperations: [],
+  isPictureInPictureWindowDisplayed: false,
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

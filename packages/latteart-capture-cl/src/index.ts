@@ -30,6 +30,9 @@ import path from "path";
 import { TimestampImpl } from "./Timestamp";
 import WebDriverClient from "./webdriver/WebDriverClient";
 import { setupWebDriverServer } from "./webdriver/setupWebDriver";
+import cors from "cors";
+import bodyParser from "body-parser";
+import { CapturedData } from "./capturer/captureScript";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;
@@ -40,6 +43,7 @@ export const appRootPath = path.relative(
 );
 
 const app = express();
+app.use(cors());
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE");
@@ -50,6 +54,9 @@ app.use(function (req, res, next) {
 
   next();
 });
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "100mb" }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -136,6 +143,9 @@ app.get(`${v1RootPath}/devices`, (req, res) => {
   })();
 });
 
+let capturer: BrowserOperationCapturer;
+let client: WebDriverClient;
+
 /**
  * Get server name.
  */
@@ -145,11 +155,23 @@ app.get(`${v1RootPath}/server-name`, (req, res) => {
   res.json("latteart-capture-cl");
 });
 
+app.post(`${v1RootPath}/operation`, (req, res) => {
+  LoggingService.info("operation");
+  // console.log(req.body);
+  const body: CapturedData = req.body;
+
+  const window = capturer.webBrowser?.currentWindow;
+  const suspendedCapturedData = {
+    ...body,
+    suspendedEvent: {} as any,
+  };
+  window?.registerCapturedOperationsByPost(suspendedCapturedData);
+
+  res.json("OK");
+});
+
 io.on("connection", (socket) => {
   LoggingService.info("Socket connected.");
-
-  let capturer: BrowserOperationCapturer;
-  let client: WebDriverClient;
 
   /**
    * Start capture.

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { ExportableConfig, ProjectConfig } from "@/interfaces/Configs";
+import {
+  ExportableConfig,
+  OldStyleProjectConfig,
+  ProjectConfig,
+} from "@/interfaces/Configs";
 
 export function convertToExportableConfig(
   settings: ProjectConfig
@@ -22,9 +26,15 @@ export function convertToExportableConfig(
   return {
     config: {
       ...settings.config,
-      imageCompression: {
-        isEnabled: settings.config.imageCompression.isEnabled,
-        isDeleteSrcImage: settings.config.imageCompression.isDeleteSrcImage,
+      captureMediaSetting: {
+        mediaType: settings.config.captureMediaSetting.mediaType,
+        imageCompression: {
+          isDeleteSrcImage:
+            settings.config.captureMediaSetting.imageCompression
+              .isDeleteSrcImage,
+          isEnabled:
+            settings.config.captureMediaSetting.imageCompression.isEnabled,
+        },
       },
     },
     defaultTagList: settings.defaultTagList,
@@ -33,7 +43,9 @@ export function convertToExportableConfig(
 }
 
 export function parseProjectConfig(configText: string): ProjectConfig {
-  const config = JSON.parse(configText) as ProjectConfig;
+  const config = JSON.parse(configText) as
+    | OldStyleProjectConfig
+    | ProjectConfig;
 
   return {
     viewPointsPreset: config.viewPointsPreset,
@@ -43,7 +55,13 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      imageCompression: config.config.imageCompression,
+      captureMediaSetting:
+        "captureMediaSetting" in config.config
+          ? config.config.captureMediaSetting
+          : {
+              mediaType: "image",
+              imageCompression: config.config.imageCompression,
+            },
       testResultComparison: config.config.testResultComparison,
     },
   };

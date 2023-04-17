@@ -10,6 +10,7 @@ const baseRestClient: RESTClient = {
   httpPut: jest.fn(),
   httpPatch: jest.fn(),
   httpDelete: jest.fn(),
+  httpGetFile: jest.fn(),
 };
 
 describe("LoadHistoryAction", () => {
@@ -27,7 +28,11 @@ describe("LoadHistoryAction", () => {
       const expectedTestResult = {
         historyItems: [],
         url: "url",
-        testResultInfo: { id: "id", name: "name" },
+        testResultInfo: {
+          id: "id",
+          name: "name",
+          parentTestResultId: undefined,
+        },
         testStepIds: [],
         testingTime: 0,
       };

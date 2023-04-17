@@ -22,7 +22,6 @@ import mutations from "./mutations";
 import actions from "./actions";
 import Timer from "@/lib/common/Timer";
 import { CaptureSession } from "latteart-client";
-import { ElementInfo } from "latteart-client";
 
 /**
  * Store for capture control.

@@ -41,7 +41,10 @@ export default class Settings {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
-    imageCompression: ImageCompression;
+    captureMediaSetting: {
+      mediaType: "image" | "video";
+      imageCompression: ImageCompression;
+    };
   };
   public captureSettings: {
     ignoreTags: string[];
@@ -80,10 +83,13 @@ export default class Settings {
           tags: [],
         },
       },
-      imageCompression: {
-        isEnabled: true,
-        isDeleteSrcImage: true,
-        command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+      captureMediaSetting: {
+        mediaType: "image",
+        imageCompression: {
+          isEnabled: true,
+          isDeleteSrcImage: true,
+          command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+        },
       },
     };
     this.captureSettings = {
@@ -120,6 +126,17 @@ export interface ScreenDefinition {
 export interface Coverage {
   include: {
     tags: string[];
+  };
+}
+
+/**
+ * Image compression settings.
+ */
+export interface CaptureMediaSetting {
+  mediaType: "image" | "video";
+  imageCompression: {
+    isEnabled: boolean;
+    isDeleteSrcImage: boolean;
   };
 }
 

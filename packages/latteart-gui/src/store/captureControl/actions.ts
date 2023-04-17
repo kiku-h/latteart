@@ -38,6 +38,10 @@ import {
 } from "latteart-client";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { DeviceSettings } from "@/lib/common/settings/Settings";
+import {
+  VideoRecorder,
+  createVideoRecorder,
+} from "@/lib/captureControl/VideoRecorder";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -156,7 +160,12 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       const captureCl = context.rootState.captureClService;
       const client = captureCl.createCaptureClient({
         testResult: destTestResult,
-        config: context.rootState.deviceSettings,
+        config: {
+          ...context.rootState.deviceSettings,
+          mediaType:
+            context.rootState.projectSettings.config.captureMediaSetting
+              .mediaType,
+        },
         eventListeners: await context.dispatch("createCaptureEventListeners"),
       });
 
@@ -165,8 +174,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           payload.initialUrl,
           {
             compressScreenshots:
-              context.rootState.projectSettings.config.imageCompression
-                .isEnabled,
+              context.rootState.projectSettings.config.captureMediaSetting
+                .imageCompression.isEnabled,
+            mediaType:
+              context.rootState.projectSettings.config.captureMediaSetting
+                .mediaType,
           }
         );
         if (startCaptureResult.isFailure()) {
@@ -400,6 +412,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       callbacks?: {
         onEnd?: (error?: Error) => void;
       };
+      videoRecorder?: VideoRecorder;
     } = {}
   ) {
     const postRegisterOperation = async (data: {
@@ -435,6 +448,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         },
         { root: true }
       );
+
+      payload.videoRecorder?.requestData();
     };
 
     const callbacks = {
@@ -551,16 +566,17 @@ const actions: ActionTree<CaptureControlState, RootState> = {
     context,
     payload: {
       url: string;
+      mediaType: "image" | "video";
       config: DeviceSettings;
       callbacks: {
         onEnd: (error?: Error) => void;
       };
     }
   ) {
-    const config: CaptureConfig = Object.assign(
-      payload.config,
-      context.rootState.deviceSettings
-    );
+    const config: CaptureConfig = Object.assign(payload.config, {
+      ...context.rootState.deviceSettings,
+      mediaType: payload.mediaType,
+    });
 
     try {
       const operationHistoryState: OperationHistoryState = (
@@ -572,17 +588,27 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState.repositoryService.createTestResultAccessor(
           operationHistoryState.testResultInfo.id
         );
+
+      const videoRecorder =
+        context.rootState.projectSettings.config.captureMediaSetting
+          .mediaType === "video"
+          ? createVideoRecorder(testResult)
+          : undefined;
+
       const client = captureCl.createCaptureClient({
         testResult,
         config,
         eventListeners: await context.dispatch("createCaptureEventListeners", {
           callbacks: payload.callbacks,
+          videoRecorder,
         }),
       });
 
       const result = await client.startCapture(payload.url, {
         compressScreenshots:
-          context.rootState.projectSettings.config.imageCompression.isEnabled,
+          context.rootState.projectSettings.config.captureMediaSetting
+            .imageCompression.isEnabled,
+        mediaType: payload.mediaType,
       });
 
       if (result.isFailure()) {
@@ -607,6 +633,24 @@ const actions: ActionTree<CaptureControlState, RootState> = {
           value: testOption.firstTestPurpose,
           details: testOption.firstTestPurposeDetails,
         });
+      }
+
+      if (videoRecorder) {
+        const startRecordingResult = await videoRecorder.startRecording();
+
+        if (startRecordingResult.isFailure()) {
+          const errorMessage = context.rootGetters.message(
+            `error.capture_control.${startRecordingResult.error.errorCode}`
+          );
+          payload.callbacks.onEnd(new Error(errorMessage));
+          return;
+        }
+
+        const recordingVideo = videoRecorder.recordingVideo;
+
+        if (recordingVideo) {
+          session.setRecordingVideo(recordingVideo);
+        }
       }
 
       context.dispatch("stopTimer");
@@ -653,7 +697,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       screenshot: payload.noteEditInfo.shouldTakeScreenshot,
       compressScreenshot:
         payload.noteEditInfo.shouldTakeScreenshot &&
-        context.rootState.projectSettings.config.imageCompression.isEnabled,
+        context.rootState.projectSettings.config.captureMediaSetting
+          .imageCompression.isEnabled,
     };
 
     context.state.captureSession?.takeNote(note, option);

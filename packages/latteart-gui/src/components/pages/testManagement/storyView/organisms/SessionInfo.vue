@@ -239,7 +239,8 @@
                               props.item.value,
                               props.item.details,
                               props.item.imageFilePath,
-                              props.item.tags
+                              props.item.tags,
+                              props.item.videoUrl
                             )
                           "
                           >{{
@@ -309,7 +310,14 @@
               ></note-tag-chip-group>
             </v-list-item-content>
           </v-list-item>
-          <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
+          <video-display
+            v-if="issueDetailsDialogVideoUrl"
+            :videoUrl="issueDetailsDialogVideoUrl"
+          />
+          <popup-image
+            v-else-if="issueDetailsDialogImagePath"
+            :imageFileUrl="issueDetailsDialogImagePath"
+          />
         </v-list>
       </template>
 
@@ -371,7 +379,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import {
   Session,
   AttachedFile,
@@ -385,6 +393,9 @@ import { formatTime } from "@/lib/common/Timestamp";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
 import { TestResultSummary } from "@/lib/operationHistory/types";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -393,6 +404,7 @@ import { TestResultSummary } from "@/lib/operationHistory/types";
     "confirm-dialog": ConfirmDialog,
     "popup-image": PopupImage,
     "note-tag-chip-group": NoteTagChipGroup,
+    "video-display": VideoDisplay,
   },
 })
 export default class SessionInfo extends Vue {
@@ -423,6 +435,7 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
   private issueDetailsDialogTags: string[] = [];
+  private issueDetailsDialogVideoUrl = "";
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -647,33 +660,46 @@ export default class SessionInfo extends Vue {
     if (!this.session) {
       return [];
     }
-    const notices = this.session.notes.map((note) => {
-      const status = (() => {
-        if (!note.tags) {
+
+    return [
+      ...this.session.notes.map((note) => {
+        const status = (() => {
+          if (!note.tags) {
+            return "";
+          }
+
+          if (note.tags.includes("reported")) {
+            return "reported";
+          }
+
+          if (note.tags.includes("invalid")) {
+            return "invalid";
+          }
+
           return "";
+        })();
+
+        if (!note.videoFrame) {
+          return {
+            status,
+            value: note.value,
+            details: note.details,
+            tags: note.tags ?? [],
+            imageFilePath: note.imageFileUrl ?? "",
+            videoUrl: "",
+          };
         }
 
-        if (note.tags.includes("reported")) {
-          return "reported";
-        }
-
-        if (note.tags.includes("invalid")) {
-          return "invalid";
-        }
-
-        return "";
-      })();
-
-      return {
-        status,
-        value: note.value,
-        details: note.details,
-        tags: note.tags ?? [],
-        imageFilePath: note.imageFileUrl ?? "",
-      };
-    });
-
-    return notices;
+        return {
+          status,
+          value: note.value,
+          details: note.details,
+          tags: note.tags ?? [],
+          imageFilePath: "",
+          videoUrl: `${note.videoFrame.url}#t=${note.videoFrame.time}`,
+        };
+      }),
+    ];
   }
 
   private openIssueDetailsDialog(
@@ -681,7 +707,8 @@ export default class SessionInfo extends Vue {
     summary: string,
     text: string,
     imageFilePath: string,
-    tags: string[]
+    tags: string[],
+    videoUrl: string
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -695,6 +722,7 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogImagePath = imageFilePath;
     this.issueDetailsDialogTags = tags ?? [];
+    this.issueDetailsDialogVideoUrl = videoUrl;
     this.issueDetailsDialogOpened = true;
   }
 
@@ -708,12 +736,17 @@ export default class SessionInfo extends Vue {
       const testResultId = testResultFiles[0].id;
       window.open(`${url}&testResultId=${testResultId}`, "_blank");
     } else {
+      const mediaType = (this.$store.state as RootState).projectSettings.config
+        .captureMediaSetting.mediaType;
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
         name: "",
+        mediaType,
       });
 
-      const newTestResult = this.$store.state.operationHistory.testResultInfo;
+      const newTestResult = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo;
 
       this.addTestResultToSession({
         id: newTestResult.id,
@@ -730,6 +763,10 @@ export default class SessionInfo extends Vue {
       : [];
     const memos = this.session?.memo ? [this.session.memo] : [];
     return [...testItems, ...memos].join("\n");
+  }
+
+  private get serviceUrl() {
+    return this.$store.state.repositoryService.serviceUrl;
   }
 }
 </script>

@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+import {
+  CapturedOperationForCaptureCl,
+  CapturedScreenTransitionForCaptureCl,
+  ElementInfoForCaptureCl,
+} from "@/gateway/captureCl";
+
 export type TestResultViewOption = {
   node: {
     unit: "title" | "url";
@@ -28,50 +34,29 @@ export type TestResultViewOption = {
   };
 };
 
-export type CapturedScreenTransition = {
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
+export type CapturedScreenTransition = Omit<
+  CapturedScreenTransitionForCaptureCl,
+  "screenElements"
+> & {
   screenElements: ElementInfo[];
-  pageSource: string;
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
+  videoFrame?: VideoFrame;
 };
 
-export type CapturedOperation = {
-  input: string;
-  type: string;
+export type CapturedOperation = Omit<
+  CapturedOperationForCaptureCl,
+  "elementInfo" | "screenElements" | "inputElements"
+> & {
   elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
   screenElements: ElementInfo[];
-  pageSource: string;
   inputElements: ElementInfo[];
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
-  isAutomatic?: boolean;
+  videoFrame?: VideoFrame;
 };
 
-export type ElementInfo = {
-  tagname: string;
-  text?: string;
-  xpath: string;
-  value?: string;
-  checked?: boolean;
-  attributes: { [key: string]: string };
-  boundingRect?: {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  };
-  textWithoutChildren?: string;
-};
+export type ElementInfo = ElementInfoForCaptureCl;
+
+export type Video = { id: string; url: string; startTimestamp: number };
+
+export type VideoFrame = { url: string; time: number };
 
 export type Operation = {
   input: string;
@@ -87,6 +72,7 @@ export type Operation = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
+  videoFrame?: VideoFrame;
 };
 
 export type RunnableOperation = Pick<
@@ -108,8 +94,10 @@ export type Note = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string;
-  tags?: string[];
+  imageFileUrl: string;
+  tags: string[];
+  timestamp: number;
+  videoFrame?: VideoFrame;
 };
 
 export type TestStepNote = {
@@ -139,6 +127,7 @@ export type CaptureConfig = {
   };
   platformVersion?: string;
   waitTimeForStartupReload: number;
+  mediaType: "image" | "video";
 };
 
 export type VisualizeConfig = {

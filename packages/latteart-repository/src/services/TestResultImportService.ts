@@ -31,6 +31,8 @@ import {
   DeserializedTestResult,
   DeserializedTestStep,
 } from "@/interfaces/exportData";
+import { VideoEntity } from "@/entities/VideoEntity";
+import { VideoInfo } from "@/interfaces/Videos";
 
 export interface TestResultImportService {
   importTestResult(
@@ -44,7 +46,7 @@ export interface TestResultImportService {
           fileName: string;
           data: string;
         };
-        screenshots: {
+        fileData: {
           filePath: string;
           data: Buffer;
         }[];
@@ -58,7 +60,7 @@ export interface TestResultImportService {
         fileName: string;
         data: string;
       };
-      screenshots: {
+      fileData: {
         filePath: string;
         data: Buffer;
       }[];
@@ -72,6 +74,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     private service: {
       importFileRepository: ImportFileRepository;
       screenshotFileRepository: FileRepository;
+      videoFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -102,10 +105,10 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       throw Error("Invalid test result file.");
     }
 
-    const screenshots = files.filter(
+    const fileData = files.filter(
       (file): file is { filePath: string; data: Buffer } => {
         return (
-          [".png", ".webp"].includes(path.extname(file.filePath)) &&
+          [".png", ".webp", ".webm"].includes(path.extname(file.filePath)) &&
           typeof file.data !== "string"
         );
       }
@@ -116,7 +119,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
         fileName: testResultFile.filePath,
         data: testResultFile.data,
       },
-      screenshots,
+      fileData,
     };
   }
 
@@ -127,7 +130,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
           fileName: string;
           data: string;
         };
-        screenshots: {
+        fileData: {
           filePath: string;
           data: Buffer;
         }[];
@@ -148,7 +151,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
         fileName: string;
         data: string;
       };
-      screenshots: {
+      fileData: {
         filePath: string;
         data: Buffer;
       }[];
@@ -159,29 +162,55 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       importFileData.testResultFile.data
     );
 
-    const screenshotFilePathToEntity = new Map(
-      await Promise.all(
-        importFileData.screenshots.map<Promise<[string, ScreenshotEntity]>>(
-          async (screenshot) => {
-            const screenshotEntity = await getRepository(ScreenshotEntity).save(
-              new ScreenshotEntity()
-            );
-            const substrings = screenshot.filePath.split(".");
-            const fileExt =
-              substrings.length >= 2 ? `.${substrings.pop()}` : "";
-            const fileName = `${screenshotEntity.id}${fileExt}`;
-            await this.service.screenshotFileRepository.outputFile(
-              fileName,
-              screenshot.data
-            );
-            const imageFileUrl =
-              this.service.screenshotFileRepository.getFileUrl(fileName);
-            screenshotEntity.fileUrl = imageFileUrl;
+    const videoFilePathToEntity = new Map<string, VideoEntity>();
+    const screenshotFilePathToEntity = new Map<string, ScreenshotEntity>();
 
-            return [screenshot.filePath, screenshotEntity];
-          }
-        )
-      )
+    await Promise.all(
+      importFileData.fileData.map(async (videoOrScreenshot) => {
+        if (videoOrScreenshot.filePath.split(".")[1] === "webm") {
+          const videoFileName = path.basename(videoOrScreenshot.filePath);
+          const videoInfo = testResult.videos?.find((item) =>
+            item.url.match(videoFileName)
+          );
+          const videoEntity = await getRepository(VideoEntity).save(
+            new VideoEntity({
+              startTimestamp: videoInfo ? videoInfo.startTimestamp : 0,
+            })
+          );
+
+          const substrings = videoOrScreenshot.filePath.split(".");
+          const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
+
+          const fileName = `${videoEntity.id}${fileExt}`;
+          await this.service.videoFileRepository.outputFile(
+            fileName,
+            videoOrScreenshot.data
+          );
+          const videoFileUrl =
+            this.service.videoFileRepository.getFileUrl(fileName);
+          videoEntity.fileUrl = videoFileUrl;
+          videoFilePathToEntity.set(videoOrScreenshot.filePath, videoEntity);
+          return [videoOrScreenshot.filePath, videoEntity];
+        } else {
+          const screenshotEntity = await getRepository(ScreenshotEntity).save(
+            new ScreenshotEntity()
+          );
+          const substrings = videoOrScreenshot.filePath.split(".");
+          const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
+          const fileName = `${screenshotEntity.id}${fileExt}`;
+          await this.service.screenshotFileRepository.outputFile(
+            fileName,
+            videoOrScreenshot.data
+          );
+          const imageFileUrl =
+            this.service.screenshotFileRepository.getFileUrl(fileName);
+          screenshotEntity.fileUrl = imageFileUrl;
+          screenshotFilePathToEntity.set(
+            videoOrScreenshot.filePath,
+            screenshotEntity
+          );
+        }
+      })
     );
 
     const tagNameToEntity = new Map(
@@ -195,8 +224,9 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     const newTestResultEntity = await getRepository(TestResultEntity).save(
       this.createTestResultEntity(
         testResult,
+        tagNameToEntity,
         screenshotFilePathToEntity,
-        tagNameToEntity
+        videoFilePathToEntity
       )
     );
 
@@ -208,14 +238,17 @@ export class TestResultImportServiceImpl implements TestResultImportService {
 
   private createTestResultEntity(
     testResult: DeserializedTestResult,
-    screenshotFilePathToEntity: Map<string, ScreenshotEntity>,
-    tagNameToEntity: Map<string, TagEntity>
+    tagNameToEntity: Map<string, TagEntity>,
+    screenshotFilePathToEntity?: Map<string, ScreenshotEntity>,
+    videoFilePathToEntity?: Map<string, VideoEntity>
   ) {
     const testStepEntities = testResult.testSteps.map((testStep) => {
       return this.createTestStepEntity(
         testStep,
+        tagNameToEntity,
         screenshotFilePathToEntity,
-        tagNameToEntity
+        videoFilePathToEntity,
+        testResult.videos
       );
     });
     const coverageSourceEntities: CoverageSourceEntity[] =
@@ -245,7 +278,12 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       lastUpdateTimestamp: testResult.lastUpdateTimeStamp,
       initialUrl: testResult.initialUrl ?? "",
       testingTime: testResult.testingTime,
-      screenshots: Array.from(screenshotFilePathToEntity.values()),
+      screenshots: screenshotFilePathToEntity
+        ? Array.from(screenshotFilePathToEntity.values())
+        : undefined,
+      videos: videoFilePathToEntity
+        ? Array.from(videoFilePathToEntity.values())
+        : undefined,
       testSteps: testStepEntities,
       coverageSources: coverageSourceEntities,
       notes: noteEntities,
@@ -255,12 +293,21 @@ export class TestResultImportServiceImpl implements TestResultImportService {
 
   private createTestStepEntity(
     testStep: DeserializedTestStep,
-    screenshotFilePathToEntity: Map<string, ScreenshotEntity>,
-    tagNameToEntity: Map<string, TagEntity>
+    tagNameToEntity: Map<string, TagEntity>,
+    screenshotFilePathToEntity?: Map<string, ScreenshotEntity>,
+    videoFilePathToEntity?: Map<string, VideoEntity>,
+    videos?: VideoInfo[]
   ) {
-    const screenshotEntity = screenshotFilePathToEntity.get(
+    const screenshotEntity = screenshotFilePathToEntity?.get(
       path.basename(testStep.operation.imageFileUrl)
     );
+
+    const videoFileUrl = videos?.find(
+      ({ id }) => id === testStep.operation.videoId
+    )?.url;
+    const videoEntity = videoFileUrl
+      ? videoFilePathToEntity?.get(path.basename(videoFileUrl))
+      : undefined;
 
     const testPurposeEntity = testStep.testPurpose
       ? this.createTestPurposeEntity(testStep.testPurpose)
@@ -274,7 +321,9 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       return this.createNoteEntity(
         note,
         tagEntities,
-        screenshotFilePathToEntity
+        screenshotFilePathToEntity,
+        videoFilePathToEntity,
+        videos
       );
     });
     return new TestStepEntity({
@@ -292,6 +341,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       scrollPositionY: testStep.operation.scrollPosition?.y ?? undefined,
       clientSizeWidth: testStep.operation.clientSize?.width ?? undefined,
       clientSizeHeight: testStep.operation.clientSize?.height ?? undefined,
+      video: videoEntity,
       screenshot: screenshotEntity,
       testPurpose: testPurposeEntity,
       notes: noteEntities,
@@ -306,19 +356,29 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       details: string;
       imageFileUrl: string;
       tags: string[];
+      timestamp: number;
+      videoId?: string;
     },
     tagEntities: TagEntity[],
-    screenshotFilePathToEntity: Map<string, ScreenshotEntity>
+    screenshotFilePathToEntity?: Map<string, ScreenshotEntity>,
+    videoFilePathToEntity?: Map<string, VideoEntity>,
+    videos?: VideoInfo[]
   ) {
-    const screenshotEntity = screenshotFilePathToEntity.get(
-      path.basename(note.imageFileUrl)
-    );
+    const screenshotEntity = screenshotFilePathToEntity
+      ? screenshotFilePathToEntity.get(path.basename(note.imageFileUrl))
+      : undefined;
+
+    const videoFileUrl = videos?.find(({ id }) => id === note.videoId)?.url;
+    const videoEntity = videoFileUrl
+      ? videoFilePathToEntity?.get(path.basename(videoFileUrl))
+      : undefined;
 
     return new NoteEntity({
       value: note.value,
       details: note.details,
-      timestamp: this.service.timestamp.unix(),
+      timestamp: note.timestamp,
       screenshot: screenshotEntity,
+      video: videoEntity,
       tags: tagEntities,
     });
   }
@@ -330,6 +390,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     details: string;
     imageFileUrl: string;
     tags: string[];
+    timestamp: number;
   }) {
     return new TestPurposeEntity({
       title: testPurpose.value,

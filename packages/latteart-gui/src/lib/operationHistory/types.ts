@@ -21,6 +21,8 @@ import {
   ElementInfo,
   TestResultForRepository,
   TestResultComparisonResultForRepository,
+  Note,
+  VideoFrame,
 } from "latteart-client";
 
 /**
@@ -141,15 +143,6 @@ export interface ScreenDefinitionConditionGroup {
   }>;
 }
 
-interface ApiNote {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
-}
-
 export type TestResult = Omit<
   TestResultForRepository,
   "testSteps" | "coverageSources"
@@ -157,15 +150,15 @@ export type TestResult = Omit<
   testSteps: {
     id: string;
     operation: Operation;
-    intention: ApiNote | null;
-    bugs: ApiNote[];
-    notices: ApiNote[];
+    intention: Note | null;
+    bugs: Note[];
+    notices: Note[];
   }[];
 };
 
 export type TestResultSummary = Pick<
-  TestResult,
-  "id" | "name" | "parentTestResultId"
+  TestResultForRepository,
+  "id" | "name" | "parentTestResultId" | "videos"
 >;
 
 export type AutoOperation = {
@@ -194,3 +187,13 @@ export interface NoteDialogInfo {
 
 export type TestResultComparisonResult =
   TestResultComparisonResultForRepository;
+
+export type ScreenImage = {
+  background: { imageFileUrl: string } | { videoFileUrl: string; time: number };
+  overlay?: {
+    width: number;
+    height: number;
+    offset?: { x?: number; y?: number };
+    markerRect?: { top: number; left: number; width: number; height: number };
+  };
+};

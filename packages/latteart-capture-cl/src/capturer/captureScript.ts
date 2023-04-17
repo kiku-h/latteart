@@ -21,6 +21,7 @@ export type CapturedData = {
   operation: CapturedOperationInfo;
   elements: CapturedElementInfo[];
   eventInfo: EventInfo;
+  windowHandle?: string;
 };
 
 /**
@@ -108,7 +109,7 @@ export type CaptureScript = {
    * Whether it is ready to capture or not.
    * @returns 'true': It is ready to capture, 'false': It is not ready to capture.
    */
-  isReadyToCapture: () => boolean;
+  isReadyToCapture: (shouldTakeScreenshot: boolean) => boolean;
   /**
    * Reset event listeners
    */
@@ -130,7 +131,10 @@ export type CaptureScript = {
   setFunctionToExtractElements: () => boolean;
   setFunctionToEnqueueEventForReFire: () => boolean;
   setFunctionToBuildOperationInfo: () => boolean;
-  setFunctionToHandleCapturedEvent: (ignoreElementIds: string[]) => boolean;
+  setFunctionToHandleCapturedEvent: (args: {
+    ignoreElementIds: string[];
+    shouldEventReFire: boolean;
+  }) => boolean;
   setFunctionToDetectWindowSwitch: ({
     windowHandle,
     shieldId,
@@ -225,6 +229,10 @@ type CapturedElementInfo = {
   checked?: boolean;
   attributes: { [key: string]: string };
   boundingRect: BoundingRect;
+  outerHeight: number;
+  outerWidth: number;
+  innerHeight: number;
+  innerWidth: number;
   textWithoutChildren?: string;
 };
 
@@ -235,6 +243,7 @@ type CapturedOperationInfo = {
   title: string;
   url: string;
   scrollPosition: { x: number; y: number };
+  timestamp: number;
 };
 
 type ExtendedDocument = Document & {
@@ -352,14 +361,18 @@ function pullCapturedDatas() {
   return result;
 }
 
-function isReadyToCapture() {
+function isReadyToCapture(shouldTakeScreenshot: boolean) {
   const extendedDocument: ExtendedDocument = document;
 
   if (extendedDocument.handleCapturedEvent === undefined) return false;
   if (extendedDocument.extractElements === undefined) return false;
   if (extendedDocument.getAttributesFromElement === undefined) return false;
   if (extendedDocument.collectVisibleElements === undefined) return false;
-  if (extendedDocument.enqueueEventForReFire === undefined) return false;
+  if (
+    extendedDocument.enqueueEventForReFire === undefined &&
+    shouldTakeScreenshot
+  )
+    return false;
   if (extendedDocument.buildOperationInfo === undefined) return false;
   if (extendedDocument.__completedInjectFunction == undefined) return false;
 
@@ -564,6 +577,10 @@ function setFunctionToExtractElements() {
           width: boundingRect.width,
           height: boundingRect.height,
         },
+        outerHeight: window.outerHeight,
+        outerWidth: window.outerWidth,
+        innerHeight: window.innerHeight,
+        innerWidth: window.innerWidth,
         textWithoutChildren,
       };
       if (element.value != null) {
@@ -670,6 +687,10 @@ function setFunctionToBuildOperationInfo() {
         width: boundingRect.width,
         height: boundingRect.height,
       },
+      outerHeight: window.outerHeight,
+      outerWidth: window.outerWidth,
+      innerHeight: window.innerHeight,
+      innerWidth: window.innerWidth,
       textWithoutChildren,
     };
     if (element.value != null) {
@@ -692,12 +713,16 @@ function setFunctionToBuildOperationInfo() {
         x: window.scrollX,
         y: window.scrollY,
       },
+      timestamp: new Date().valueOf(),
     };
   };
   return true;
 }
 
-function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
+function setFunctionToHandleCapturedEvent(args: {
+  ignoreElementIds: string[];
+  shouldEventReFire: boolean;
+}) {
   const extendedDocument: ExtendedDocument = document;
 
   extendedDocument.handleCapturedEvent = (event: Event) => {
@@ -720,15 +745,17 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
 
     const targetElement = event.composedPath()[0] as HTMLInputElement;
 
-    if (targetElement && ignoreElementIds.includes(targetElement.id)) {
+    if (targetElement && args.ignoreElementIds.includes(targetElement.id)) {
       return;
     }
 
     // Stop event temporarily and enqueue for refire.
     const eventId = event.type + event.timeStamp;
-    extendedDocument.enqueueEventForReFire(eventId, event);
-    event.preventDefault();
-    event.stopPropagation();
+    if (args.shouldEventReFire) {
+      extendedDocument.enqueueEventForReFire(eventId, event);
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     if (!targetElement) {
       return;
@@ -748,7 +775,10 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
       window
     );
 
-    if (operation !== null) {
+    if (!operation) {
+      return;
+    }
+    if (args.shouldEventReFire) {
       // Set the operation.
       if (!extendedDocument.__sendDatas) {
         extendedDocument.__sendDatas = [];
@@ -765,6 +795,28 @@ function setFunctionToHandleCapturedEvent(ignoreElementIds: string[]) {
             cancelable: event.cancelable,
           },
         },
+      });
+    } else {
+      const body = {
+        operation: operation,
+        elements: elements,
+        eventInfo: {
+          id: eventId,
+          targetXPath: operation.elementInfo.xpath,
+          type: event.type,
+          option: {
+            bubbles: event.bubbles,
+            cancelable: event.cancelable,
+          },
+        },
+      };
+      fetch("http://localhost:3001/api/v1/operation", {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
       });
     }
   };

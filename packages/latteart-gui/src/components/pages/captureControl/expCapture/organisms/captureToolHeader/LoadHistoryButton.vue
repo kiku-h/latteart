@@ -79,7 +79,7 @@ export default class LoadHistoryButton extends Vue {
   private menuY = 0;
   private errorMessageDialogOpened = false;
   private errorMessage = "";
-  private testResults: Array<TestResultSummary> = [];
+  private testResults: TestResultSummary[] = [];
 
   private get isDisabled(): boolean {
     return this.isCapturing || this.isReplaying || this.isResuming;

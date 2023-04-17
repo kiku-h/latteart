@@ -19,11 +19,11 @@ import {
   TestStep,
   CapturedOperation,
   Operation,
-  CoverageSource,
-  InputElementInfo,
   TestStepNote,
   Note,
   TestResultViewOption,
+  VideoFrame,
+  Video,
 } from "../types";
 import { RepositoryContainer } from "./testResultAccessor";
 
@@ -90,6 +90,8 @@ export type TestResultAccessor = {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
+      videoFrame?: VideoFrame;
     },
     testStepId: string,
     option?: {
@@ -164,6 +166,12 @@ export type TestResultAccessor = {
   generateSequenceView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<SequenceView>>;
+
+  createVideo(startTimestamp: number): Promise<ServiceResult<Video>>;
+
+  appendVideoBuffer(buffer: ArrayBuffer): Promise<ServiceResult<void>>;
+
+  collectVideos(): Promise<ServiceResult<Video[]>>;
 };
 
 export type SequenceView = {
@@ -221,6 +229,16 @@ export type GraphView = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     }[];
     testPurposes: { id: string; value: string; details: string }[];
     notes: {
@@ -229,6 +247,8 @@ export type GraphView = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
+      videoFrame?: VideoFrame;
     }[];
   };
 };
@@ -246,6 +266,7 @@ export type GraphViewNode = {
     pageUrl: string;
     pageTitle: string;
     imageFileUrl?: string;
+    videoFrame?: VideoFrame;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -268,4 +289,6 @@ export type RepositoryServiceErrorCode =
   | "link_test_purpose_to_test_step_failed"
   | "unlink_test_purpose_from_test_step_failed"
   | "generate_sequence_view_failed"
-  | "generate_graph_view_failed";
+  | "generate_graph_view_failed"
+  | "create_video_failed"
+  | "append_video_buffer_failed";

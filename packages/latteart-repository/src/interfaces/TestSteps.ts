@@ -34,6 +34,7 @@ export type CreateTestStepDto = {
   isAutomatic?: boolean;
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
+  videoId?: string;
 };
 
 /**
@@ -46,6 +47,7 @@ export type GetTestStepResponse = TestStep;
  */
 export type TestStepOperation = Omit<Operation, "screenshot"> & {
   imageFileUrl: string;
+  videoId?: string;
 };
 
 /**

@@ -48,9 +48,11 @@ import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResul
 import { convertNote } from "@/lib/common/replyDataConverter";
 import {
   ServiceSuccess,
-  TestResultViewOption,
   SequenceView,
   GraphView,
+  Video,
+  VideoFrame,
+  ElementInfo,
 } from "latteart-client";
 import { extractWindowHandles } from "@/lib/common/windowHandle";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
@@ -217,18 +219,21 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             return context.state.history[lastIndex]?.operation.sequence ?? 1;
           })();
     const testStepId = context.state.testStepIds[sequence - 1];
+    const timestamp = context.state.history[sequence - 1].operation.timestamp;
 
     const result = await (() => {
       const note = {
         value: payload.noteEditInfo.note,
         details: payload.noteEditInfo.noteDetails,
         tags: payload.noteEditInfo.tags,
+        timestamp: Number(timestamp),
       };
       const option = {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,
         compressScreenshot:
           payload.noteEditInfo.shouldTakeScreenshot &&
-          context.rootState.projectSettings.config.imageCompression.isEnabled,
+          context.rootState.projectSettings.config.captureMediaSetting
+            .imageCompression.isEnabled,
       };
 
       const testResult =
@@ -569,6 +574,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       parentTestResultId: "",
     });
     context.commit("clearTestStepIds");
+    context.commit("clearScreenImage");
   },
 
   /**
@@ -686,22 +692,20 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               return;
             }
 
-            const inputValueTable = new InputValueTable(edge.details);
-            const imageFileUrl = edge.trigger?.imageFileUrl ?? "";
+            const image = edge.trigger?.image;
+            const inputValueTable = new InputValueTable([edge]);
 
-            payload.callback.onClickEdge(imageFileUrl, inputValueTable);
+            payload.callback.onClickEdge({ image, inputValueTable });
           },
           onClickScreenRect: (index: number) => {
+            const image = source.screens[index].image;
             const inputValueTable = new InputValueTable(
-              edges
-                .filter(({ sourceScreenId }) => {
-                  return sourceScreenId === source.screens.at(index)?.id;
-                })
-                .flatMap(({ details }) => details)
+              edges.filter(({ sourceScreen }) => {
+                return sourceScreen.id === source.screens.at(index)?.id;
+              })
             );
-            const imageFileUrl = source.screens[index].imageFileUrl;
 
-            payload.callback.onClickScreenRect(imageFileUrl, inputValueTable);
+            payload.callback.onClickScreenRect({ image, inputValueTable });
           },
         },
         nameMap: new Map(
@@ -790,10 +794,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         },
       };
 
-      const selectOperation = (sequence: number) => {
-        context.dispatch("selectOperation", { sequence });
-      };
-
       const sequenceView = await (async () => {
         if (Vue.prototype.$sequenceView) {
           return Vue.prototype.$sequenceView as SequenceView;
@@ -832,7 +832,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               return;
             }
 
-            selectOperation(firstSequence);
+            context.dispatch("selectOperation", { sequence: firstSequence });
           },
           onClickEdge: (sequences: number[]) => {
             const lastSequence = sequences.at(-1);
@@ -841,16 +841,18 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
               return;
             }
 
-            selectOperation(lastSequence);
+            context.dispatch("selectOperation", { sequence: lastSequence });
           },
-          onClickScreenRect: selectOperation,
+          onClickScreenRect: (sequence: number) => {
+            context.dispatch("selectOperation", { sequence });
+          },
           onClickNote: (note: {
             id: number;
             sequence: number;
             type: string;
           }) => {
             if (!!note && (note.type === "notice" || note.type === "bug")) {
-              selectOperation(note.sequence);
+              context.dispatch("selectOperation", { sequence: note.sequence });
             }
           },
           onRightClickNote: context.state.openNoteMenu,
@@ -907,11 +909,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         },
       };
 
-      const setScreenshotUrl = (imageFileUrl: string) => {
-        context.dispatch("changeScreenshot", { imageFileUrl });
-      };
-
-      const graphView = await (async () => {
+      const graphView: GraphView | undefined = await (async () => {
         if (Vue.prototype.$graphView) {
           return Vue.prototype.$graphView as GraphView;
         }
@@ -926,7 +924,105 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           return;
         }
 
-        return generateGraphViewResult.data;
+        const getTestResultsResult =
+          await context.rootState.repositoryService.testResultRepository.getTestResults();
+
+        if (getTestResultsResult.isFailure()) {
+          return;
+        }
+
+        const videos: Video[] = getTestResultsResult.data
+          .filter(({ id }) => {
+            return payload.testResultIds.includes(id);
+          })
+          .flatMap(({ videos }) => videos ?? []);
+
+        const nodes = await Promise.all(
+          generateGraphViewResult.data.nodes.map(async (node) => {
+            const { windowId, screenId, defaultValues } = node;
+            const testSteps = await Promise.all(
+              node.testSteps.map(async (testStep) => {
+                const {
+                  id,
+                  type,
+                  input,
+                  targetElementId,
+                  noteIds,
+                  testPurposeId,
+                  pageUrl,
+                  pageTitle,
+                  timestamp,
+                  imageFileUrl,
+                  videoId,
+                } = testStep;
+
+                const video = videoId
+                  ? videos.find((video) => video.id === videoId)
+                  : undefined;
+                const videoFrame = video
+                  ? {
+                      url: video.url,
+                      time: (timestamp - video.startTimestamp) / 1000,
+                    }
+                  : undefined;
+
+                return {
+                  id,
+                  type,
+                  input,
+                  targetElementId,
+                  noteIds,
+                  testPurposeId,
+                  pageUrl,
+                  pageTitle,
+                  imageFileUrl,
+                  videoFrame,
+                };
+              })
+            );
+
+            return { windowId, screenId, testSteps, defaultValues };
+          })
+        );
+
+        const store = {
+          ...generateGraphViewResult.data.store,
+          notes: await Promise.all(
+            generateGraphViewResult.data.store.notes.map(async (note) => {
+              const {
+                id,
+                value,
+                details,
+                tags,
+                imageFileUrl,
+                timestamp,
+                videoId,
+              } = note;
+
+              const video = videoId
+                ? videos.find((video) => video.id === videoId)
+                : undefined;
+              const videoFrame = video
+                ? {
+                    url: video.url,
+                    time: (timestamp - video.startTimestamp) / 1000,
+                  }
+                : undefined;
+
+              return {
+                id,
+                value,
+                details,
+                tags,
+                imageFileUrl,
+                timestamp,
+                videoFrame,
+              };
+            })
+          ),
+        };
+
+        return { nodes, store };
       })();
 
       if (!graphView) {
@@ -940,21 +1036,32 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       await context.dispatch("buildScreenTransitionDiagramGraph", {
         graphView,
         callback: {
-          onClickEdge: (
-            imageFileUrl: string,
-            inputValueTable: InputValueTable
-          ) => {
-            setScreenshotUrl(imageFileUrl);
-            context.commit("setInputValueTable", { inputValueTable });
+          onClickEdge: (edge: {
+            image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
+            inputValueTable: InputValueTable;
+          }) => {
+            if (edge.image) {
+              context.dispatch("changeScreenImage", { image: edge.image });
+            }
+            context.commit("setInputValueTable", {
+              inputValueTable: edge.inputValueTable,
+            });
           },
-          onClickScreenRect: (
-            imageFileUrl: string,
-            inputValueTable: InputValueTable
-          ) => {
-            setScreenshotUrl(imageFileUrl);
-            context.commit("setInputValueTable", { inputValueTable });
+          onClickScreenRect: (rect: {
+            image?: { imageFileUrl?: string; videoFrame?: VideoFrame };
+            inputValueTable: InputValueTable;
+          }) => {
+            if (rect.image) {
+              context.dispatch("changeScreenImage", { image: rect.image });
+            }
+            context.commit("setInputValueTable", {
+              inputValueTable: rect.inputValueTable,
+            });
           },
         },
+      });
+      context.commit("setInputValueTable", {
+        inputValueTable: new InputValueTable(),
       });
 
       await context.dispatch("buildElementCoverages", { graphView });
@@ -1015,7 +1122,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
    */
   async createTestResult(
     context,
-    payload: { initialUrl: string; name: string; parentTestResultId?: string }
+    payload: {
+      initialUrl: string;
+      name: string;
+      parentTestResultId?: string;
+    }
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
     const name = payload.name ? payload.name : undefined;
@@ -1044,6 +1155,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       id: testResultInfo.id,
       name: testResultInfo.name,
       parentTestResultId: payload.parentTestResultId ?? "",
+    });
+    context.commit("setStoringTestResultInfos", {
+      testResultInfos: [{ id: testResultInfo.id, name: testResultInfo.name }],
     });
   },
 
@@ -1244,14 +1358,67 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
 
   selectOperation(context, payload: { sequence: number }) {
     context.commit("selectOperation", { sequence: payload.sequence });
-    context.commit("clearDisplayedScreenshotUrl");
+
+    const selectedItem = (context.state.history ?? []).find(({ operation }) => {
+      return operation.sequence === payload.sequence;
+    });
+
+    const selectedOperation = selectedItem?.operation ?? null;
+
+    if (selectedOperation) {
+      context.dispatch("changeScreenImage", {
+        image: {
+          imageFileUrl: selectedOperation.imageFilePath,
+          videoFrame: selectedOperation.videoFrame,
+        },
+        elementInfo: selectedOperation.elementInfo,
+      });
+    }
   },
 
-  changeScreenshot(context, payload: { imageFileUrl: string }) {
-    context.commit("selectOperation", { sequence: 0 });
-    context.commit("setDisplayedScreenshotUrl", {
-      imageFileUrl: `${context.rootState.repositoryService.serviceUrl}/${payload.imageFileUrl}`,
-    });
+  changeScreenImage(
+    context,
+    payload: {
+      image: { imageFileUrl?: string; videoFrame?: VideoFrame };
+      elementInfo?: Pick<
+        ElementInfo,
+        | "boundingRect"
+        | "innerHeight"
+        | "innerWidth"
+        | "outerHeight"
+        | "outerWidth"
+      >;
+    }
+  ) {
+    const { videoFrame, imageFileUrl } = payload.image;
+
+    const background = videoFrame
+      ? { videoFileUrl: videoFrame.url, time: videoFrame.time }
+      : { imageFileUrl: imageFileUrl ?? "" };
+
+    const overlay = ((element) => {
+      if (!element) {
+        return;
+      }
+
+      const {
+        boundingRect,
+        innerHeight = 0,
+        outerHeight = 0,
+        outerWidth,
+      } = element;
+
+      return {
+        width: outerWidth,
+        height: outerHeight,
+        offset: { y: outerHeight - innerHeight },
+        markerRect: boundingRect,
+      };
+    })(payload.elementInfo);
+
+    const screenImage = { background, overlay };
+
+    context.commit("setScreenImage", { screenImage });
   },
 };
 

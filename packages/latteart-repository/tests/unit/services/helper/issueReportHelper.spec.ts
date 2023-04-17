@@ -44,7 +44,12 @@ describe("issueReportHelper", () => {
     testerName: "testerName",
     memo: "memo",
     attachedFiles: [],
-    testResultFiles: [{ name: "testResultName", id: "testResultId" }],
+    testResultFiles: [
+      {
+        name: "testResultName",
+        id: "testResultId",
+      },
+    ],
     initialUrl: "",
     testPurposes: [],
     notes: [],
@@ -140,6 +145,8 @@ describe("issueReportHelper", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
+        createVideo: jest.fn(),
+        getVideos: jest.fn(),
       };
       const testStep: TestStepService = {
         getTestStep: jest.fn().mockResolvedValue({

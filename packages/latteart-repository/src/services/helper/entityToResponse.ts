@@ -61,6 +61,8 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
     imageFileUrl:
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
     tags,
+    timestamp: note.video ? note.timestamp : testStep?.timestamp ?? 0,
+    videoId: note.video?.id ?? testStep?.video?.id,
   };
 };
 
@@ -74,6 +76,7 @@ export const testPurposeEntityToResponse = (
     details: testPurpose.details,
     imageFileUrl: "",
     tags: [],
+    timestamp: 0,
   };
 };
 
@@ -120,6 +123,11 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
           {
             name: session.testResult?.name ?? "",
             id: session.testResult?.id ?? "",
+            videos: session.testResult?.videos?.map(
+              ({ id, fileUrl, startTimestamp }) => {
+                return { id, url: fileUrl, startTimestamp };
+              }
+            ),
           },
         ]
       : [],
@@ -296,6 +304,7 @@ export const convertToTestStepOperation = (
             height: testStepEntity.clientSizeHeight,
           }
         : undefined,
+    videoId: testStepEntity.video != null ? testStepEntity.video.id : undefined,
   };
 };
 
