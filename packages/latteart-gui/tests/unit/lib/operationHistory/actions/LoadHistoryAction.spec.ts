@@ -10,6 +10,7 @@ const baseRestClient: RESTClient = {
   httpPut: jest.fn(),
   httpPatch: jest.fn(),
   httpDelete: jest.fn(),
+  httpGetFile: jest.fn(),
 };
 
 describe("LoadHistoryAction", () => {
@@ -24,12 +25,19 @@ describe("LoadHistoryAction", () => {
         testingTime: 0,
         testSteps: [],
         coverageSources: [],
+        mediaType: "image",
+        movieStartTimestamp: 0,
       };
       const expectedTestResult = {
         coverageSources: [],
         historyItems: [],
         url: "url",
-        testResultInfo: { id: "id", name: "name" },
+        testResultInfo: {
+          id: "id",
+          name: "name",
+          movieStartTimestamp: 0,
+          parentTestResultId: undefined,
+        },
         testStepIds: [],
         testingTime: 0,
       };

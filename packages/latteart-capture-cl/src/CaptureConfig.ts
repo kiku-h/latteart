@@ -70,6 +70,8 @@ export class CaptureConfig {
    */
   public isHeadlessMode = false;
 
+  public mediaType: "image" | "movie" = "image";
+
   /**
    * Constructor.
    * @param init The information for initialization.

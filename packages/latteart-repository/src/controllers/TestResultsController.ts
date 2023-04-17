@@ -208,7 +208,12 @@ export class TestResultsController extends Controller {
   public async updateTestResult(
     @Path() testResultId: string,
     @Body()
-    requestBody: { name?: string; startTime?: number; initialUrl?: string }
+    requestBody: {
+      name?: string;
+      startTime?: number;
+      initialUrl?: string;
+      movieStartTimestamp?: number;
+    }
   ): Promise<PatchTestResultResponse> {
     console.log("TestResultsController - updateTestResult");
 
@@ -355,7 +360,6 @@ export class TestResultsController extends Controller {
       throw error;
     }
   }
-
   /**
    * Generate graph view model of test result.
    * @param testResultId Target test result id.
@@ -401,6 +405,26 @@ export class TestResultsController extends Controller {
         });
       }
       throw error;
+    }
+  }
+
+  @Patch("{testResultId}/start-movie")
+  public async startMovie(
+    @Path() testResultId: string,
+    @Body() requestBody: { startTimestamp: number }
+  ): Promise<void> {
+    try {
+      await new TestResultServiceImpl().setMovieStartTimestamp(
+        testResultId,
+        requestBody.startTimestamp
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        createLogger().error("Start movie failed", error);
+        throw new ServerError(500, {
+          code: "start_movie_failed",
+        });
+      }
     }
   }
 }

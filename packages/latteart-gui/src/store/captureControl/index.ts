@@ -23,6 +23,7 @@ import actions from "./actions";
 import Timer from "@/lib/common/Timer";
 import { CaptureSession } from "latteart-client";
 import { ElementInfo } from "latteart-client";
+import { CapturedMovieManager } from "@/lib/captureControl/CapturedMovieManager";
 
 /**
  * Store for capture control.
@@ -100,6 +101,12 @@ export interface CaptureControlState {
     }[];
     callback: () => void;
   } | null;
+
+  capturedMovieManager: CapturedMovieManager | null;
+
+  capturedMovieUrl: string;
+
+  movieStartTimestamp: number;
 }
 
 const state: CaptureControlState = {
@@ -122,6 +129,9 @@ const state: CaptureControlState = {
   autofillRegisterDialogData: null,
   timer: new Timer(),
   captureSession: null,
+  capturedMovieManager: null,
+  capturedMovieUrl: "",
+  movieStartTimestamp: 0,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {

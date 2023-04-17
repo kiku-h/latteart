@@ -107,7 +107,7 @@ export interface TestResultService {
 
 export class TestResultServiceImpl implements TestResultService {
   constructor(
-    private service: {
+    private service?: {
       timestamp: TimestampService;
       testStep: TestStepService;
       screenshotFileRepository: FileRepository;
@@ -164,9 +164,10 @@ export class TestResultServiceImpl implements TestResultService {
     testResultId: string | null
   ): Promise<CreateTestResultResponse> {
     const createTimestamp = body.initialUrl
-      ? this.service.timestamp.epochMilliseconds()
+      ? this.service?.timestamp.epochMilliseconds()
       : 0;
     const startTimestamp = body.startTimeStamp ?? createTimestamp;
+    const mediaType = body.mediaType ?? "image";
 
     const lastUpdateTimestamp = -1;
 
@@ -177,7 +178,7 @@ export class TestResultServiceImpl implements TestResultService {
     const newTestResult = await repository.save({
       name:
         body.name ??
-        `session_${this.service.timestamp.format("YYYYMMDD_HHmmss")}`,
+        `session_${this.service?.timestamp.format("YYYYMMDD_HHmmss")}`,
       startTimestamp,
       lastUpdateTimestamp,
       initialUrl: body.initialUrl ?? "",
@@ -188,6 +189,8 @@ export class TestResultServiceImpl implements TestResultService {
       notes: [],
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
+      mediaType,
+      movieStartTimestamp: 0,
     });
 
     if (testResultId) {
@@ -202,6 +205,7 @@ export class TestResultServiceImpl implements TestResultService {
     return {
       id: newTestResult.id,
       name: newTestResult.name,
+      mediaType: newTestResult.mediaType,
     };
   }
 
@@ -248,6 +252,7 @@ export class TestResultServiceImpl implements TestResultService {
     name?: string;
     startTime?: number;
     initialUrl?: string;
+    movieStartTimestamp?: number;
   }): Promise<PatchTestResultResponse> {
     const id = params.id;
     const testResultEntity = await getRepository(
@@ -279,6 +284,10 @@ export class TestResultServiceImpl implements TestResultService {
 
     if (params.startTime) {
       testResultEntity.startTimestamp = params.startTime;
+    }
+
+    if (params.movieStartTimestamp) {
+      testResultEntity.movieStartTimestamp = params.movieStartTimestamp;
     }
 
     const updatedTestResultEntity = await getRepository(TestResultEntity).save(
@@ -580,11 +589,17 @@ export class TestResultServiceImpl implements TestResultService {
       where: { testResult: expectedTestResultId },
     });
 
+    if (this.service !== undefined) {
+      throw new ServerError(500, {
+        code: "comparison_targets_not_same_procedures",
+      });
+    }
+
     const actualOperations = actualTestStepEntities.map((entity) => {
-      return extractOperation(entity, this.service.screenshotFileRepository);
+      return extractOperation(entity, this.service!.screenshotFileRepository);
     });
     const expectedOperations = expectedTestStepEntities.map((entity) => {
-      return extractOperation(entity, this.service.screenshotFileRepository);
+      return extractOperation(entity, this.service!.screenshotFileRepository);
     });
 
     const actualActions = createTestActions(...actualOperations);
@@ -632,10 +647,10 @@ export class TestResultServiceImpl implements TestResultService {
     const report = createReport(targetNames, assertionResults);
     const summary = createReportSummary(report);
     const reportUrl = await outputReport(
-      `compare_${this.service.timestamp.format("YYYYMMDD_HHmmss")}`,
+      `compare_${this.service!.timestamp.format("YYYYMMDD_HHmmss")}`,
       report,
-      this.service.compareReportRepository,
-      this.service.workingFileRepository
+      this.service!.compareReportRepository,
+      this.service!.workingFileRepository
     );
 
     return { url: reportUrl, targetNames, summary };
@@ -650,7 +665,7 @@ export class TestResultServiceImpl implements TestResultService {
           return first.timestamp - second.timestamp;
         })
         .map(async (testStep) => {
-          const operation = await this.service.testStep.getTestStepOperation(
+          const operation = await this.service!.testStep.getTestStepOperation(
             testStep.id
           );
           const notes =
@@ -703,10 +718,25 @@ export class TestResultServiceImpl implements TestResultService {
       startTimeStamp: testResultEntity.startTimestamp,
       lastUpdateTimeStamp: testResultEntity.lastUpdateTimestamp,
       initialUrl: testResultEntity.initialUrl,
+      movieStartTimestamp: testResultEntity.movieStartTimestamp,
       testingTime: testResultEntity.testingTime,
+      mediaType:
+        testResultEntity.mediaType === ""
+          ? "image"
+          : testResultEntity.mediaType,
       testSteps,
       coverageSources,
       parentTestResultId: testResultEntity.parentTestResultId,
     };
+  }
+
+  public async setMovieStartTimestamp(
+    testResultId: string,
+    startTimestamp: number
+  ): Promise<void> {
+    const testResultRepository = getRepository(TestResultEntity);
+    const testResult = await testResultRepository.findOneOrFail(testResultId);
+    testResult.startTimestamp = startTimestamp;
+    await testResultRepository.save(testResult);
   }
 }

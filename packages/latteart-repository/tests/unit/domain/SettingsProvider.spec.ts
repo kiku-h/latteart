@@ -45,10 +45,13 @@ describe("SettingsProvider", () => {
             tags: [],
           },
         },
-        imageCompression: {
-          command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-          isDeleteSrcImage: true,
-          isEnabled: true,
+        captureMediaSetting: {
+          imageCompression: {
+            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+            isDeleteSrcImage: true,
+            isEnabled: true,
+          },
+          mediaType: "image",
         },
       },
       captureSettings: {
@@ -203,10 +206,13 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            isDeleteSrcImage: true,
-            isEnabled: true,
+          captureMediaSetting: {
+            imageCompression: {
+              command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+              isDeleteSrcImage: true,
+              isEnabled: true,
+            },
+            mediaType: "image",
           },
         },
         captureSettings: {
@@ -285,10 +291,13 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
-            isDeleteSrcImage: true,
-            isEnabled: true,
+          captureMediaSetting: {
+            imageCompression: {
+              command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
+              isDeleteSrcImage: true,
+              isEnabled: true,
+            },
+            mediaType: "image",
           },
         },
         captureSettings: {
@@ -304,7 +313,11 @@ describe("SettingsProvider", () => {
 
       settingsProvider.loadFile(filePath);
 
-      expect(settingsProvider.getSetting("config.imageCompression")).toEqual({
+      expect(
+        settingsProvider.getSetting(
+          "config.captureMediaSetting.imageCompression"
+        )
+      ).toEqual({
         command: "cwebp {filePath} -o {dirPath}/{baseName}.webp",
         isDeleteSrcImage: true,
         isEnabled: true,

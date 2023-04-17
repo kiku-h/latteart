@@ -84,26 +84,31 @@
         </pane>
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
-            <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
+            <template v-if="mediaType === 'movie'">
+              <capture-movie-display :history="history" />
+            </template>
+            <template v-else>
+              <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
 
-            <a
-              :href="screenshotUrl"
-              :download="screenshotName"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="screenshot-button screenshot-button-single"
-              ref="dllink"
-            >
-              <v-btn
-                v-show="screenshotUrl !== ''"
-                color="white"
-                class="screenshot-button screenshot-button-single ma-1"
-                fab
-                small
+              <a
+                :href="screenshotUrl"
+                :download="screenshotName"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="screenshot-button screenshot-button-single"
+                ref="dllink"
               >
-                <v-icon>image</v-icon>
-              </v-btn></a
-            >
+                <v-btn
+                  v-show="screenshotUrl !== ''"
+                  color="white"
+                  class="screenshot-button screenshot-button-single"
+                  fab
+                  small
+                >
+                  <v-icon>image</v-icon>
+                </v-btn></a
+              >
+            </template>
           </v-container>
         </pane>
       </splitpanes>
@@ -144,6 +149,7 @@ import OperationList from "@/components/pages/operationHistory/organisms/Operati
 import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
+import CaptureMovieDisplay from "./CapturedMovieDisplay.vue";
 
 @Component({
   components: {
@@ -152,6 +158,7 @@ import DecisionTable from "./DecisionTable.vue";
     "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
     "decision-table": DecisionTable,
+    "capture-movie-display": CaptureMovieDisplay,
     Splitpanes,
     Pane,
   },
@@ -242,6 +249,10 @@ export default class HistoryDisplay extends Vue {
     const ext = ar[ar.length - 1];
     const sequence = this.selectedOperationSequence;
     return `${sequence}.${ext}`;
+  }
+
+  private get mediaType(): "image" | "movie" {
+    return this.$store.state.operationHistory.testResultInfo.mediaType;
   }
 
   @Watch("diagramType")

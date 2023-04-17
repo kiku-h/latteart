@@ -70,6 +70,10 @@ export type ElementInfo = {
     width: number;
     height: number;
   };
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
   textWithoutChildren?: string;
 };
 
@@ -139,6 +143,7 @@ export type CaptureConfig = {
   };
   platformVersion?: string;
   waitTimeForStartupReload: number;
+  mediaType: "image" | "movie";
 };
 
 export type VisualizeConfig = {

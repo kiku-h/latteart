@@ -92,6 +92,7 @@ export class TestResultRepository {
       initialUrl?: string;
       name?: string;
       parentTestResultId?: string;
+      mediaType?: "image" | "movie";
     } = {}
   ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
     try {
@@ -128,6 +129,7 @@ export class TestResultRepository {
         data: response.data as Array<{
           id: string;
           name: string;
+          mediaType: "image" | "movie";
         }>,
       });
     } catch (error) {
@@ -237,6 +239,28 @@ export class TestResultRepository {
 
       return createRepositoryAccessSuccess({
         data: response.data as GraphViewForRepository,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async setMovieStartTimestamp(
+    testResultId: string,
+    startTimestamp: number
+  ): Promise<RepositoryAccessResult<void>> {
+    try {
+      const response = await this.restClient.httpPatch(
+        `api/v1/test-results/${testResultId}/start-movie`,
+        { startTimestamp }
+      );
+
+      if (response.status !== 204) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as void,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

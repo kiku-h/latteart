@@ -37,6 +37,8 @@ describe("testResultExportHelper", () => {
           { id: "id2", operation, intention: null, bugs: [], notices: [] },
         ],
         coverageSources: [],
+        mediaType: "image",
+        movieStartTimestamp: 0,
       };
 
       const testStep = {

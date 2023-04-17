@@ -127,6 +127,8 @@ describe("testResultImportHelper", () => {
         testingTime: data.testingTime,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
+        mediaType: "image",
+        movieStartTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -249,6 +251,8 @@ describe("testResultImportHelper", () => {
         testingTime: 2466,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
+        mediaType: "image",
+        movieStartTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));
@@ -372,6 +376,8 @@ describe("testResultImportHelper", () => {
         testingTime: 2000,
         testSteps: [resultTestStep1, resultTestStep2],
         coverageSources: data.coverageSources,
+        mediaType: "image",
+        movieStartTimestamp: 0,
       };
 
       const result = deserializeTestResult(JSON.stringify(data));

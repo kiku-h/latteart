@@ -44,7 +44,10 @@ export type RepositoryService = {
     initialUrl?: string;
     name?: string;
     parentTestResultId?: string;
-  }): Promise<ServiceResult<{ id: string; name: string }>>;
+    mediaType?: "movie" | "image";
+  }): Promise<
+    ServiceResult<{ id: string; name: string; mediaType: "movie" | "image" }>
+  >;
 
   /**
    * create an interface to access a Test Result
@@ -181,6 +184,10 @@ export type TestResultAccessor = {
   generateGraphView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<GraphView>>;
+
+  updateMovieStartTimestamp(
+    movieStartTimestamp: number
+  ): Promise<ServiceResult<void>>;
 };
 
 export type SequenceView = {
@@ -284,4 +291,5 @@ export type RepositoryServiceErrorCode =
   | "link_test_purpose_to_test_step_failed"
   | "unlink_test_purpose_from_test_step_failed"
   | "generate_sequence_view_failed"
-  | "generate_graph_view_failed";
+  | "generate_graph_view_failed"
+  | "update_movie_startt_imestamp_failed";
