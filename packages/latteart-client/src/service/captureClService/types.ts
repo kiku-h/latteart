@@ -18,9 +18,9 @@ import { TestResultAccessor } from "../repositoryService";
 import {
   CaptureConfig,
   Operation,
-  CoverageSource,
   TestStepNote,
   RunnableOperation,
+  Video,
 } from "../types";
 import { ServiceResult } from "../result";
 
@@ -40,6 +40,7 @@ export type CaptureClService = {
    */
   createCaptureClient(option: {
     testResult?: TestResultAccessor;
+    videoRecorder?: { getCapturingVideo(): Promise<Video> };
     config: CaptureConfig;
     eventListeners: CaptureEventListeners;
   }): CaptureClClient;
@@ -78,7 +79,7 @@ export type CaptureClClient = {
    */
   startCapture(
     url: string,
-    option?: { compressScreenshots?: boolean }
+    option?: { compressScreenshots?: boolean; mediaType: "image" | "video" }
   ): Promise<ServiceResult<CaptureSession>>;
 };
 
@@ -183,6 +184,12 @@ export type CaptureSession = {
    * resume capture
    */
   resumeCapture(): void;
+
+  /**
+   * set recording video
+   * @param video recording video
+   */
+  setRecordingVideo(video: Video): void;
 };
 
 export type CaptureCLServiceErrorCode =

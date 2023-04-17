@@ -85,18 +85,16 @@
             <v-expansion-panel>
               <v-expansion-panel-header>
                 {{
-                  $store.getters.message(
-                    "config-view.setting-image-compression"
-                  )
+                  $store.getters.message("config-view.setting-capture-media")
                 }}
               </v-expansion-panel-header>
               <v-expansion-panel-content>
-                <image-compression-config
-                  :imageCompression="imageCompression"
-                  :opened="imageCompressionSettingOpened"
+                <capture-media-config
+                  :captureMediaSetting="captureMediaSetting"
+                  :opened="captureMediaSettingOpened"
                   @save-config="saveConfig"
                 >
-                </image-compression-config>
+                </capture-media-config>
               </v-expansion-panel-content>
             </v-expansion-panel>
 
@@ -196,16 +194,16 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
 import CoverageConfig from "@/components/pages/operationHistory/organisms/configViewer/CoverageConfig.vue";
 import ScreenDefinitionConfig from "@/components/pages/operationHistory/organisms/configViewer/ScreenDefinitionConfig.vue";
-import ImageCompressionConfig from "@/components/pages/operationHistory/organisms/configViewer/ImageCompressionConfig.vue";
+import CaptureMediaConfig from "@/components/pages/operationHistory/organisms/configViewer/CaptureMediaConfig.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import {
   CoverageSetting,
-  ImageCompressionSetting,
   ScreenDefinitionSetting,
   DeviceSettings,
   ProjectSettings,
   ViewSettings,
   TestResultComparisonSetting,
+  CaptureMediaSetting,
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "../../operationHistory/organisms/configViewer/AutofillSetting.vue";
 import {
@@ -221,7 +219,7 @@ import CompareSetting from "../../operationHistory/organisms/configViewer/Compar
     "number-field": NumberField,
     "coverage-config": CoverageConfig,
     "screen-definition-config": ScreenDefinitionConfig,
-    "image-compression-config": ImageCompressionConfig,
+    "capture-media-config": CaptureMediaConfig,
     "autofill-setting": AutofillSettingComponent,
     "compare-setting": CompareSetting,
     "auto-operation-setting": AutoOperationSettingComponent,
@@ -263,11 +261,14 @@ export default class ConfigView extends Vue {
     return this.$store.getters.getLocale();
   }
 
-  private get imageCompression(): ImageCompressionSetting {
+  private get captureMediaSetting(): CaptureMediaSetting {
     return (
-      this.config?.imageCompression ?? {
-        isEnabled: false,
-        isDeleteSrcImage: false,
+      this.config?.captureMediaSetting ?? {
+        mediaType: "image",
+        imageCompression: {
+          isEnabled: false,
+          isDeleteSrcImage: false,
+        },
       }
     );
   }
@@ -380,7 +381,7 @@ export default class ConfigView extends Vue {
     }
   }
 
-  private get imageCompressionSettingOpened() {
+  private get captureMediaSettingOpened() {
     return this.panel === 1;
   }
 
@@ -534,7 +535,7 @@ export default class ConfigView extends Vue {
     autoOperationSetting?: AutoOperationSetting;
     screenDefinition?: ScreenDefinitionSetting;
     coverage?: CoverageSetting;
-    imageCompression?: ImageCompressionSetting;
+    captureMediaSetting?: CaptureMediaSetting;
     testResultComparison?: TestResultComparisonSetting;
   }) {
     const projectConfig = {
@@ -574,4 +575,7 @@ export default class ConfigView extends Vue {
 <style lang="sass" scoped>
 .pb-18
   padding-bottom: 72px
+
+.config_area
+  padding-left: 8px
 </style>

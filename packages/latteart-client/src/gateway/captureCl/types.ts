@@ -14,6 +14,61 @@
  * limitations under the License.
  */
 
+/**
+ * Captured Operation.
+ */
+export type CapturedOperationForCaptureCl = {
+  input: string;
+  type: string;
+  elementInfo: ElementInfoForCaptureCl | null;
+  title: string;
+  url: string;
+  imageData: string;
+  windowHandle: string;
+  timestamp: string;
+  screenElements: ElementInfoForCaptureCl[];
+  pageSource: string;
+  inputElements: ElementInfoForCaptureCl[];
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
+  isAutomatic?: boolean;
+};
+
+/**
+ * Captured Screen Transition.
+ */
+export type CapturedScreenTransitionForCaptureCl = {
+  title: string;
+  url: string;
+  imageData: string;
+  windowHandle: string;
+  timestamp: string;
+  screenElements: ElementInfoForCaptureCl[];
+  pageSource: string;
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
+};
+
+export type ElementInfoForCaptureCl = {
+  tagname: string;
+  text?: string;
+  xpath: string;
+  value?: string;
+  checked?: boolean;
+  attributes: { [key: string]: string };
+  boundingRect?: {
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  };
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
+  textWithoutChildren?: string;
+};
+
 export type CaptureCLServerError = {
   code: CaptureCLServerErrorCode | CaptureCLConnectionErrorCode;
   message?: string;

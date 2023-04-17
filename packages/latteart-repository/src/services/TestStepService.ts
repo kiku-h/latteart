@@ -37,6 +37,7 @@ import {
   convertToTestStepOperation,
 } from "./helper/entityToResponse";
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
+import { VideoEntity } from "@/entities/VideoEntity";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -88,7 +89,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testResultEntity = await getRepository(
       TestResultEntity
     ).findOneOrFail(testResultId, {
-      relations: ["coverageSources"],
+      relations: ["coverageSources", "videos"],
     });
 
     const targetCoverageSource = testResultEntity.coverageSources?.find(
@@ -155,17 +156,28 @@ export class TestStepServiceImpl implements TestStepService {
       clientSizeWidth: requestBody.clientSize?.width,
       clientSizeHeight: requestBody.clientSize?.height,
     });
-    const fileName = `${newTestStepEntity.id}.png`;
-    await this.service.screenshotFileRepository.outputFile(
-      fileName,
-      requestBody.imageData,
-      "base64"
-    );
-    const screenshot = new ScreenshotEntity({
-      fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
-      testResult: savedTestResultEntity,
-    });
-    newTestStepEntity.screenshot = screenshot;
+
+    if (requestBody.imageData) {
+      const fileName = `${newTestStepEntity.id}.png`;
+      await this.service.screenshotFileRepository.outputFile(
+        fileName,
+        requestBody.imageData,
+        "base64"
+      );
+      const screenshot = new ScreenshotEntity({
+        fileUrl: this.service.screenshotFileRepository.getFileUrl(fileName),
+        testResult: savedTestResultEntity,
+      });
+      newTestStepEntity.screenshot = screenshot;
+    }
+
+    if (requestBody.videoId) {
+      const video = await getRepository(VideoEntity).findOneOrFail(
+        requestBody.videoId
+      );
+      newTestStepEntity.video = video;
+    }
+
     const savedTestStepEntity = await getRepository(TestStepEntity).save(
       newTestStepEntity
     );
@@ -240,7 +252,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await getRepository(TestStepEntity).findOneOrFail(
       testStepId,
       {
-        relations: ["screenshot"],
+        relations: ["screenshot", "video"],
       }
     );
 
@@ -253,7 +265,7 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await getRepository(TestStepEntity).findOne(
       testStepId,
       {
-        relations: ["screenshot"],
+        relations: ["screenshot", "video"],
       }
     );
 
@@ -265,7 +277,7 @@ export class TestStepServiceImpl implements TestStepService {
 
   private async getTestStepEntity(testStepId: string) {
     return getRepository(TestStepEntity).findOneOrFail(testStepId, {
-      relations: ["notes", "testPurpose", "screenshot"],
+      relations: ["notes", "testPurpose", "screenshot", "video"],
     });
   }
 

@@ -27,6 +27,7 @@ import { TestPurposeEntity } from "./TestPurposeEntity";
 import { NoteEntity } from "./NoteEntity";
 import { ScreenshotEntity } from "./ScreenshotEntity";
 import { SessionEntity } from "./SessionEntity";
+import { VideoEntity } from "./VideoEntity";
 
 @Entity("TEST_RESULTS")
 export class TestResultEntity {
@@ -56,6 +57,9 @@ export class TestResultEntity {
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "testing_time" })
   testingTime: number = 0;
+
+  @Column({ name: "media_type", default: "" })
+  mediaType: "image" | "video" | "" = "";
 
   @OneToMany(() => SessionEntity, (session) => session.testResult)
   sessions?: SessionEntity[];
@@ -99,11 +103,24 @@ export class TestResultEntity {
   @RelationId((testResult: TestResultEntity) => testResult.screenshots)
   screenshotIds?: string[];
 
+  @OneToMany(() => VideoEntity, (video) => video.testResult, {
+    cascade: true,
+  })
+  videos?: VideoEntity[];
+
+  @RelationId((testResult: TestResultEntity) => testResult.videos)
+  videoIds?: string[];
+
   constructor(
     props: Partial<
       Omit<
         TestResultEntity,
-        "id" | "testStepIds" | "testPurposeIds" | "noteIds" | "screenshotIds"
+        | "id"
+        | "testStepIds"
+        | "testPurposeIds"
+        | "noteIds"
+        | "screenshotIds"
+        | "videoIds"
       >
     > = {}
   ) {

@@ -148,6 +148,11 @@ export class ElementMapperFactory {
           tagname,
           text,
           attributes,
+          boundingRect,
+          innerHeight,
+          innerWidth,
+          outerHeight,
+          outerWidth,
         } = element;
 
         return {
@@ -158,6 +163,11 @@ export class ElementMapperFactory {
           tagname,
           text: text ?? "",
           attributes,
+          boundingRect,
+          innerHeight,
+          innerWidth,
+          outerHeight,
+          outerWidth,
         };
       },
       collectElements: (filter?: { screenDef?: string }) => {
@@ -184,6 +194,11 @@ export class ElementMapperFactory {
             text,
             value,
             attributes,
+            boundingRect,
+            innerHeight,
+            innerWidth,
+            outerHeight,
+            outerWidth,
           } = element;
           return {
             id,
@@ -194,6 +209,11 @@ export class ElementMapperFactory {
             text: text ?? "",
             value,
             attributes,
+            boundingRect,
+            innerHeight,
+            innerWidth,
+            outerHeight,
+            outerWidth,
           };
         });
       },
@@ -242,6 +262,8 @@ function createNodes(
       testPurposeId: testStep.intention?.id,
       pageUrl: testStep.operation.url,
       pageTitle: testStep.operation.title,
+      timestamp: parseInt(testStep.operation.timestamp, 10),
+      videoId: testStep.operation.videoId,
     });
 
     const defaultValues = collectDefaultValues(

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Video } from "@/service";
 import { RESTClient } from "../../network/http/client";
 import {
   RepositoryAccessResult,
@@ -42,8 +43,10 @@ export class SessionRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as SessionForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as SessionForRepository,
+        data: this.convertSession(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -65,8 +68,10 @@ export class SessionRepository {
         return createRepositoryAccessFailure(response);
       }
 
+      const data = response.data as SessionForRepository;
+
       return createRepositoryAccessSuccess({
-        data: response.data as SessionForRepository,
+        data: this.convertSession(data),
       });
     } catch (error) {
       return createConnectionRefusedFailure();
@@ -92,5 +97,36 @@ export class SessionRepository {
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private convertSession(session: SessionForRepository) {
+    return {
+      ...session,
+      testResultFiles: session.testResultFiles.map((testResultFile) => {
+        return {
+          ...testResultFile,
+          videos: testResultFile.videos?.map((video) =>
+            this.convertVideo(video)
+          ),
+        };
+      }),
+      notes: session.notes.map((note) => {
+        return {
+          ...note,
+          imageFileUrl: note.imageFileUrl
+            ? new URL(note.imageFileUrl, this.restClient.serverUrl).toString()
+            : "",
+        };
+      }),
+    };
+  }
+
+  private convertVideo(video: Video) {
+    return {
+      ...video,
+      url: video.url
+        ? new URL(video.url, this.restClient.serverUrl).toString()
+        : "",
+    };
   }
 }

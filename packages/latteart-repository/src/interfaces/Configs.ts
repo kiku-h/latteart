@@ -18,6 +18,7 @@ import { ScreenDefinitionConfig } from "../domain/ScreenDefFactory";
 import {
   AutofillSetting,
   AutoOperationSetting,
+  CaptureMediaSetting,
   Coverage,
 } from "../gateways/settings/Settings";
 
@@ -50,7 +51,7 @@ export type SnapshotConfig = { locale: string };
  * Settings for the server.
  */
 export type ServerConfig = {
-  config: {
+  captureMediaSetting: {
     imageCompression: {
       command: string;
     };
@@ -64,6 +65,32 @@ export type ServerConfig = {
  * Project settings.
  */
 export type ProjectConfig = {
+  viewPointsPreset: Array<{
+    id: string;
+    name: string;
+    viewPoints: Array<{ name: string; description: string }>;
+  }>;
+  defaultTagList: string[];
+  config: {
+    autofillSetting: AutofillSetting;
+    autoOperationSetting: AutoOperationSetting;
+    screenDefinition: ScreenDefinitionConfig;
+    coverage: Coverage;
+    captureMediaSetting: CaptureMediaSetting;
+    testResultComparison: {
+      excludeItems: {
+        isEnabled: boolean;
+        values: ("title" | "url" | "elementTexts" | "screenshot")[];
+      };
+      excludeElements: {
+        isEnabled: boolean;
+        values: { tagname: string }[];
+      };
+    };
+  };
+};
+
+export type OldStyleProjectConfig = {
   viewPointsPreset: Array<{
     id: string;
     name: string;

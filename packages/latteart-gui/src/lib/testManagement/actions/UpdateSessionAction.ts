@@ -42,7 +42,10 @@ export class UpdateSessionAction {
     const result = await this.repositoryService.sessionRepository.patchSession(
       projectId,
       sessionId,
-      body
+      {
+        ...body,
+        testResultFiles: body.testResultFiles ?? [],
+      }
     );
 
     if (result.isFailure()) {
@@ -52,8 +55,7 @@ export class UpdateSessionAction {
     }
 
     const convertedSession = new SessionDataConverter().convertToSession(
-      result.data,
-      this.repositoryService.serviceUrl
+      result.data
     );
 
     return new ActionSuccess(convertedSession);

@@ -27,6 +27,8 @@ import {
   TestStepNote,
   Note,
   TestResultViewOption,
+  VideoFrame,
+  Video,
 } from "../types";
 import {
   TestResultRepository,
@@ -47,8 +49,9 @@ import {
   NoteRepository,
   ProjectRepository,
   TestResultComparisonRepository,
+  VideoRepository,
 } from "../../gateway/repository";
-import { TestResultAccessor, SequenceView, GraphView } from "./types";
+import { TestResultAccessor, SequenceView } from "./types";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
@@ -69,11 +72,11 @@ export type RepositoryContainer = {
   readonly viewPointRepository: ViewPointRepository;
   readonly storyRepository: StoryRepository;
   readonly testResultComparisonRepository: TestResultComparisonRepository;
+  readonly videoRepository: VideoRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
   constructor(
-    private serviceUrl: string,
     private repositories: RepositoryContainer,
     private testResultId: string
   ) {}
@@ -131,10 +134,30 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     operation: CapturedOperation,
     option: { compressScreenshot: boolean }
   ): Promise<ServiceResult<{ operation: Operation; id: string }>> {
+    const videoId = operation.videoFrame
+      ? await this.getVideoId(operation.videoFrame)
+      : undefined;
+
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,
-        operation
+        {
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+          title: operation.title,
+          url: operation.url,
+          imageData: operation.imageData,
+          windowHandle: operation.windowHandle,
+          timestamp: operation.timestamp,
+          screenElements: operation.screenElements,
+          pageSource: operation.pageSource,
+          inputElements: operation.inputElements,
+          scrollPosition: operation.scrollPosition,
+          clientSize: operation.clientSize,
+          isAutomatic: operation.isAutomatic,
+          videoId: videoId,
+        }
       );
 
     if (registerOperationResult.isFailure()) {
@@ -146,22 +169,42 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    if (
-      !option.compressScreenshot ||
-      !registerOperationResult.data.operation.imageFileUrl
-    ) {
-      const imageFileUrl = registerOperationResult.data.operation.imageFileUrl
-        ? new URL(
-            registerOperationResult.data.operation.imageFileUrl,
-            this.serviceUrl
-          ).toString()
-        : "";
+    const videoFrame = operation.videoFrame;
 
+    const {
+      input,
+      type,
+      elementInfo,
+      title,
+      url,
+      timestamp,
+      inputElements,
+      windowHandle,
+      keywordTexts,
+      scrollPosition,
+      clientSize,
+      isAutomatic,
+      imageFileUrl,
+    } = registerOperationResult.data.operation;
+
+    if (!option.compressScreenshot || !imageFileUrl) {
       return new ServiceSuccess({
         ...registerOperationResult.data,
         operation: {
-          ...registerOperationResult.data.operation,
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          inputElements,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
           imageFileUrl,
+          videoFrame,
         },
       });
     }
@@ -181,18 +224,23 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const imageFileUrl = compressImageResult.data.imageFileUrl
-      ? new URL(
-          compressImageResult.data.imageFileUrl,
-          this.serviceUrl
-        ).toString()
-      : "";
-
     return new ServiceSuccess({
       ...registerOperationResult.data,
       operation: {
-        ...registerOperationResult.data.operation,
-        imageFileUrl,
+        input,
+        type,
+        elementInfo,
+        title,
+        url,
+        timestamp,
+        inputElements,
+        windowHandle,
+        keywordTexts,
+        scrollPosition,
+        clientSize,
+        isAutomatic,
+        imageFileUrl: compressImageResult.data.imageFileUrl,
+        videoFrame,
       },
     });
   }
@@ -203,12 +251,18 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
+      videoFrame?: VideoFrame;
     },
     testStepId: string,
     option: {
       compressScreenshot?: boolean;
     } = {}
   ): Promise<ServiceResult<TestStepNote>> {
+    const videoId = note.videoFrame
+      ? await this.getVideoId(note.videoFrame)
+      : undefined;
+
     const postNotesResult = await this.repositories.noteRepository.postNotes(
       this.testResultId,
       {
@@ -217,6 +271,8 @@ export class TestResultAccessorImpl implements TestResultAccessor {
         details: note.details ?? "",
         tags: note.tags ?? [],
         imageData: note.imageData,
+        timestamp: note.timestamp,
+        videoId: videoId,
       }
     );
 
@@ -261,18 +317,74 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const savedTestStep = linkTestStepResult.data;
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
 
-    if (!option.compressScreenshot || !savedNote.imageFileUrl) {
-      const imageFileUrl = savedNote.imageFileUrl
-        ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
-        : "";
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_graph_view_failed",
+        message: "Generate Graph View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
 
+    const videos =
+      getTestResultsResult.data.find(({ id }) => {
+        return id === this.testResultId;
+      })?.videos ?? [];
+
+    const operationVideo = linkTestStepResult.data.operation.videoId
+      ? videos.find(
+          ({ id }) => id === linkTestStepResult.data.operation.videoId
+        )
+      : undefined;
+
+    const savedTestStep = {
+      ...linkTestStepResult.data,
+      operation: {
+        input: linkTestStepResult.data.operation.input,
+        type: linkTestStepResult.data.operation.type,
+        elementInfo: linkTestStepResult.data.operation.elementInfo,
+        title: linkTestStepResult.data.operation.title,
+        url: linkTestStepResult.data.operation.url,
+        imageFileUrl: linkTestStepResult.data.operation.imageFileUrl,
+        timestamp: linkTestStepResult.data.operation.timestamp,
+        inputElements: linkTestStepResult.data.operation.inputElements,
+        windowHandle: linkTestStepResult.data.operation.windowHandle,
+        keywordTexts: linkTestStepResult.data.operation.keywordTexts,
+        scrollPosition: linkTestStepResult.data.operation.scrollPosition,
+        clientSize: linkTestStepResult.data.operation.clientSize,
+        isAutomatic: linkTestStepResult.data.operation.isAutomatic,
+        videoFrame: operationVideo
+          ? {
+              url: operationVideo.url,
+              time:
+                (parseInt(linkTestStepResult.data.operation.timestamp, 10) -
+                  operationVideo.startTimestamp) /
+                1000,
+            }
+          : undefined,
+      },
+    };
+
+    const { id, type, value, details, tags, timestamp, imageFileUrl } =
+      savedNote;
+
+    const videoFrame = note.videoFrame;
+
+    if (!option.compressScreenshot || !imageFileUrl) {
       return new ServiceSuccess({
         testStep: savedTestStep,
         note: {
-          ...savedNote,
+          id,
+          type,
+          value,
+          details,
+          tags,
+          timestamp,
           imageFileUrl,
+          videoFrame,
         },
       });
     }
@@ -292,18 +404,17 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const imageFileUrl = compressImageResult.data.imageFileUrl
-      ? new URL(
-          compressImageResult.data.imageFileUrl,
-          this.serviceUrl
-        ).toString()
-      : "";
-
     return new ServiceSuccess({
       testStep: savedTestStep,
       note: {
-        ...savedNote,
-        imageFileUrl,
+        id,
+        type,
+        value,
+        details,
+        tags,
+        timestamp,
+        imageFileUrl: compressImageResult.data.imageFileUrl,
+        videoFrame,
       },
     });
   }
@@ -336,13 +447,44 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const imageFileUrl = result.data.imageFileUrl
-      ? new URL(result.data.imageFileUrl, this.serviceUrl).toString()
-      : "";
+    const { id, type, value, details, tags, timestamp, videoId, imageFileUrl } =
+      result.data;
+
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "edit_note_failed",
+        message: "Edit Note failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const videos =
+      getTestResultsResult.data.find(({ id }) => {
+        return id === this.testResultId;
+      })?.videos ?? [];
+
+    const videoFrame = !videoId
+      ? videos.find(({ id }) => id === videoId)
+      : undefined;
 
     return new ServiceSuccess({
-      ...result.data,
+      id,
+      type,
+      value,
+      details,
+      tags,
+      timestamp,
       imageFileUrl,
+      videoFrame: videoFrame
+        ? {
+            url: videoFrame.url,
+            time: (timestamp - videoFrame.startTimestamp) / 1000,
+          }
+        : undefined,
     });
   }
 
@@ -535,5 +677,80 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     }
 
     return new ServiceSuccess(result.data);
+  }
+
+  async createVideo(startTimestamp: number): Promise<ServiceResult<Video>> {
+    const result = await this.repositories.testResultRepository.createVideo(
+      this.testResultId,
+      startTimestamp
+    );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "create_video_failed",
+        message: "Create video failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async appendVideoBuffer(buffer: ArrayBuffer): Promise<ServiceResult<void>> {
+    const result = await this.repositories.videoRepository.appendBuffer(
+      this.testResultId,
+      buffer
+    );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "append_video_buffer_failed",
+        message: "Append video buffer failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
+  async collectVideos(): Promise<ServiceResult<Video[]>> {
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "add_note_failed",
+        message: "Add Note failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const videos =
+      getTestResultsResult.data.find(({ id }) => {
+        return id === this.testResultId;
+      })?.videos ?? [];
+
+    return new ServiceSuccess(videos);
+  }
+
+  private async getVideoId(video: Pick<VideoFrame, "url">) {
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      return;
+    }
+
+    const videos =
+      getTestResultsResult.data.find(({ id }) => {
+        return id === this.testResultId;
+      })?.videos ?? [];
+
+    return videos.find(({ url }) => {
+      return url === video.url;
+    })?.id;
   }
 }

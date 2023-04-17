@@ -62,7 +62,7 @@ export default class App extends Vue {
 
       this.i18n = createI18n(this.settings.locale);
 
-      const { history } = this.testResult;
+      const { history, testResultInfo } = this.testResult;
 
       this.$store.commit("operationHistory/resetHistory", {
         historyItems: history,
@@ -74,6 +74,9 @@ export default class App extends Vue {
         },
         { root: true }
       );
+      this.$store.commit("operationHistory/setTestResultVideoInfo", {
+        mediaType: testResultInfo.mediaType,
+      });
 
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
@@ -96,6 +99,10 @@ export default class App extends Vue {
 
   private get testResult(): {
     history: OperationWithNotes[];
+    testResultInfo: {
+      mediaType: "image" | "video";
+      videoFileUrl: string;
+    };
   } {
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
@@ -141,6 +148,7 @@ export default class App extends Vue {
             : null,
         };
       }),
+      testResultInfo: (this as any).$historyLog.testResultInfo,
     };
   }
 

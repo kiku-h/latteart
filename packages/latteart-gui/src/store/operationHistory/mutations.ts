@@ -21,10 +21,12 @@ import { OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem"
 import {
   OperationWithNotes,
   OperationHistory,
+  ScreenImage,
 } from "@/lib/operationHistory/types";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
+import { VideoFrame } from "latteart-client";
 
 const mutations: MutationTree<OperationHistoryState> = {
   /**
@@ -273,6 +275,8 @@ const mutations: MutationTree<OperationHistoryState> = {
           name: string;
           text: string;
           operated: boolean;
+          imageFileUrl?: string;
+          videoFrame?: VideoFrame;
         }>;
       }>;
     }
@@ -329,20 +333,20 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
-   * Set displayed screenshot url to the State.
+   * Set displayed screenshot media.
    * @param state  State.
    * @param payload Image file url.
    */
-  setDisplayedScreenshotUrl(state, payload: { imageFileUrl: string }) {
-    state.displayedScreenshotUrl = payload.imageFileUrl;
+  setScreenImage(state, payload: { screenImage: ScreenImage }) {
+    state.screenImage = payload.screenImage;
   },
 
   /**
-   * Clear displayed screenshot url
+   * Clear displayed media.
    * @param state State.
    */
-  clearDisplayedScreenshotUrl(state) {
-    state.displayedScreenshotUrl = "";
+  clearScreenImage(state) {
+    state.screenImage = null;
   },
 
   /**
@@ -481,6 +485,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       id: string;
       name: string;
       parentTestResultId: string;
+      mediaType: "image" | "video";
     }
   ) {
     state.testResultInfo = {
@@ -488,6 +493,7 @@ const mutations: MutationTree<OperationHistoryState> = {
       id: payload.id,
       name: payload.name,
       parentTestResultId: payload.parentTestResultId,
+      mediaType: payload.mediaType,
     };
   },
 
@@ -503,6 +509,15 @@ const mutations: MutationTree<OperationHistoryState> = {
     }
   ) {
     state.storingTestResultInfos = [...payload.testResultInfos];
+  },
+
+  /**
+   * Set test result video info to the State.
+   * @param state State.
+   * @param payload.mediaType Media type.
+   */
+  setTestResultVideoInfo(state, payload: { mediaType: "image" | "video" }) {
+    state.testResultInfo.mediaType = payload.mediaType;
   },
 
   /**
@@ -563,6 +578,15 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   clearWindows(state) {
     Vue.set(state, "windows", []);
+  },
+
+  /**
+   * Set whether Picture-In-Picture window is displayed or not.
+   * @param state State.
+   * @param payload.isDisplayed Whether Picture-In-Picture window is displayed or not.
+   */
+  setPictureInPictureWindowDisplayed(state, payload: { isDisplayed: boolean }) {
+    state.isPictureInPictureWindowDisplayed = payload.isDisplayed;
   },
 };
 

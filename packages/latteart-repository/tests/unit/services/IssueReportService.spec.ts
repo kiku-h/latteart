@@ -4,6 +4,8 @@ import { IssueReportCreator } from "@/interfaces/issueReportCreator";
 import { TestResultService } from "@/services/TestResultService";
 import { TestStepService } from "@/services/TestStepService";
 import { Project } from "@/interfaces/Projects";
+import { TestPurposeService } from "@/services/TestPurposeService";
+import { NotesService } from "@/services/NotesService";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -46,6 +48,8 @@ describe("IssueReportService", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
+        createVideo: jest.fn(),
+        getVideos: jest.fn(),
       };
 
       const testStepService: TestStepService = {
@@ -60,14 +64,14 @@ describe("IssueReportService", () => {
         getTestStepScreenshot: jest.fn(),
       };
 
-      const testPurposeService: any = {
+      const testPurposeService: TestPurposeService = {
         createTestPurpose: jest.fn(),
         getTestPurpose: jest.fn().mockResolvedValue(expectedTestPurpose1),
         updateTestPurpose: jest.fn(),
         deleteTestPurpose: jest.fn(),
       };
 
-      const noteService: any = {
+      const noteService: NotesService = {
         createNote: jest.fn(),
         getNote: jest.fn().mockResolvedValue(expectedNote1),
         updateNote: jest.fn(),
@@ -141,7 +145,10 @@ describe("IssueReportService", () => {
                 memo: "",
                 attachedFiles: [],
                 testResultFiles: [
-                  { id: "testResult1", name: "testResultName1" },
+                  {
+                    id: "testResult1",
+                    name: "testResultName1",
+                  },
                 ],
                 initialUrl: "",
                 testPurposes: [],

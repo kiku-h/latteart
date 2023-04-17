@@ -50,32 +50,84 @@ export class GetTestResultAction {
     return new ActionSuccess({
       ...result.data,
       testSteps: result.data.testSteps.map((testStep) => {
-        const operationImageFileUrl = testStep.operation.imageFileUrl
-          ? new URL(
-              testStep.operation.imageFileUrl,
-              this.repositoryService.serviceUrl
-            ).toString()
-          : "";
+        const {
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          inputElements,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
+          videoId,
+          imageFileUrl,
+        } = testStep.operation;
+
+        const video = videoId
+          ? result.data.videos?.find((video) => video.id === videoId)
+          : undefined;
+        const videoFrame = video
+          ? {
+              url: video.url,
+              time: (parseInt(timestamp, 10) - video.startTimestamp) / 1000,
+            }
+          : undefined;
 
         const operation = {
-          ...testStep.operation,
-          imageFileUrl: operationImageFileUrl,
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          inputElements,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
+          imageFileUrl,
+          videoFrame,
         };
 
         return {
           ...testStep,
           operation,
           notices: [...testStep.bugs, ...testStep.notices].map((note) => {
-            const noteImageFileUrl = note.imageFileUrl
-              ? new URL(
-                  note.imageFileUrl,
-                  this.repositoryService.serviceUrl
-                ).toString()
-              : "";
+            const {
+              id,
+              type,
+              value,
+              details,
+              tags,
+              timestamp,
+              videoId,
+              imageFileUrl,
+            } = note;
+
+            const noteVideo = videoId
+              ? result.data.videos?.find((video) => video.id === videoId)
+              : undefined;
+            const noteVideoFrame = noteVideo
+              ? {
+                  url: noteVideo.url,
+                  time: (timestamp - noteVideo.startTimestamp) / 1000,
+                }
+              : undefined;
 
             return {
-              ...note,
-              imageFileUrl: noteImageFileUrl,
+              id,
+              type,
+              value,
+              details,
+              tags,
+              timestamp,
+              imageFileUrl,
+              videoFrame: noteVideoFrame,
             };
           }),
           bugs: [],

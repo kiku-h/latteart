@@ -17,6 +17,7 @@
 import { SequenceView, TestResult, TestResultViewOption } from "@/domain/types";
 import { GetNoteResponse } from "./Notes";
 import { GetTestStepResponse } from "./TestSteps";
+import { VideoInfo } from "./Videos";
 
 /**
  * Test result data for new registration.
@@ -24,15 +25,26 @@ import { GetTestStepResponse } from "./TestSteps";
 export interface CreateTestResultDto {
   initialUrl?: string;
   name?: string;
-  startTimeStamp?: number;
   parentTestResultId?: string;
+  mediaType?: "image" | "video";
 }
+
+/**
+ * Test result data for update.
+ */
+export type PatchTestResultDto = {
+  name?: string;
+  startTime?: number;
+  initialUrl?: string;
+};
 
 /**
  * Test result list record.
  */
 export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
   parentTestResultId?: string;
+  mediaType: "image" | "video";
+  videos?: VideoInfo[];
 };
 
 /**
@@ -41,6 +53,7 @@ export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
 export interface CreateTestResultResponse {
   id: string;
   name: string;
+  mediaType: "image" | "video";
 }
 
 /**
@@ -54,6 +67,7 @@ export type GetTestResultResponse = Omit<TestResult, "testSteps"> & {
     notices: GetNoteResponse[];
   })[];
   parentTestResultId?: string;
+  videos?: VideoInfo[];
 };
 
 /**
@@ -92,7 +106,9 @@ export type GetGraphViewResponse = {
       testPurposeId?: string;
       pageUrl: string;
       pageTitle: string;
+      timestamp: number;
       imageFileUrl?: string;
+      videoId?: string;
     }[];
     defaultValues: { elementId: string; value?: string }[];
   }[];
@@ -107,6 +123,16 @@ export type GetGraphViewResponse = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     }[];
     testPurposes: { id: string; value: string; details: string }[];
     notes: {
@@ -115,6 +141,8 @@ export type GetGraphViewResponse = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
+      videoId?: string;
     }[];
   };
 };

@@ -29,11 +29,11 @@ import { CapturedData, captureScript } from "./captureScript";
  * The class for monitoring and getting browser operations.
  */
 export default class BrowserOperationCapturer {
+  public webBrowser: WebBrowser | null = null;
   private actionQueue: Array<(capturer: WebBrowser) => Promise<void>> = [];
 
   private client: WebDriverClient;
   private config: CaptureConfig;
-  private webBrowser: WebBrowser | null = null;
   private capturingIsPaused = false;
 
   private alertIsVisible = false;
@@ -140,7 +140,7 @@ export default class BrowserOperationCapturer {
             )) ?? []),
           ];
 
-          if (shouldDeleteCapturedData) {
+          if (shouldDeleteCapturedData && this.config.mediaType === "image") {
             await this.webBrowser.currentWindow?.deleteCapturedDatas();
             shouldDeleteCapturedData = false;
           }
@@ -223,9 +223,14 @@ export default class BrowserOperationCapturer {
             await currentWindow.resumeCapturing();
           }
 
-          await currentWindow.getReadyToCapture();
+          const shouldTakeScreenshot = this.config.mediaType === "image";
+
+          await currentWindow.getReadyToCapture(shouldTakeScreenshot);
           await currentWindow.captureScreenTransition();
-          await currentWindow.captureOperations();
+
+          if (shouldTakeScreenshot) {
+            await currentWindow.captureOperations();
+          }
         }
       } catch (error) {
         if (!(error instanceof Error)) {

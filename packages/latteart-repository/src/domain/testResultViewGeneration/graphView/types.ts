@@ -32,6 +32,16 @@ export type GraphView = {
       tagname: string;
       text: string;
       attributes: { [key: string]: string };
+      boundingRect?: {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+      };
+      innerHeight?: number;
+      innerWidth?: number;
+      outerHeight?: number;
+      outerWidth?: number;
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];
@@ -53,6 +63,8 @@ export type GraphViewNode = {
     testPurposeId?: string;
     pageUrl: string;
     pageTitle: string;
+    timestamp: number;
+    videoId?: string;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -61,7 +73,7 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
   screenDef: string;
   operation: Pick<
     TestStep["operation"],
-    "input" | "type" | "windowHandle" | "url" | "title"
+    "input" | "type" | "windowHandle" | "url" | "title" | "timestamp"
   > & {
     elementInfo: Pick<
       ElementInfo,
@@ -71,6 +83,7 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
       ElementInfo,
       "xpath" | "tagname" | "text" | "attributes" | "checked" | "value"
     >[];
+    videoId?: string;
   };
   intention: Pick<
     NonNullable<TestStep["intention"]>,

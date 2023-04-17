@@ -27,6 +27,7 @@ export type TestResult = {
   initialUrl: string;
   testingTime: number;
   testSteps: TestStep[];
+  mediaType: "image" | "video";
   coverageSources: {
     title: string;
     url: string;
@@ -70,6 +71,7 @@ export type Note = {
   value: string;
   details: string;
   tags: string[];
+  timestamp: number;
   screenshot?: { read: () => Promise<Image> };
 };
 
@@ -98,6 +100,10 @@ export type ElementInfo = {
     width: number;
     height: number;
   };
+  innerHeight?: number;
+  innerWidth?: number;
+  outerHeight?: number;
+  outerWidth?: number;
   textWithoutChildren?: string;
 };
 

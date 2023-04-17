@@ -35,6 +35,7 @@ import {
   ViewPointRepository,
   StoryRepository,
   TestResultComparisonRepository,
+  VideoRestRepository,
 } from "../../gateway/repository";
 import {
   ServiceResult,
@@ -75,6 +76,7 @@ export function createRepositoryService(
     testResultComparisonRepository: new TestResultComparisonRepository(
       restClient
     ),
+    videoRepository: new VideoRestRepository(restClient),
   };
 
   return {
@@ -83,7 +85,10 @@ export function createRepositoryService(
       initialUrl?: string;
       name?: string;
       parentTestResultId?: string;
-    }): Promise<ServiceResult<{ id: string; name: string }>> {
+      mediaType?: "video" | "image";
+    }): Promise<
+      ServiceResult<{ id: string; name: string; mediaType: "video" | "image" }>
+    > {
       const result =
         await repositories.testResultRepository.postEmptyTestResult(option);
 
@@ -99,11 +104,7 @@ export function createRepositoryService(
       return new ServiceSuccess(result.data);
     },
     createTestResultAccessor(testResultId: string) {
-      return new TestResultAccessorImpl(
-        restClient.serverUrl,
-        repositories,
-        testResultId
-      );
+      return new TestResultAccessorImpl(repositories, testResultId);
     },
     ...repositories,
   };

@@ -132,7 +132,12 @@ export class TestScriptsService {
           const testResultEntity = await getRepository(
             TestResultEntity
           ).findOne(testResultId, {
-            relations: ["testSteps", "testSteps.screenshot", "coverageSources"],
+            relations: [
+              "testSteps",
+              "testSteps.screenshot",
+              "testSteps.video",
+              "coverageSources",
+            ],
           });
 
           if (!testResultEntity) {

@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
+import { SessionForRepository } from "latteart-client";
 import { Session } from "./types";
 
 export default class SessionDataConverter {
-  public convertToSession(
-    target: Partial<Session>,
-    serviceUrl: string
-  ): Session {
+  public convertToSession(target: Partial<SessionForRepository>): Session {
     return {
       index: target.index ?? 0,
       name: target.id ?? "",
@@ -36,13 +34,21 @@ export default class SessionDataConverter {
       testPurposes: target.testPurposes ?? [],
       notes: target.notes
         ? target.notes.map((note) => {
-            const noteImageFileUrl = note.imageFileUrl
-              ? new URL(note.imageFileUrl, serviceUrl).toString()
-              : "";
-            return {
-              ...note,
-              imageFileUrl: noteImageFileUrl,
-            };
+            const videoFrame = (() => {
+              if (!note.videoId) return;
+
+              const videos = target.testResultFiles?.at(0)?.videos;
+              const video = videos?.find((video) => video.id === note.videoId);
+
+              if (!video) return;
+
+              return {
+                url: video.url,
+                time: (note.timestamp - video.startTimestamp) / 1000,
+              };
+            })();
+
+            return { ...note, videoFrame };
           })
         : [],
       testingTime: target.testingTime ?? 0,

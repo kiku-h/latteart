@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 import { ServerError, ServerErrorData } from "../ServerError";
 import { CommandExecutorImpl } from "@/gateways/commandExecutor";
 import { ConfigsService } from "@/services/ConfigsService";
@@ -82,7 +81,7 @@ export class NoteCompressedImageController extends Controller {
       }).compressImageForNote(noteId, {
         shouldDeleteOriginalFile: (
           await new ConfigsService().getProjectConfig("")
-        ).config.imageCompression.isDeleteSrcImage,
+        ).config.captureMediaSetting.imageCompression.isDeleteSrcImage,
       });
     } catch (error) {
       if (error instanceof Error) {

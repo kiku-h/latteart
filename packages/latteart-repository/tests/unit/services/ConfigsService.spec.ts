@@ -59,9 +59,12 @@ describe("ConfigsService", () => {
               tags: [],
             },
           },
-          imageCompression: {
-            isEnabled: false,
-            isDeleteSrcImage: false,
+          captureMediaSetting: {
+            imageCompression: {
+              isEnabled: false,
+              isDeleteSrcImage: false,
+            },
+            mediaType: "image",
           },
           testResultComparison: {
             excludeItems: {

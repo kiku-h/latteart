@@ -196,6 +196,15 @@ export class SnapshotFileRepositoryServiceImpl
       return;
     }
     const testResultId = testResultIds[0];
+    const testResult = await this.service.testResult.getTestResult(
+      testResultId
+    );
+
+    const testResultInfo = {
+      mediaType: testResult?.mediaType ?? "image",
+      videos: testResult?.videos,
+    };
+
     const testStepIds = await this.service.testResult.collectAllTestStepIds(
       testResultId
     );
@@ -217,21 +226,27 @@ export class SnapshotFileRepositoryServiceImpl
           elementInfo: testStep.operation.elementInfo,
           title: testStep.operation.title,
           url: testStep.operation.url,
-          imageFileUrl: path.join(
-            "testResult",
-            path.basename(testStep.operation.imageFileUrl ?? "")
-          ),
+          imageFileUrl:
+            testResultInfo.mediaType === "image"
+              ? path.join(
+                  "testResult",
+                  path.basename(testStep.operation.imageFileUrl ?? "")
+                )
+              : "",
           timestamp: testStep.operation.timestamp,
           inputElements: testStep.operation.inputElements,
           windowHandle: testStep.operation.windowHandle,
           keywordTexts: testStep.operation.keywordTexts,
           isAutomatic: testStep.operation.isAutomatic,
+          videoId: testStep.operation.videoId,
         };
 
-        await this.copyScreenshot(
-          testStep.operation.imageFileUrl,
-          destTestResultPath
-        );
+        if (testResultInfo.mediaType === "image") {
+          await this.copyScreenshot(
+            testStep.operation.imageFileUrl,
+            destTestResultPath
+          );
+        }
 
         const notes = (
           await Promise.all(
@@ -244,7 +259,12 @@ export class SnapshotFileRepositoryServiceImpl
         const notices =
           (await Promise.all(
             notes.map(async (note) => {
-              await this.copyScreenshot(note.imageFileUrl, destTestResultPath);
+              if (testResultInfo.mediaType === "image") {
+                await this.copyScreenshot(
+                  note.imageFileUrl,
+                  destTestResultPath
+                );
+              }
 
               return {
                 sequence: index + 1,
@@ -256,7 +276,8 @@ export class SnapshotFileRepositoryServiceImpl
                 imageFileUrl: note.imageFileUrl
                   ? path.join("testResult", path.basename(note.imageFileUrl))
                   : "",
-                timestamp: this.service.timestamp.unix().toString(),
+                timestamp: note.timestamp.toString(),
+                videoId: note.videoId,
               };
             })
           )) ?? [];
@@ -276,9 +297,12 @@ export class SnapshotFileRepositoryServiceImpl
       })
     );
 
-    const testResult = await this.service.testResult.getTestResult(
-      testResultId
-    );
+    if (testResultInfo.mediaType === "video") {
+      testResultInfo.videos?.map(async (video) => {
+        const videoUrl = path.join("testResult", path.basename(video.url));
+        await this.copyVideo(videoUrl, destTestResultPath);
+      });
+    }
 
     const { config } = await this.service.config.getProjectConfig("");
     const viewOption = {
@@ -316,6 +340,7 @@ export class SnapshotFileRepositoryServiceImpl
     const historyLogData = {
       history,
       coverageSources: testResult?.coverageSources ?? [],
+      testResultInfo,
     };
 
     // output log file
@@ -361,6 +386,23 @@ export class SnapshotFileRepositoryServiceImpl
       fileName,
       path.join(destDirectoryName, fileName),
       "screenshot"
+    );
+  }
+
+  private async copyVideo(
+    sourceVideoFileUrl: string,
+    destDirectoryName: string
+  ) {
+    if (!sourceVideoFileUrl) {
+      return;
+    }
+
+    const fileName = sourceVideoFileUrl.split("/").slice(-1)[0];
+
+    await this.service.workingFileRepository.copyFile(
+      fileName,
+      path.join(destDirectoryName, fileName),
+      "video"
     );
   }
 

@@ -58,21 +58,29 @@ export class ProjectExportService {
     const testResultEntities = await getRepository(TestResultEntity).find();
     return await Promise.all(
       testResultEntities.map(async (testResultEntity) => {
-        const screenshots =
-          await service.testResultService.collectAllTestStepScreenshots(
-            testResultEntity.id
-          );
         const testResult = await service.testResultService.getTestResult(
           testResultEntity.id
         );
         if (!testResult) {
           throw new Error();
         }
+
+        const fileData =
+          testResult.mediaType === "image"
+            ? await service.testResultService.collectAllTestStepScreenshots(
+                testResultEntity.id
+              )
+            : await service.testResultService.getVideos(testResult.id);
+
         const serializedTestResult = serializeTestResult(testResult);
         return {
           testResultId: testResult.id,
-          testResultFile: { fileName: "log.json", data: serializedTestResult },
-          screenshots,
+          testResultFile: {
+            fileName: "log.json",
+            data: serializedTestResult,
+            mediaType: testResult.mediaType,
+          },
+          fileData,
         };
       })
     );

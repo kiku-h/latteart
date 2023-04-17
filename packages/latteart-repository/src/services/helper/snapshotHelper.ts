@@ -37,7 +37,11 @@ export function createTestResultFiles(
   testResultFiles: Session["testResultFiles"]
 ): Session["testResultFiles"] {
   return testResultFiles.map((testResultFile) => {
-    return { name: testResultFile.name, id: testResultFile.id };
+    return {
+      name: testResultFile.name,
+      id: testResultFile.id,
+      videos: testResultFile.videos,
+    };
   });
 }
 
@@ -56,6 +60,8 @@ export function createNotes(
         note.imageFileUrl ?? ""
       )}`,
       tags: note.tags,
+      timestamp: note.timestamp,
+      videoId: note.videoId,
     };
   });
 }
@@ -78,6 +84,7 @@ export async function createTestPurposes(
               details: intention.details,
               imageFileUrl: "",
               tags: [],
+              timestamp: intention.timestamp,
             };
           })
         : []

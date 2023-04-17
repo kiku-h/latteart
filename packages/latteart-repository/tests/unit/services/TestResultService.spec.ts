@@ -34,6 +34,7 @@ describe("TestResultService", () => {
       getFilePath: jest.fn(),
       moveFile: jest.fn(),
       copyFile: jest.fn(),
+      appendFile: jest.fn(),
     };
     workingFileRepository = {
       readFile: jest.fn(),
@@ -45,6 +46,7 @@ describe("TestResultService", () => {
       getFilePath: jest.fn(),
       moveFile: jest.fn(),
       copyFile: jest.fn(),
+      appendFile: jest.fn(),
     };
     compareReportRepository = {
       readFile: jest.fn(),
@@ -56,6 +58,7 @@ describe("TestResultService", () => {
       getFilePath: jest.fn(),
       moveFile: jest.fn(),
       copyFile: jest.fn(),
+      appendFile: jest.fn(),
     };
     testStepService = {
       getTestStep: jest.fn(),
@@ -118,13 +121,15 @@ describe("TestResultService", () => {
       const body: CreateTestResultDto = {
         initialUrl: "initialUrl",
         name: "session_name",
+        mediaType: "image",
       };
 
-      const result = await service.createTestResult(body, null);
+      const result = await service.createTestResult(body);
 
       expect(result).toEqual({
         id: expect.any(String),
         name: body.name,
+        mediaType: body.mediaType,
       });
     });
   });

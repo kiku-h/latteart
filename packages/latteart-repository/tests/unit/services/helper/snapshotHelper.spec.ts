@@ -23,6 +23,7 @@ describe("snapshotHelper", () => {
         details: "intention1",
         tags: [],
         imageFileUrl: "",
+        timestamp: 0,
       };
       const testResult: GetTestResultResponse = {
         id: "testResultId",
@@ -36,6 +37,7 @@ describe("snapshotHelper", () => {
           { id: "id2", operation, intention: null, bugs: [], notices: [] },
         ],
         coverageSources: [],
+        mediaType: "image",
       };
 
       const result = await createTestPurposes(testResult);

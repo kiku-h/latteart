@@ -16,8 +16,8 @@
 
 import {
   SerializeElementInfo,
-  TestResultExportDataV2,
-  HistoryItemExportDataV2,
+  HistoryItemExportDataV3,
+  TestResultExportDataV3,
 } from "@/interfaces/exportData";
 import { GetTestResultResponse } from "@/interfaces/TestResults";
 import path from "path";
@@ -25,7 +25,7 @@ import path from "path";
 export function serializeTestResult(testResult: GetTestResultResponse): string {
   const { historyEntries, notes } = testResult.testSteps.reduce(
     (acc, testStep, index) => {
-      const testStepEntry: [number, HistoryItemExportDataV2] = [
+      const testStepEntry: [number, HistoryItemExportDataV3] = [
         index + 1,
         {
           testStep: {
@@ -48,6 +48,7 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
               isAutomatic: testStep.operation.isAutomatic,
               scrollPosition: testStep.operation.scrollPosition,
               clientSize: testStep.operation.clientSize,
+              videoId: testStep.operation.videoId,
             },
             inputElements: testStep.operation.inputElements.map((element) =>
               convertToExportableElement(element)
@@ -79,21 +80,22 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
       return acc;
     },
     {
-      historyEntries: Array<[number, HistoryItemExportDataV2]>(),
-      notes: [] as TestResultExportDataV2["notes"],
+      historyEntries: Array<[number, HistoryItemExportDataV3]>(),
+      notes: [] as TestResultExportDataV3["notes"],
     }
   );
 
   const history = Object.fromEntries(historyEntries);
 
-  const data: TestResultExportDataV2 = {
-    version: 2,
+  const data: TestResultExportDataV3 = {
+    version: 3,
     name: testResult.name,
     sessionId: testResult.id,
     startTimeStamp: testResult.startTimeStamp,
     lastUpdateTimeStamp: testResult.lastUpdateTimeStamp,
     initialUrl: testResult.initialUrl,
     testingTime: testResult.testingTime,
+    mediaType: testResult.mediaType,
     history,
     notes,
     coverageSources: testResult.coverageSources.map((coverageSource) => {
@@ -105,6 +107,7 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
         ),
       };
     }),
+    videos: testResult.videos,
   };
 
   return JSON.stringify(data);
