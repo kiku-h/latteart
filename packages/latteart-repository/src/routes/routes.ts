@@ -4514,6 +4514,51 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-results/:testResultId/graph-views",
+    ...fetchMiddlewares<RequestHandler>(TestResultsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TestResultsController.prototype.generateGraphView
+    ),
+
+    function TestResultsController_generateGraphView(
+      request: any,
+      response: any,
+      next: any
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          ref: "GetGraphViewDto",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TestResultsController();
+
+        const promise = controller.generateGraphView.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.patch(
     "/api/v1/test-results/:testResultId/start-movie",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
@@ -4557,51 +4602,6 @@ export function RegisterRoutes(app: Router) {
           validatedArgs as any
         );
         promiseHandler(controller, promise, response, undefined, next);
-      } catch (err) {
-        return next(err);
-      }
-    }
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  app.post(
-    "/api/v1/test-results/:testResultId/graph-views",
-    ...fetchMiddlewares<RequestHandler>(TestResultsController),
-    ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.generateGraphView
-    ),
-
-    function TestResultsController_generateGraphView(
-      request: any,
-      response: any,
-      next: any
-    ) {
-      const args = {
-        testResultId: {
-          in: "path",
-          name: "testResultId",
-          required: true,
-          dataType: "string",
-        },
-        requestBody: {
-          in: "body",
-          name: "requestBody",
-          ref: "GetGraphViewDto",
-        },
-      };
-
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = getValidatedArgs(args, request, response);
-
-        const controller = new TestResultsController();
-
-        const promise = controller.generateGraphView.apply(
-          controller,
-          validatedArgs as any
-        );
-        promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }
