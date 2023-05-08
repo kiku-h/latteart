@@ -34,6 +34,7 @@ describe("LoadHistoryAction", () => {
         url: "url",
         testResultInfo: {
           id: "id",
+          mediaType: "image",
           name: "name",
           movieStartTimestamp: 0,
           parentTestResultId: undefined,
