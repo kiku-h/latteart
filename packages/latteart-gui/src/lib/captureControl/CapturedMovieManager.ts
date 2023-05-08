@@ -23,6 +23,7 @@ export class CapturedMovieManager {
   private moveRepository: MovieRepository;
   private chunks: Blob[] = [];
   private setWebmUrlToStoreFunc: (url: string) => void;
+  private firstTimeCaptured = false;
 
   constructor(
     testResultId: string,
@@ -107,6 +108,10 @@ export class CapturedMovieManager {
   }
 
   public requestData(): void {
+    if (!this.firstTimeCaptured) {
+      this.firstTimeCaptured = true;
+      return;
+    }
     if (this.recorder === null) {
       throw new Error("recorder not found.");
     }
