@@ -17,20 +17,28 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-row>
-      <v-col cols="12">
-        <h4>メディアタイプ</h4>
+      <v-col cols="12" class="pb-0">
+        <h4>{{ $store.getters.message("config-view.media-type") }}</h4>
         <v-radio-group
           :value="tempConfig.mediaType"
           @change="changeCaptureMediaType"
           class="py-0 my-0"
           row
         >
-          <v-radio label="静止画" value="image" />
-          <v-radio label="動画" value="movie" />
+          <v-radio
+            :label="$store.getters.message('config-view.still-image')"
+            value="image"
+          />
+          <v-radio
+            :label="$store.getters.message('config-view.movie')"
+            value="movie"
+          />
         </v-radio-group>
       </v-col>
-      <v-col cols="12" style="margin-top: 10p; margin-left: 8px">
-        <h4>画像圧縮設定</h4>
+      <v-col cols="12" class="pt-0">
+        <h4>
+          {{ $store.getters.message("config-view.setting-image-compression") }}
+        </h4>
         <v-checkbox
           v-model="tempConfig.imageCompression.isEnabled"
           :label="
@@ -38,11 +46,11 @@
           "
           :disabled="tempConfig.mediaType === 'movie'"
           @change="saveConfig"
-          class="py-0 my-0"
+          class="pb-0 my-0"
         >
         </v-checkbox>
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" class="py-0">
         <v-checkbox
           v-model="tempConfig.imageCompression.isDeleteSrcImage"
           :label="
@@ -55,6 +63,7 @@
             tempConfig.mediaType === 'movie'
           "
           @change="saveConfig"
+          class="py-0 my-0"
         >
         </v-checkbox>
       </v-col>

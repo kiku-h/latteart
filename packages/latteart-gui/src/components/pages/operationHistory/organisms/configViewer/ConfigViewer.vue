@@ -110,7 +110,6 @@ import { Component, Vue } from "vue-property-decorator";
 import {
   ProjectSettings,
   CoverageSetting,
-  ImageCompressionSetting,
   ScreenDefinitionSetting,
   CaptureMediaSetting,
 } from "@/lib/common/settings/Settings";
