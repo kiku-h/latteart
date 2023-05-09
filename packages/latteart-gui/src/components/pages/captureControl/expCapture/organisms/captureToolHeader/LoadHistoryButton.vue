@@ -130,6 +130,8 @@ export default class LoadHistoryButton extends Vue {
       return;
     }
 
+    await this.$store.dispatch("operationHistory/resetHistory");
+
     setTimeout(async () => {
       try {
         this.$store.dispatch("openProgressDialog", {
