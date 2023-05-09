@@ -57,7 +57,7 @@ export default class ScreenshotsDownloadButton extends Vue {
       this.isResuming ||
       this.$store.getters["operationHistory/getOperations"]().length === 0 ||
       this.processing ||
-      this.isMovie
+      this.isTestResultMediaTypeMovie
     );
   }
 
@@ -77,7 +77,7 @@ export default class ScreenshotsDownloadButton extends Vue {
     return this.$store.state.operationHistory.testResultInfo.id;
   }
 
-  private get isMovie(): boolean {
+  private get isTestResultMediaTypeMovie(): boolean {
     return (
       this.$store.state.operationHistory.testResultInfo.mediaType === "movie"
     );
