@@ -1,10 +1,10 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class UpdateTestResultEntity1680848000173 implements MigrationInterface {
-    name = 'UpdateTestResultEntity1680848000173'
+export class UpdateTestResultEntity1683602505923 implements MigrationInterface {
+    name = 'UpdateTestResultEntity1683602505923'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "temporary_TEST_RESULTS" ("test_result_id" varchar PRIMARY KEY NOT NULL, "name" varchar NOT NULL, "start_timestamp" integer NOT NULL, "initial_url" varchar NOT NULL, "last_update_timestamp" integer NOT NULL, "testing_time" integer NOT NULL, "parent_test_result_id" varchar, "media_type" varchar NOT NULL)`);
+        await queryRunner.query(`CREATE TABLE "temporary_TEST_RESULTS" ("test_result_id" varchar PRIMARY KEY NOT NULL, "name" varchar NOT NULL, "start_timestamp" integer NOT NULL, "initial_url" varchar NOT NULL, "last_update_timestamp" integer NOT NULL, "testing_time" integer NOT NULL, "parent_test_result_id" varchar, "media_type" varchar NOT NULL DEFAULT (''), "movie_start_timestamp" integer NOT NULL DEFAULT (0))`);
         await queryRunner.query(`INSERT INTO "temporary_TEST_RESULTS"("test_result_id", "name", "start_timestamp", "initial_url", "last_update_timestamp", "testing_time", "parent_test_result_id") SELECT "test_result_id", "name", "start_timestamp", "initial_url", "last_update_timestamp", "testing_time", "parent_test_result_id" FROM "TEST_RESULTS"`);
         await queryRunner.query(`DROP TABLE "TEST_RESULTS"`);
         await queryRunner.query(`ALTER TABLE "temporary_TEST_RESULTS" RENAME TO "TEST_RESULTS"`);
