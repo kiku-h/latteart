@@ -85,9 +85,12 @@ describe("ConfigsService", () => {
         ...requestBody,
         config: {
           ...requestBody.config,
-          imageCompression: {
-            ...requestBody.config.captureMediaSetting.imageCompression,
-            command: "",
+          captureMediaSetting: {
+            imageCompression: {
+              ...requestBody.config.captureMediaSetting.imageCompression,
+              command: "",
+            },
+            mediaType: requestBody.config.captureMediaSetting.mediaType,
           },
         },
       });
