@@ -1,10 +1,10 @@
 <template>
-  <v-layout>
+  <v-row>
     <video ref="video" controls>
       <source type="video/webm" />
     </video>
     <div :style="rectStyle" class="rect-area"></div>
-  </v-layout>
+  </v-row>
 </template>
 
 <script lang="ts">
