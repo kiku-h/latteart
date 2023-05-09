@@ -87,14 +87,16 @@
                 {{
                   $store.getters.message("config-view.setting-capture-media")
                 }}
-              </template>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
                 <capture-media-config
                   :captureMediaSetting="captureMediaSetting"
                   :opened="captureMediaSettingOpened"
                   @save-config="saveConfig"
                 >
                 </capture-media-config>
-            </v-expansion-panel-content>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
 
             <v-expansion-panel>
               <v-expansion-panel-header>
@@ -192,12 +194,10 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import NumberField from "@/components/molecules/NumberField.vue";
 import CoverageConfig from "@/components/pages/operationHistory/organisms/configViewer/CoverageConfig.vue";
 import ScreenDefinitionConfig from "@/components/pages/operationHistory/organisms/configViewer/ScreenDefinitionConfig.vue";
-import ImageCompressionConfig from "@/components/pages/operationHistory/organisms/configViewer/ImageCompressionConfig.vue";
 import CaptureMediaConfig from "@/components/pages/operationHistory/organisms/configViewer/CaptureMediaConfig.vue";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import {
   CoverageSetting,
-  ImageCompressionSetting,
   ScreenDefinitionSetting,
   DeviceSettings,
   ProjectSettings,
