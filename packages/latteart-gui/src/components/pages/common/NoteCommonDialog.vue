@@ -73,7 +73,16 @@
           :label="$store.getters.message('note-edit.take-screenshot')"
           :error-messages="takeScreenshotErrorMessage"
         ></v-checkbox>
-        <thumbnail-image v-if="isThumbnailVisible" :imageFileUrl="screenshot" />
+        <thumbnail-image
+          v-if="isThumbnailVisible && testResultMediaType === 'image'"
+          :imageFileUrl="screenshot"
+        />
+        <v-btn
+          v-if="testResultMediaType === 'movie'"
+          :disabled="isPictureInPictureVideoDisplayed"
+          @click="displayPictureInPictureVideo"
+          >動画を確認する</v-btn
+        >
       </template>
     </execute-dialog>
   </div>
@@ -88,6 +97,7 @@ import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
 import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
 
 @Component({
   components: {
@@ -162,6 +172,22 @@ export default class NoteCommonDialog extends Vue {
     return this.isAlertVisible
       ? this.$store.getters.message("note-edit.error-cannot-take-screenshots")
       : "";
+  }
+
+  private get testResultMediaType() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .testResultInfo.mediaType;
+  }
+
+  private displayPictureInPictureVideo() {
+    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
+      isDisplayed: true,
+    });
+  }
+
+  private get isPictureInPictureVideoDisplayed() {
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .isPictureInPictureWindowDisplayed;
   }
 
   private execute(): void {

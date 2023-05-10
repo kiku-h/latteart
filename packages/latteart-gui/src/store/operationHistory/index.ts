@@ -193,6 +193,8 @@ export interface OperationHistoryState {
 
   checkedOperations: { index: number; operation: OperationForGUI }[];
 
+  isPictureInPictureWindowDisplayed: boolean;
+
   /**
    * The function to open the dialog for editing a note.
    */
@@ -259,6 +261,7 @@ const state: OperationHistoryState = {
   displayedOperations: [],
   tmpNoteInfoForEdit: null,
   checkedOperations: [],
+  isPictureInPictureWindowDisplayed: false,
   openNoteEditDialog: () => {
     /* Do nothing. */
   },

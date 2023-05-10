@@ -85,7 +85,7 @@
         <pane>
           <v-container fluid pa-0 fill-height style="position: relative">
             <template v-if="mediaType === 'movie'">
-              <capture-movie-display :history="history" />
+              <screencast-display :history="history" />
             </template>
             <template v-else>
               <screen-shot-display :imageInfo="imageInfo"></screen-shot-display>
@@ -149,7 +149,7 @@ import OperationList from "@/components/pages/operationHistory/organisms/Operati
 import ScreenShotDisplay from "@/components/molecules/ScreenShotDisplay.vue";
 import ElementCoverage from "@/components/pages/operationHistory/organisms/ElementCoverage.vue";
 import DecisionTable from "./DecisionTable.vue";
-import CaptureMovieDisplay from "./CapturedMovieDisplay.vue";
+import ScreencastDisplay from "./ScreencastDisplay.vue";
 
 @Component({
   components: {
@@ -158,7 +158,7 @@ import CaptureMovieDisplay from "./CapturedMovieDisplay.vue";
     "screen-shot-display": ScreenShotDisplay,
     "element-coverage": ElementCoverage,
     "decision-table": DecisionTable,
-    "capture-movie-display": CaptureMovieDisplay,
+    "screencast-display": ScreencastDisplay,
     Splitpanes,
     Pane,
   },
