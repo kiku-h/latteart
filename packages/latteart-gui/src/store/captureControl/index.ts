@@ -105,8 +105,6 @@ export interface CaptureControlState {
   capturedMovieManager: CapturedMovieManager | null;
 
   capturedMovieUrl: string;
-
-  movieStartTimestamp: number;
 }
 
 const state: CaptureControlState = {
@@ -131,7 +129,6 @@ const state: CaptureControlState = {
   captureSession: null,
   capturedMovieManager: null,
   capturedMovieUrl: "",
-  movieStartTimestamp: 0,
 };
 
 export const captureControl: Module<CaptureControlState, RootState> = {

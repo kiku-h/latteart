@@ -723,7 +723,7 @@ export class TestResultServiceImpl implements TestResultService {
   ): Promise<void> {
     const testResultRepository = getRepository(TestResultEntity);
     const testResult = await testResultRepository.findOneOrFail(testResultId);
-    testResult.startTimestamp = startTimestamp;
+    testResult.movieStartTimestamp = startTimestamp;
     await testResultRepository.save(testResult);
   }
 }
