@@ -1,25 +1,44 @@
 <template>
-  <v-row>
-    <video ref="video" controls>
-      <source type="video/webm" />
-    </video>
-    <div :style="rectStyle" class="rect-area"></div>
-  </v-row>
+  <v-container fluid class="fill-height">
+    <video-display
+      :videoUrl="videoSrc"
+      :startTime="currentTime"
+      :pictureInPicture="isPipMode"
+      @changeSize="updateVideoSize"
+      @enterPictureInPicture="isPipMode = true"
+      @leavePictureInPicture="isPipMode = false"
+    >
+      <div v-if="!isPipMode" :style="rectStyle" class="rect-area"></div>
+    </video-display>
+  </v-container>
 </template>
 
 <script lang="ts">
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
 import {
   OperationHistory,
   OperationWithNotes,
 } from "@/lib/operationHistory/types";
+import { OperationHistoryState } from "@/store/operationHistory";
 import { Vue, Prop, Component, Watch } from "vue-property-decorator";
 
-@Component
+@Component({
+  components: {
+    "video-display": VideoDisplay,
+  },
+})
 export default class CaptureMovieDisplay extends Vue {
   @Prop({ type: Array, default: () => [] })
   public readonly history!: OperationHistory;
 
   private currentTime = 0;
+  private videoSize = { width: 0, height: 0 };
+
+  private isPipMode = false;
+
+  private updateVideoSize(size: { width: number; height: number }) {
+    this.videoSize = size;
+  }
 
   get currentOperation(): OperationWithNotes | undefined {
     return (this.history ?? []).find((val) => {
@@ -31,7 +50,8 @@ export default class CaptureMovieDisplay extends Vue {
   }
 
   get startTimestamp(): number {
-    return this.$store.state.captureControl.movieStartTimestamp;
+    return (this.$store.state.operationHistory as OperationHistoryState)
+      .testResultInfo.movieStartTimestamp;
   }
 
   get rectStyle(): {
@@ -41,14 +61,11 @@ export default class CaptureMovieDisplay extends Vue {
     height?: string;
     display: string;
   } {
-    console.log(this.currentOperation);
     if (!this.currentOperation?.operation.elementInfo?.boundingRect) {
       return {
         display: "none",
       };
     }
-    const video = this.$refs.video as HTMLVideoElement;
-    const videoRect = video.getBoundingClientRect();
 
     const opeRect = this.currentOperation.operation.elementInfo?.boundingRect;
     if (
@@ -66,33 +83,24 @@ export default class CaptureMovieDisplay extends Vue {
       };
     }
     const magni =
-      videoRect.height /
+      this.videoSize.height /
       this.currentOperation.operation.elementInfo?.outerHeight;
 
     const opeRectToolbarHeight =
       this.currentOperation.operation.elementInfo?.outerHeight -
       this.currentOperation.operation.elementInfo?.innerHeight;
     const style = {
-      top: `${Math.floor((opeRect.top + opeRectToolbarHeight) * magni)}px`,
-      left: `${Math.floor(opeRect.left * magni)}px`,
-      width: `${Math.floor(opeRect.width * magni)}px`,
-      height: `${Math.floor(opeRect.height * magni)}px`,
+      top: `${(opeRect.top + opeRectToolbarHeight) * magni}px`,
+      left: `${opeRect.left * magni}px`,
+      width: `${opeRect.width * magni}px`,
+      height: `${opeRect.height * magni}px`,
       display: "block",
     };
-    console.log({ style });
     return style;
   }
 
   get videoSrc(): string {
     return this.$store.state.captureControl.capturedMovieUrl;
-  }
-
-  @Watch("videoSrc")
-  private updateVideo(): void {
-    console.log("videoUrl: " + this.videoSrc);
-    const video = this.$refs.video as HTMLVideoElement;
-    video.src = this.videoSrc;
-    video.currentTime = this.currentTime;
   }
 
   @Watch("currentOperation")
@@ -105,9 +113,6 @@ export default class CaptureMovieDisplay extends Vue {
       (Number(this.currentOperation.operation.timestamp) -
         this.startTimestamp) /
       1000;
-
-    const video = this.$refs.video as HTMLVideoElement;
-    video.currentTime = this.currentTime;
   }
 }
 </script>
@@ -115,5 +120,5 @@ export default class CaptureMovieDisplay extends Vue {
 <style lang="sass" scoped>
 .rect-area
   position: absolute
-  border: solid 2px #F00
+  outline: solid 2px #F00
 </style>

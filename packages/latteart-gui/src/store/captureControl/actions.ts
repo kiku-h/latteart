@@ -655,9 +655,11 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         await capturedMovieManager.fetchChunksFromRepository();
         capturedMovieManager.createWebm();
         const movieStartTimestamp = capturedMovieManager.startRecorder();
-        context.commit("setMovieStartTimestamp", {
-          movieStartTimestamp,
-        });
+        context.commit(
+          "operationHistory/setMovieStartTimestamp",
+          { movieStartTimestamp },
+          { root: true }
+        );
 
         await context.rootState.repositoryService
           .createTestResultAccessor(operationHistoryState.testResultInfo.id)
