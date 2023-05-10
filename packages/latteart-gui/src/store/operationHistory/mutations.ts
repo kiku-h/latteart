@@ -557,6 +557,15 @@ const mutations: MutationTree<OperationHistoryState> = {
   clearWindows(state) {
     Vue.set(state, "windows", []);
   },
+
+  /**
+   * Set movie start timestamp.
+   * @param state State.
+   * @param payload.movieStartTimestamp Movie start timestamp.
+   */
+  setMovieStartTimestamp(state, payload: { movieStartTimestamp: number }) {
+    state.testResultInfo.movieStartTimestamp = payload.movieStartTimestamp;
+  },
 };
 
 export default mutations;
