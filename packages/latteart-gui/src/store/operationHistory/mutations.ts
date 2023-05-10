@@ -566,6 +566,15 @@ const mutations: MutationTree<OperationHistoryState> = {
   setMovieStartTimestamp(state, payload: { movieStartTimestamp: number }) {
     state.testResultInfo.movieStartTimestamp = payload.movieStartTimestamp;
   },
+
+  /**
+   * Set whether Picture-In-Picture window is displayed or not.
+   * @param state State.
+   * @param payload.isDisplayed Whether Picture-In-Picture window is displayed or not.
+   */
+  setPictureInPictureWindowDisplayed(state, payload: { isDisplayed: boolean }) {
+    state.isPictureInPictureWindowDisplayed = payload.isDisplayed;
+  },
 };
 
 export default mutations;
