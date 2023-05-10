@@ -16,8 +16,8 @@
 
 import {
   SerializeElementInfo,
-  TestResultExportDataV2,
   HistoryItemExportDataV2,
+  TestResultExportDataV3,
 } from "@/interfaces/exportData";
 import { GetTestResultResponse } from "@/interfaces/TestResults";
 import path from "path";
@@ -80,20 +80,22 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
     },
     {
       historyEntries: Array<[number, HistoryItemExportDataV2]>(),
-      notes: [] as TestResultExportDataV2["notes"],
+      notes: [] as TestResultExportDataV3["notes"],
     }
   );
 
   const history = Object.fromEntries(historyEntries);
 
-  const data: TestResultExportDataV2 = {
-    version: 2,
+  const data: TestResultExportDataV3 = {
+    version: 3,
     name: testResult.name,
     sessionId: testResult.id,
     startTimeStamp: testResult.startTimeStamp,
     lastUpdateTimeStamp: testResult.lastUpdateTimeStamp,
     initialUrl: testResult.initialUrl,
     testingTime: testResult.testingTime,
+    mediaType: testResult.mediaType,
+    movieStartTimestamp: testResult.movieStartTimestamp,
     history,
     notes,
     coverageSources: testResult.coverageSources.map((coverageSource) => {

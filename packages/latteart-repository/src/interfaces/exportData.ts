@@ -172,3 +172,9 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
   };
   textWithoutChildren?: string;
 };
+
+// V3 Format
+export type TestResultExportDataV3 = TestResultExportDataV2 & {
+  mediaType: "image" | "movie";
+  movieStartTimestamp: number;
+};
