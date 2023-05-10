@@ -35,11 +35,10 @@ export default class VideoDisplay extends Vue {
   @Prop({ type: Boolean, default: false })
   public readonly pictureInPicture!: boolean;
 
-  private resizeObserver?: ResizeObserver;
-
   mounted() {
     const video = this.$refs.video as HTMLVideoElement;
 
+    video.addEventListener("playing", this.notifyPlaying);
     video.addEventListener(
       "enterpictureinpicture",
       this.notifyEnterPictureInPicture
@@ -48,24 +47,12 @@ export default class VideoDisplay extends Vue {
       "leavepictureinpicture",
       this.notifyLeavePictureInPicture
     );
-
-    this.resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        this.$emit("changeSize", {
-          width: entry.contentRect.width,
-          height: entry.contentRect.height,
-        });
-      }
-    });
-
-    this.resizeObserver.observe(video);
   }
 
   beforeDestroy() {
-    this.resizeObserver?.disconnect();
-
     const video = this.$refs.video as HTMLVideoElement;
 
+    video.addEventListener("playing", this.notifyPlaying);
     video.removeEventListener(
       "enterpictureinpicture",
       this.notifyEnterPictureInPicture
@@ -85,6 +72,7 @@ export default class VideoDisplay extends Vue {
   @Watch("startTime")
   private updateCurrentTime(): void {
     const video = this.$refs.video as HTMLVideoElement;
+    video.pause();
     video.currentTime = this.startTime;
   }
 
@@ -108,6 +96,10 @@ export default class VideoDisplay extends Vue {
     if (document.pictureInPictureElement) {
       await document.exitPictureInPicture();
     }
+  }
+
+  private notifyPlaying() {
+    this.$emit("playing");
   }
 
   private notifyEnterPictureInPicture() {
