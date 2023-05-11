@@ -47,6 +47,8 @@ describe("ProjectExportService", () => {
       initialUrl: "",
       testingTime: 0,
       testSteps: [],
+      mediaType: "image",
+      movieStartTimestamp: 0,
       coverageSources: [],
     };
 
@@ -166,7 +168,7 @@ describe("ProjectExportService", () => {
         }
       );
 
-      const a = {
+      const projectFileData = {
         ...projectData,
         version: 1,
       };
@@ -175,7 +177,7 @@ describe("ProjectExportService", () => {
         projectId: "projectId",
         projectFile: {
           fileName: "project.json",
-          data: JSON.stringify(a),
+          data: JSON.stringify(projectFileData),
         },
         stories: [
           {
@@ -195,7 +197,7 @@ describe("ProjectExportService", () => {
       });
     });
 
-    it("extractTestResultsExportDataで、TestRsultのexportDataを返す", async () => {
+    it("extractTestResultsExportDataで、TestRsultのexportDataを返す(mediaTypeがimageの場合)", async () => {
       const service = new ProjectExportService();
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllTestStepScreenshots = jest
@@ -219,19 +221,61 @@ describe("ProjectExportService", () => {
           testResultFile: {
             fileName: "log.json",
             data: JSON.stringify({
-              version: 2,
+              version: 3,
               name: "testResultName",
               sessionId: "testResultId",
               startTimeStamp: 0,
               lastUpdateTimeStamp: 0,
               initialUrl: "",
               testingTime: 0,
+              mediaType: "image",
+              movieStartTimestamp: 0,
               history: {},
               notes: [],
               coverageSources: [],
             }),
           },
-          screenshots: [{ id: "id", fileUrl: "fileUrl" }],
+          fileData: [{ id: "id", fileUrl: "fileUrl" }],
+        },
+      ]);
+    });
+
+    it("extractTestResultsExportDataで、TestRsultのexportDataを返す(mediaTypeがmovieの場合)", async () => {
+      const service = new ProjectExportService();
+      projectService.getProject = jest.fn().mockResolvedValue(projectData);
+      const data = {
+        ...testResultData,
+        mediaType: "movie",
+      };
+      testResultService.getTestResult = jest.fn().mockResolvedValue(data);
+
+      await getRepository(TestResultEntity).save(new TestResultEntity());
+
+      const testResult = await service["extractTestResultsExportData"]({
+        testResultService,
+      });
+
+      expect(testResult).toEqual([
+        {
+          testResultId: "testResultId",
+          testResultFile: {
+            fileName: "log.json",
+            data: JSON.stringify({
+              version: 3,
+              name: "testResultName",
+              sessionId: "testResultId",
+              startTimeStamp: 0,
+              lastUpdateTimeStamp: 0,
+              initialUrl: "",
+              testingTime: 0,
+              mediaType: "movie",
+              movieStartTimestamp: 0,
+              history: {},
+              notes: [],
+              coverageSources: [],
+            }),
+          },
+          fileData: `movie/testResultId.webm`,
         },
       ]);
     });

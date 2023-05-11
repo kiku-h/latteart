@@ -33,9 +33,6 @@ export class TestResultExportServiceImpl implements TestResultExportService {
   public async export(testResultId: string): Promise<{ url: string }> {
     console.log(testResultId);
 
-    const screenshots =
-      await this.service.testResult.collectAllTestStepScreenshots(testResultId);
-
     const testResult = await this.service.testResult.getTestResult(
       testResultId
     );
@@ -44,12 +41,19 @@ export class TestResultExportServiceImpl implements TestResultExportService {
       throw Error(`Test result not found: ${testResultId}`);
     }
 
+    const fileData =
+      testResult.mediaType === "image"
+        ? await this.service.testResult.collectAllTestStepScreenshots(
+            testResultId
+          )
+        : `movie/${testResultId}.webm`;
+
     const serializedTestResult = serializeTestResult(testResult);
 
     const url = await this.service.exportFileRepository.exportTestResult({
       name: testResult.name,
       testResultFile: { fileName: "log.json", data: serializedTestResult },
-      screenshots,
+      fileData,
     });
 
     return { url };

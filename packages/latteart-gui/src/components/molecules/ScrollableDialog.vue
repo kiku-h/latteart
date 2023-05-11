@@ -30,7 +30,7 @@
         <slot name="title"></slot>
       </v-card-title>
       <v-divider></v-divider>
-      <v-card-text :style="{ height: 'calc(100% - 48px - 48px)' }">
+      <v-card-text :style="{ height: 'calc(100% - 48px - 48px)' }" class="pt-3">
         <div>
           <slot name="content"></slot>
         </div>
