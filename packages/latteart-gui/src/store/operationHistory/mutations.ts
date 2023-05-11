@@ -557,6 +557,24 @@ const mutations: MutationTree<OperationHistoryState> = {
   clearWindows(state) {
     Vue.set(state, "windows", []);
   },
+
+  /**
+   * Set movie start timestamp.
+   * @param state State.
+   * @param payload.movieStartTimestamp Movie start timestamp.
+   */
+  setMovieStartTimestamp(state, payload: { movieStartTimestamp: number }) {
+    state.testResultInfo.movieStartTimestamp = payload.movieStartTimestamp;
+  },
+
+  /**
+   * Set whether Picture-In-Picture window is displayed or not.
+   * @param state State.
+   * @param payload.isDisplayed Whether Picture-In-Picture window is displayed or not.
+   */
+  setPictureInPictureWindowDisplayed(state, payload: { isDisplayed: boolean }) {
+    state.isPictureInPictureWindowDisplayed = payload.isDisplayed;
+  },
 };
 
 export default mutations;

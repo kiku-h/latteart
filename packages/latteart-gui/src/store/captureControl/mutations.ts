@@ -150,10 +150,6 @@ const mutations: MutationTree<CaptureControlState> = {
   setCapturedMovieUrl(state, payload: { url: string }) {
     state.capturedMovieUrl = payload.url;
   },
-
-  setMovieStartTimestamp(state, payload: { movieStartTimestamp: number }) {
-    state.movieStartTimestamp = payload.movieStartTimestamp;
-  },
 };
 
 export default mutations;
