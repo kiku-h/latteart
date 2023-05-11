@@ -44,7 +44,7 @@ export interface TestResultImportService {
           fileName: string;
           data: string;
         };
-        screenshots: {
+        fileData: {
           filePath: string;
           data: Buffer;
         }[];
@@ -58,7 +58,7 @@ export interface TestResultImportService {
         fileName: string;
         data: string;
       };
-      screenshots: {
+      fileData: {
         filePath: string;
         data: Buffer;
       }[];
@@ -72,6 +72,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     private service: {
       importFileRepository: ImportFileRepository;
       screenshotFileRepository: FileRepository;
+      movieFileRepository: FileRepository;
       timestamp: TimestampService;
     }
   ) {}
@@ -102,10 +103,10 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       throw Error("Invalid test result file.");
     }
 
-    const screenshots = files.filter(
+    const fileData = files.filter(
       (file): file is { filePath: string; data: Buffer } => {
         return (
-          [".png", ".webp"].includes(path.extname(file.filePath)) &&
+          [".png", ".webp", ".webm"].includes(path.extname(file.filePath)) &&
           typeof file.data !== "string"
         );
       }
@@ -116,7 +117,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
         fileName: testResultFile.filePath,
         data: testResultFile.data,
       },
-      screenshots,
+      fileData,
     };
   }
 
@@ -127,7 +128,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
           fileName: string;
           data: string;
         };
-        screenshots: {
+        fileData: {
           filePath: string;
           data: Buffer;
         }[];
@@ -148,7 +149,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
         fileName: string;
         data: string;
       };
-      screenshots: {
+      fileData: {
         filePath: string;
         data: Buffer;
       }[];
@@ -159,30 +160,33 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       importFileData.testResultFile.data
     );
 
-    const screenshotFilePathToEntity = new Map(
-      await Promise.all(
-        importFileData.screenshots.map<Promise<[string, ScreenshotEntity]>>(
-          async (screenshot) => {
-            const screenshotEntity = await getRepository(ScreenshotEntity).save(
-              new ScreenshotEntity()
-            );
-            const substrings = screenshot.filePath.split(".");
-            const fileExt =
-              substrings.length >= 2 ? `.${substrings.pop()}` : "";
-            const fileName = `${screenshotEntity.id}${fileExt}`;
-            await this.service.screenshotFileRepository.outputFile(
-              fileName,
-              screenshot.data
-            );
-            const imageFileUrl =
-              this.service.screenshotFileRepository.getFileUrl(fileName);
-            screenshotEntity.fileUrl = imageFileUrl;
+    const screenshotFilePathToEntity =
+      testResult.mediaType === "image"
+        ? new Map(
+            await Promise.all(
+              importFileData.fileData.map<Promise<[string, ScreenshotEntity]>>(
+                async (screenshot) => {
+                  const screenshotEntity = await getRepository(
+                    ScreenshotEntity
+                  ).save(new ScreenshotEntity());
+                  const substrings = screenshot.filePath.split(".");
+                  const fileExt =
+                    substrings.length >= 2 ? `.${substrings.pop()}` : "";
+                  const fileName = `${screenshotEntity.id}${fileExt}`;
+                  await this.service.screenshotFileRepository.outputFile(
+                    fileName,
+                    screenshot.data
+                  );
+                  const imageFileUrl =
+                    this.service.screenshotFileRepository.getFileUrl(fileName);
+                  screenshotEntity.fileUrl = imageFileUrl;
 
-            return [screenshot.filePath, screenshotEntity];
-          }
-        )
-      )
-    );
+                  return [screenshot.filePath, screenshotEntity];
+                }
+              )
+            )
+          )
+        : undefined;
 
     const tagNameToEntity = new Map(
       (await getRepository(TagEntity).find()).map<[string, TagEntity]>(
@@ -195,10 +199,18 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     const newTestResultEntity = await getRepository(TestResultEntity).save(
       this.createTestResultEntity(
         testResult,
-        screenshotFilePathToEntity,
-        tagNameToEntity
+        tagNameToEntity,
+        screenshotFilePathToEntity
       )
     );
+
+    if (testResult.mediaType === "movie") {
+      const fileName = `${newTestResultEntity.id}.webm`;
+      await this.service.movieFileRepository.outputFile(
+        fileName,
+        importFileData.fileData[0].data
+      );
+    }
 
     return {
       newTestResultId: newTestResultEntity.id,
@@ -208,14 +220,14 @@ export class TestResultImportServiceImpl implements TestResultImportService {
 
   private createTestResultEntity(
     testResult: DeserializedTestResult,
-    screenshotFilePathToEntity: Map<string, ScreenshotEntity>,
-    tagNameToEntity: Map<string, TagEntity>
+    tagNameToEntity: Map<string, TagEntity>,
+    screenshotFilePathToEntity?: Map<string, ScreenshotEntity>
   ) {
     const testStepEntities = testResult.testSteps.map((testStep) => {
       return this.createTestStepEntity(
         testStep,
-        screenshotFilePathToEntity,
-        tagNameToEntity
+        tagNameToEntity,
+        screenshotFilePathToEntity
       );
     });
     const coverageSourceEntities: CoverageSourceEntity[] =
@@ -245,7 +257,11 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       lastUpdateTimestamp: testResult.lastUpdateTimeStamp,
       initialUrl: testResult.initialUrl ?? "",
       testingTime: testResult.testingTime,
-      screenshots: Array.from(screenshotFilePathToEntity.values()),
+      mediaType: testResult.mediaType,
+      movieStartTimestamp: testResult.movieStartTimestamp,
+      screenshots: screenshotFilePathToEntity
+        ? Array.from(screenshotFilePathToEntity.values())
+        : undefined,
       testSteps: testStepEntities,
       coverageSources: coverageSourceEntities,
       notes: noteEntities,
@@ -255,12 +271,14 @@ export class TestResultImportServiceImpl implements TestResultImportService {
 
   private createTestStepEntity(
     testStep: DeserializedTestStep,
-    screenshotFilePathToEntity: Map<string, ScreenshotEntity>,
-    tagNameToEntity: Map<string, TagEntity>
+    tagNameToEntity: Map<string, TagEntity>,
+    screenshotFilePathToEntity?: Map<string, ScreenshotEntity>
   ) {
-    const screenshotEntity = screenshotFilePathToEntity.get(
-      path.basename(testStep.operation.imageFileUrl)
-    );
+    const screenshotEntity = screenshotFilePathToEntity
+      ? screenshotFilePathToEntity.get(
+          path.basename(testStep.operation.imageFileUrl)
+        )
+      : undefined;
 
     const testPurposeEntity = testStep.testPurpose
       ? this.createTestPurposeEntity(testStep.testPurpose)
@@ -304,11 +322,11 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       tags: string[];
     },
     tagEntities: TagEntity[],
-    screenshotFilePathToEntity: Map<string, ScreenshotEntity>
+    screenshotFilePathToEntity?: Map<string, ScreenshotEntity>
   ) {
-    const screenshotEntity = screenshotFilePathToEntity.get(
-      path.basename(note.imageFileUrl)
-    );
+    const screenshotEntity = screenshotFilePathToEntity
+      ? screenshotFilePathToEntity.get(path.basename(note.imageFileUrl))
+      : undefined;
 
     return new NoteEntity({
       value: note.value,

@@ -35,7 +35,7 @@ interface exportProjectData {
 interface exportTestResultData {
   testResultId: string;
   testResultFile: { fileName: string; data: string };
-  screenshots: { id: string; fileUrl: string }[];
+  fileData: string | { id: string; fileUrl: string }[];
 }
 export interface ExportFileRepositoryService {
   exportProject(
@@ -46,7 +46,7 @@ export interface ExportFileRepositoryService {
   exportTestResult(testResult: {
     name: string;
     testResultFile: { fileName: string; data: string };
-    screenshots: { id: string; fileUrl: string }[];
+    fileData: string | { id: string; fileUrl: string }[];
   }): Promise<string>;
 }
 
@@ -166,26 +166,36 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    await Promise.all(
-      testResult.screenshots.map(async (screenshot) => {
-        const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
+    if (typeof testResult.fileData === "string") {
+      const movieFileName = testResult.fileData.split("/").slice(-1)[0];
 
-        return await this.service.workingFileRepository.copyFile(
-          fileName,
-          path.join(testResultPath, "screenshot", fileName),
-          "screenshot"
-        );
-      })
-    ).catch((e) => {
-      console.log(e);
-      throw e;
-    });
+      await this.service.workingFileRepository.copyFile(
+        movieFileName,
+        path.join(testResultPath, "movie", movieFileName),
+        "movie"
+      );
+    } else {
+      await Promise.all(
+        testResult.fileData.map(async (screenshot) => {
+          const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
+
+          return await this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(testResultPath, "screenshot", fileName),
+            "screenshot"
+          );
+        })
+      ).catch((e) => {
+        console.log(e);
+        throw e;
+      });
+    }
   }
 
   public async exportTestResult(testResult: {
     name: string;
     testResultFile: { fileName: string; data: string };
-    screenshots: { id: string; fileUrl: string }[];
+    fileData: string | { id: string; fileUrl: string }[];
   }): Promise<string> {
     const outputDirName = await this.outputFiles(testResult);
 
@@ -209,7 +219,7 @@ export class ExportFileRepositoryServiceImpl
   private async outputFiles(testResult: {
     name: string;
     testResultFile: { fileName: string; data: string };
-    screenshots: { id: string; fileUrl: string }[];
+    fileData: string | { id: string; fileUrl: string }[];
   }) {
     const outputDirName = `test_result`;
     await this.service.workingFileRepository.outputFile(
@@ -217,19 +227,29 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    const screenshotFileNames = testResult.screenshots.map(({ fileUrl }) => {
-      return fileUrl.split("/").slice(-1)[0];
-    });
+    if (typeof testResult.fileData === "string") {
+      const movieFileName = testResult.fileData.split("/").slice(-1)[0];
 
-    await Promise.all(
-      screenshotFileNames.map((fileName) => {
-        return this.service.workingFileRepository.copyFile(
-          fileName,
-          path.join(outputDirName, path.basename(fileName)),
-          "screenshot"
-        );
-      })
-    );
+      await this.service.workingFileRepository.copyFile(
+        movieFileName,
+        path.join(outputDirName, path.basename(movieFileName)),
+        "movie"
+      );
+    } else {
+      const screenshotFileNames = testResult.fileData.map(({ fileUrl }) => {
+        return fileUrl.split("/").slice(-1)[0];
+      });
+
+      await Promise.all(
+        screenshotFileNames.map((fileName) => {
+          return this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(outputDirName, path.basename(fileName)),
+            "screenshot"
+          );
+        })
+      );
+    }
 
     return outputDirName;
   }

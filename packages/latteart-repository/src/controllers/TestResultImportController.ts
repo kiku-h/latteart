@@ -52,12 +52,14 @@ export class TestResultImportController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const movieFileRepository = fileRepositoryManager.getRepository("movie");
     const importFileRepository = new ImportFileRepositoryImpl();
 
     try {
       const result = await new TestResultImportServiceImpl({
         importFileRepository,
         screenshotFileRepository,
+        movieFileRepository,
         timestamp: timestampService,
       }).importTestResult(
         requestBody.source.testResultFile,

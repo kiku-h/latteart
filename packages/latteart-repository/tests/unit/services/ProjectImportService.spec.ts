@@ -42,6 +42,7 @@ describe("ProjectImportService", () => {
     let notesService: NotesService;
     let testPurposeService: TestPurposeService;
     let importFileRepository: ImportFileRepository;
+    let movieFileRepository: FileRepository;
 
     beforeEach(() => {
       timestampService = createTimestampServiceMock();
@@ -52,6 +53,7 @@ describe("ProjectImportService", () => {
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
       importFileRepository = createImportFileRepositoryMock();
+      movieFileRepository = createStaticDirectoryServiceMock();
     });
 
     it("includeProject: true, includeTestResults: true", async () => {
@@ -70,6 +72,7 @@ describe("ProjectImportService", () => {
       const testResultImportService = new TestResultImportServiceImpl({
         importFileRepository,
         screenshotFileRepository: screenshotFileRepository,
+        movieFileRepository,
         timestamp: timestampService,
       });
 
@@ -118,6 +121,7 @@ describe("ProjectImportService", () => {
       const testResultImportService = new TestResultImportServiceImpl({
         importFileRepository,
         screenshotFileRepository: screenshotFileRepository,
+        movieFileRepository,
         timestamp: timestampService,
       });
 
