@@ -64,7 +64,7 @@ export default class App extends Vue {
 
       this.i18n = createI18n(this.settings.locale);
 
-      const { history, coverageSources } = this.testResult;
+      const { history, coverageSources, testResultInfo } = this.testResult;
 
       this.$store.commit("operationHistory/resetAllCoverageSources", {
         coverageSources,
@@ -79,6 +79,13 @@ export default class App extends Vue {
         },
         { root: true }
       );
+      this.$store.commit("operationHistory/setTestResultMovieInfo", {
+        mediaType: testResultInfo.mediaType,
+        movieStartTimestamp: testResultInfo.movieStartTimestamp,
+      });
+      this.$store.commit("captureControl/setCapturedMovieUrl", {
+        url: testResultInfo.movieFileUrl,
+      });
 
       await this.$store.dispatch("operationHistory/updateTestResultViewModel");
     })();
@@ -92,6 +99,11 @@ export default class App extends Vue {
   private get testResult(): {
     history: OperationWithNotes[];
     coverageSources: CoverageSource[];
+    testResultInfo: {
+      mediaType: "image" | "movie";
+      movieStartTimestamp: number;
+      movieFileUrl: string;
+    };
   } {
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
@@ -138,6 +150,7 @@ export default class App extends Vue {
         };
       }),
       coverageSources: (this as any).$historyLog.coverageSources,
+      testResultInfo: (this as any).$historyLog.testResultInfo,
     };
   }
 

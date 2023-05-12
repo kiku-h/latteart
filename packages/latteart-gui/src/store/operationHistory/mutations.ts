@@ -499,6 +499,20 @@ const mutations: MutationTree<OperationHistoryState> = {
   },
 
   /**
+   * Set test result movie info to the State.
+   * @param state State.
+   * @param payload.mediaType Media type.
+   * @param payload.movieStartTimestamp Movie start time stamp.
+   */
+  setTestResultMovieInfo(
+    state,
+    payload: { mediaType: "image" | "movie"; movieStartTimestamp: number }
+  ) {
+    state.testResultInfo.mediaType = payload.mediaType;
+    state.testResultInfo.movieStartTimestamp = payload.movieStartTimestamp;
+  },
+
+  /**
    * Set test result name to the State.
    * @param state State.
    * @param payload.name Test result name.

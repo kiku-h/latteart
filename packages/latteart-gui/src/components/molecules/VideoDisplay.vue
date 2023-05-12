@@ -35,6 +35,10 @@ export default class VideoDisplay extends Vue {
   @Prop({ type: Boolean, default: false })
   public readonly pictureInPicture!: boolean;
 
+  private isViewerMode = (this as any).$isViewerMode
+    ? (this as any).$isViewerMode
+    : false;
+
   mounted() {
     const video = this.$refs.video as HTMLVideoElement;
 
@@ -47,6 +51,9 @@ export default class VideoDisplay extends Vue {
       "leavepictureinpicture",
       this.notifyLeavePictureInPicture
     );
+    if (this.isViewerMode) {
+      video.src = this.videoUrl;
+    }
   }
 
   beforeDestroy() {
