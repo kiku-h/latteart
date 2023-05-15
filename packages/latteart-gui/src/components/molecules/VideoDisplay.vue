@@ -47,6 +47,7 @@ export default class VideoDisplay extends Vue {
       "leavepictureinpicture",
       this.notifyLeavePictureInPicture
     );
+    video.src = this.videoUrl;
   }
 
   beforeDestroy() {
