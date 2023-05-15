@@ -561,6 +561,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       parentTestResultId: "",
       movieStartTimestamp: 0,
     });
+    context.commit(
+      "captureControl/setCapturedMovieUrl",
+      {
+        url: "",
+      },
+      { root: true }
+    );
     context.commit("clearTestStepIds");
   },
 
