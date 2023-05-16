@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { ExportableConfig, ProjectConfig } from "@/interfaces/Configs";
+import {
+  ExportableConfig,
+  OldStyleProjectConfig,
+  ProjectConfig,
+} from "@/interfaces/Configs";
 
 export function convertToExportableConfig(
   settings: ProjectConfig
@@ -39,7 +43,9 @@ export function convertToExportableConfig(
 }
 
 export function parseProjectConfig(configText: string): ProjectConfig {
-  const config = JSON.parse(configText) as ProjectConfig;
+  const config = JSON.parse(configText) as
+    | OldStyleProjectConfig
+    | ProjectConfig;
 
   return {
     viewPointsPreset: config.viewPointsPreset,
@@ -49,10 +55,13 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      captureMediaSetting: {
-        mediaType: config.config.captureMediaSetting.mediaType,
-        imageCompression: config.config.captureMediaSetting.imageCompression,
-      },
+      captureMediaSetting:
+        "captureMediaSetting" in config.config
+          ? config.config.captureMediaSetting
+          : {
+              mediaType: "image",
+              imageCompression: config.config.imageCompression,
+            },
       testResultComparison: config.config.testResultComparison,
     },
   };
