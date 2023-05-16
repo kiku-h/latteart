@@ -51,11 +51,9 @@ export type SnapshotConfig = { locale: string };
  * Settings for the server.
  */
 export type ServerConfig = {
-  config: {
-    captureMediaSetting: {
-      imageCompression: {
-        command: string;
-      };
+  captureMediaSetting: {
+    imageCompression: {
+      command: string;
     };
   };
   captureSettings: {
@@ -79,6 +77,35 @@ export type ProjectConfig = {
     screenDefinition: ScreenDefinitionConfig;
     coverage: Coverage;
     captureMediaSetting: CaptureMediaSetting;
+    testResultComparison: {
+      excludeItems: {
+        isEnabled: boolean;
+        values: ("title" | "url" | "elementTexts" | "screenshot")[];
+      };
+      excludeElements: {
+        isEnabled: boolean;
+        values: { tagname: string }[];
+      };
+    };
+  };
+};
+
+export type OldStyleProjectConfig = {
+  viewPointsPreset: Array<{
+    id: string;
+    name: string;
+    viewPoints: Array<{ name: string; description: string }>;
+  }>;
+  defaultTagList: string[];
+  config: {
+    autofillSetting: AutofillSetting;
+    autoOperationSetting: AutoOperationSetting;
+    screenDefinition: ScreenDefinitionConfig;
+    coverage: Coverage;
+    imageCompression: {
+      isEnabled: boolean;
+      isDeleteSrcImage: boolean;
+    };
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;
