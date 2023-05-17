@@ -41,7 +41,7 @@ describe("TestStepService", () => {
   };
   describe("#getTestStep", () => {
     it("テストステップを1件取得する", async () => {
-      timestampService.unix = jest.fn().mockReturnValue(0);
+      timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
       const service = new TestStepServiceImpl({
         screenshotFileRepository,
@@ -93,7 +93,7 @@ describe("TestStepService", () => {
       screenshotFileRepository.getFileUrl = jest
         .fn()
         .mockReturnValue("testStep.png");
-      timestampService.unix = jest.fn().mockReturnValue(0);
+      timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
       const service = new TestStepServiceImpl({
         screenshotFileRepository,
@@ -200,7 +200,7 @@ describe("TestStepService", () => {
 
   describe("#attachNotesToTestStep", () => {
     it("テストステップにnoteを1件追加する", async () => {
-      timestampService.unix = jest.fn().mockReturnValue(0);
+      timestampService.epochMilliseconds = jest.fn().mockReturnValue(0);
 
       const service = new TestStepServiceImpl({
         screenshotFileRepository,
@@ -219,7 +219,7 @@ describe("TestStepService", () => {
       const noteEntity = await getRepository(NoteEntity).save({
         value: "value",
         details: "details",
-        timestamp: timestampService.unix(),
+        timestamp: timestampService.epochMilliseconds(),
         testResult: testResultEntity,
         tags: [],
       });

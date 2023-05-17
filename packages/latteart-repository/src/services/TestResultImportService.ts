@@ -331,7 +331,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     return new NoteEntity({
       value: note.value,
       details: note.details,
-      timestamp: this.service.timestamp.unix(),
+      timestamp: this.service.timestamp.epochMilliseconds(),
       screenshot: screenshotEntity,
       tags: tagEntities,
     });
