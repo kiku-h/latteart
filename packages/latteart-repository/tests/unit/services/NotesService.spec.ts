@@ -31,9 +31,9 @@ describe("NotesService", () => {
     appendFile: jest.fn(),
   };
   const timestampService: TimestampService = {
-    unix: jest.fn().mockReturnValue(0),
+    unix: jest.fn(),
     format: jest.fn(),
-    epochMilliseconds: jest.fn(),
+    epochMilliseconds: jest.fn().mockReturnValue(0),
   };
   describe("#createNote", () => {
     it("メモを1件新規追加する", async () => {

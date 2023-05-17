@@ -278,7 +278,9 @@ export class SnapshotFileRepositoryServiceImpl
                 imageFileUrl: note.imageFileUrl
                   ? path.join("testResult", path.basename(note.imageFileUrl))
                   : "",
-                timestamp: this.service.timestamp.unix().toString(),
+                timestamp: this.service.timestamp
+                  .epochMilliseconds()
+                  .toString(),
               };
             })
           )) ?? [];
