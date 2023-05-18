@@ -23,6 +23,7 @@ describe("snapshotHelper", () => {
         details: "intention1",
         tags: [],
         imageFileUrl: "",
+        timestamp: 0,
       };
       const testResult: GetTestResultResponse = {
         id: "testResultId",

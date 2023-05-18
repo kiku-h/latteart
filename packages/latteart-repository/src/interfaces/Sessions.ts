@@ -62,14 +62,8 @@ export type Session = {
   testItem: string;
   testerName: string;
   memo: string;
-  attachedFiles: {
-    name: string;
-    fileUrl: string;
-  }[];
-  testResultFiles: {
-    name: string;
-    id: string;
-  }[];
+  attachedFiles: { name: string; fileUrl: string }[];
+  testResultFiles: { name: string; id: string }[];
   initialUrl: string;
   testPurposes: GetNoteResponse[];
   notes: GetNoteResponse[];

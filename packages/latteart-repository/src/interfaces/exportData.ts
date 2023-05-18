@@ -174,7 +174,16 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
 };
 
 // V3 Format
-export type TestResultExportDataV3 = TestResultExportDataV2 & {
+export type TestResultExportDataV3 = Omit<TestResultExportDataV2, "notes"> & {
   mediaType: "image" | "movie";
   movieStartTimestamp: number;
+  notes: {
+    id: string;
+    type: string;
+    value: string;
+    details: string;
+    imageFileUrl: string;
+    tags: string[];
+    timestamp: number;
+  }[];
 };

@@ -76,6 +76,7 @@ export function convertNote(
     details: string;
     imageFileUrl?: string;
     tags?: string[];
+    timestamp: number;
   },
   sequence?: number
 ): NoteForGUI {
@@ -85,6 +86,7 @@ export function convertNote(
     details: item.details,
     tags: item.tags,
     imageFilePath: item.imageFileUrl,
+    timestamp: item.timestamp.toString(),
     sequence,
   });
 

@@ -97,8 +97,9 @@ export type NoteForRepository = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string;
-  tags?: string[];
+  imageFileUrl: string;
+  tags: string[];
+  timestamp: number;
 };
 
 export type CapturedOperationForRepository = {
@@ -282,8 +283,8 @@ export type SessionForRepository = {
   attachedFiles: { name: string; fileUrl: string }[];
   testResultFiles: TestResultFileForRepository[];
   initialUrl: string;
-  testPurposes: ApiNoteForRepository[];
-  notes: ApiNoteForRepository[];
+  testPurposes: NoteForRepository[];
+  notes: NoteForRepository[];
   testingTime: number;
 };
 
@@ -352,9 +353,9 @@ export type TestResultForRepository = {
   testSteps: {
     id: string;
     operation: OperationForRepository;
-    intention: ApiNoteForRepository | null;
-    bugs: ApiNoteForRepository[];
-    notices: ApiNoteForRepository[];
+    intention: NoteForRepository | null;
+    bugs: NoteForRepository[];
+    notices: NoteForRepository[];
   }[];
   coverageSources: CoverageSourceForRepository[];
   parentTestResultId?: string;
@@ -392,15 +393,6 @@ export type ProjectForRepository = {
   name: string;
   testMatrices: TestMatrixForRepository[];
   stories: StoryForRepository[];
-};
-
-type ApiNoteForRepository = {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
 };
 
 export type SnapshotConfigForRepository = { locale: string };

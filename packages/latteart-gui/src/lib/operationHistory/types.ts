@@ -22,6 +22,7 @@ import {
   ElementInfo,
   TestResultForRepository,
   TestResultComparisonResultForRepository,
+  Note,
 } from "latteart-client";
 
 /**
@@ -142,22 +143,13 @@ export interface ScreenDefinitionConditionGroup {
   }>;
 }
 
-interface ApiNote {
-  id: string;
-  type: string;
-  value: string;
-  details: string;
-  imageFileUrl: string;
-  tags: string[];
-}
-
 export type TestResult = Omit<TestResultForRepository, "testSteps"> & {
   testSteps: {
     id: string;
     operation: Operation;
-    intention: ApiNote | null;
-    bugs: ApiNote[];
-    notices: ApiNote[];
+    intention: Note | null;
+    bugs: Note[];
+    notices: Note[];
   }[];
   coverageSources: CoverageSource[];
 };

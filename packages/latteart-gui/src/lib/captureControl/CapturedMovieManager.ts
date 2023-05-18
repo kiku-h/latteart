@@ -122,20 +122,6 @@ export class CapturedMovieManager {
   }
 
   public arrayBuffer2Base64(arrayBuffer: ArrayBuffer): string {
-    // let binary = "";
-    // const bytes = new Uint16Array(arrayBuffer);
-    // for (let i = 0; i < bytes.byteLength; i++) {
-    //   binary += String.fromCharCode(bytes[i]);
-    // }
-    // return window.btoa(binary);
-    //return String.fromCharCode.apply(null, new Uint16Array(arrayBuffer) as any);
-
-    // const uint8Array = new Uint8Array(arrayBuffer);
-    // const data = uint8Array.reduce(
-    //   (acc, i) => (acc += String.fromCharCode.apply(null, [i])),
-    //   ""
-    // );
-    // return data;
     let binary = "";
     const bytes = new Uint8Array(arrayBuffer);
     const len = bytes.byteLength;

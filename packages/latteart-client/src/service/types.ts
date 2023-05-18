@@ -112,8 +112,9 @@ export type Note = {
   type: string;
   value: string;
   details: string;
-  imageFileUrl?: string;
-  tags?: string[];
+  imageFileUrl: string;
+  tags: string[];
+  timestamp: number;
 };
 
 export type TestStepNote = {

@@ -61,6 +61,7 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
     imageFileUrl:
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
     tags,
+    timestamp: note.timestamp,
   };
 };
 
@@ -74,6 +75,7 @@ export const testPurposeEntityToResponse = (
     details: testPurpose.details,
     imageFileUrl: "",
     tags: [],
+    timestamp: 0,
   };
 };
 

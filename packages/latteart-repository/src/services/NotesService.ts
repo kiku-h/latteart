@@ -167,6 +167,7 @@ export class NotesServiceImpl implements NotesService {
       details: noteEntity.details,
       imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
       tags: noteEntity.tags?.map((tag) => tag.name) ?? [],
+      timestamp: noteEntity.timestamp,
     };
   }
 }

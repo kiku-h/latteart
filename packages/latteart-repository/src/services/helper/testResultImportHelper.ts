@@ -99,16 +99,16 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
         (note) => note.id === item.intention
       );
 
-      return intention ? intention : null;
+      return intention ? { ...intention, timestamp: 0 } : null;
     })();
+
+    let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
 
     const notes = [...item.notices, ...item.bugs].flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: epochMilliseconds }] : [];
     });
-
-    let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
 
     if (lastTimestamp === item.testStep.timestamp) {
       epochMilliseconds = epochMilliseconds + 1;
@@ -168,13 +168,15 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
         (note) => note.id === item.testPurpose
       );
 
-      return testPurpose ? testPurpose : null;
+      return testPurpose ? { ...testPurpose, timestamp: 0 } : null;
     })();
 
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note
+        ? [{ ...note, timestamp: Number(item.testStep.timestamp) * 1000 }]
+        : [];
     });
 
     return {
@@ -229,13 +231,15 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
         (note) => note.id === item.testPurpose
       );
 
-      return testPurpose ? testPurpose : null;
+      return testPurpose ? { ...testPurpose, timestamp: 0 } : null;
     })();
 
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note
+        ? [{ ...note, timestamp: Number(item.testStep.timestamp) * 1000 }]
+        : [];
     });
 
     return {
