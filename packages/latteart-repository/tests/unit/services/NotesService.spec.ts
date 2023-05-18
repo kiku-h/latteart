@@ -61,6 +61,7 @@ describe("NotesService", () => {
         details: "details",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       });
     });
   });
@@ -97,6 +98,7 @@ describe("NotesService", () => {
         details: "changedDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       });
     });
   });

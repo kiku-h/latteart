@@ -72,6 +72,7 @@ export type TestResultExportDataV0 = {
     details: string;
     imageFileUrl: string;
     tags: string[];
+    timestamp: number;
   }[];
   coverageSources: CoverageSourceExportDataV0[];
   history: { [k: string]: HistoryItemExportDataV0 };

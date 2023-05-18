@@ -105,7 +105,7 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     const notes = [...item.notices, ...item.bugs].flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
@@ -174,7 +174,7 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {
@@ -235,7 +235,7 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [note] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {

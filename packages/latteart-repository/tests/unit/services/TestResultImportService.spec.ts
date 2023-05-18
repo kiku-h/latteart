@@ -105,6 +105,7 @@ describe("TestResultImportService", () => {
         details: "intentionDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const notice1 = {
         id: "notice1",
@@ -113,6 +114,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -347,6 +349,7 @@ describe("TestResultImportService", () => {
         details: "testPurposeDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const note1 = {
         id: "notice1",
@@ -355,6 +358,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -589,6 +593,7 @@ describe("TestResultImportService", () => {
         details: "testPurposeDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const note1 = {
         id: "notice1",
@@ -597,6 +602,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -832,6 +838,7 @@ describe("TestResultImportService", () => {
         details: "testPurposeDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const note1 = {
         id: "notice1",
@@ -840,6 +847,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -948,6 +956,7 @@ describe("TestResultImportService", () => {
       expect(noteEntity.details).toEqual(note1.details);
       expect((noteEntity.tags ?? []).length).toEqual(1);
       expect((noteEntity.tags ?? [])[0].name).toEqual(note1.tags[0]);
+      expect(noteEntity.timestamp).toEqual(note1.timestamp);
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;
@@ -1079,6 +1088,7 @@ describe("TestResultImportService", () => {
         details: "testPurposeDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const note1 = {
         id: "notice1",
@@ -1087,6 +1097,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: "",
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -1186,6 +1197,7 @@ describe("TestResultImportService", () => {
       expect(noteEntity.details).toEqual(note1.details);
       expect((noteEntity.tags ?? []).length).toEqual(1);
       expect((noteEntity.tags ?? [])[0].name).toEqual(note1.tags[0]);
+      expect(noteEntity.timestamp).toEqual(note1.timestamp);
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;

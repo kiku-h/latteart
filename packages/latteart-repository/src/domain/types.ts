@@ -72,6 +72,7 @@ export type Note = {
   value: string;
   details: string;
   tags: string[];
+  timestamp: number;
   screenshot?: { read: () => Promise<Image> };
 };
 

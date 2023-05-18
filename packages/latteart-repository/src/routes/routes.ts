@@ -518,6 +518,7 @@ const models: TsoaRoute.Models = {
           array: { dataType: "string" },
           required: true,
         },
+        timestamp: { dataType: "double", required: true },
       },
       validators: {},
     },
@@ -1608,6 +1609,7 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         type: { dataType: "string", required: true },
+        timestamp: { dataType: "string", required: true },
         input: { dataType: "string", required: true },
         elementInfo: {
           dataType: "union",
@@ -1619,7 +1621,6 @@ const models: TsoaRoute.Models = {
         },
         title: { dataType: "string", required: true },
         url: { dataType: "string", required: true },
-        timestamp: { dataType: "string", required: true },
         windowHandle: { dataType: "string", required: true },
         inputElements: {
           dataType: "array",

@@ -56,6 +56,7 @@ export function createNotes(
         note.imageFileUrl ?? ""
       )}`,
       tags: note.tags,
+      timestamp: note.timestamp,
     };
   });
 }
@@ -78,6 +79,7 @@ export async function createTestPurposes(
               details: intention.details,
               imageFileUrl: "",
               tags: [],
+              timestamp: intention.timestamp,
             };
           })
         : []

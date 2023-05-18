@@ -320,6 +320,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       details: string;
       imageFileUrl: string;
       tags: string[];
+      timestamp: number;
     },
     tagEntities: TagEntity[],
     screenshotFilePathToEntity?: Map<string, ScreenshotEntity>
@@ -331,7 +332,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     return new NoteEntity({
       value: note.value,
       details: note.details,
-      timestamp: this.service.timestamp.epochMilliseconds(),
+      timestamp: note.timestamp,
       screenshot: screenshotEntity,
       tags: tagEntities,
     });
@@ -344,6 +345,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     details: string;
     imageFileUrl: string;
     tags: string[];
+    timestamp: number;
   }) {
     return new TestPurposeEntity({
       title: testPurpose.value,
