@@ -72,6 +72,7 @@ export type TestResultExportDataV0 = {
     details: string;
     imageFileUrl: string;
     tags: string[];
+    timestamp: number;
   }[];
   coverageSources: CoverageSourceExportDataV0[];
   history: { [k: string]: HistoryItemExportDataV0 };
@@ -174,16 +175,7 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
 };
 
 // V3 Format
-export type TestResultExportDataV3 = Omit<TestResultExportDataV2, "notes"> & {
+export type TestResultExportDataV3 = TestResultExportDataV2 & {
   mediaType: "image" | "movie";
   movieStartTimestamp: number;
-  notes: {
-    id: string;
-    type: string;
-    value: string;
-    details: string;
-    imageFileUrl: string;
-    tags: string[];
-    timestamp: number;
-  }[];
 };

@@ -99,16 +99,16 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
         (note) => note.id === item.intention
       );
 
-      return intention ? { ...intention, timestamp: 0 } : null;
+      return intention ? intention : null;
     })();
-
-    let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
 
     const notes = [...item.notices, ...item.bugs].flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note ? [{ ...note, timestamp: epochMilliseconds }] : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
+
+    let epochMilliseconds = Number(item.testStep.timestamp) * 1000;
 
     if (lastTimestamp === item.testStep.timestamp) {
       epochMilliseconds = epochMilliseconds + 1;
@@ -168,15 +168,13 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
         (note) => note.id === item.testPurpose
       );
 
-      return testPurpose ? { ...testPurpose, timestamp: 0 } : null;
+      return testPurpose ? testPurpose : null;
     })();
 
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note
-        ? [{ ...note, timestamp: Number(item.testStep.timestamp) * 1000 }]
-        : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {
@@ -231,15 +229,13 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
         (note) => note.id === item.testPurpose
       );
 
-      return testPurpose ? { ...testPurpose, timestamp: 0 } : null;
+      return testPurpose ? testPurpose : null;
     })();
 
     const notes = item.notes.flatMap((noteId) => {
       const note = formattedData.notes.find((note) => note.id === noteId);
 
-      return note
-        ? [{ ...note, timestamp: Number(item.testStep.timestamp) * 1000 }]
-        : [];
+      return note ? [{ ...note, timestamp: note.timestamp * 1000 }] : [];
     });
 
     return {

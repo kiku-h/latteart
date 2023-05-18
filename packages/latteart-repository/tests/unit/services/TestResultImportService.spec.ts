@@ -105,6 +105,7 @@ describe("TestResultImportService", () => {
         details: "intentionDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const notice1 = {
         id: "notice1",
@@ -113,6 +114,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -347,6 +349,7 @@ describe("TestResultImportService", () => {
         details: "testPurposeDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const note1 = {
         id: "notice1",
@@ -355,6 +358,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
@@ -589,6 +593,7 @@ describe("TestResultImportService", () => {
         details: "testPurposeDetails",
         imageFileUrl: "",
         tags: [],
+        timestamp: 0,
       };
       const note1 = {
         id: "notice1",
@@ -597,6 +602,7 @@ describe("TestResultImportService", () => {
         details: "noticeDetails",
         imageFileUrl: screenshots[0].filePath,
         tags: ["tag"],
+        timestamp: 0,
       };
 
       const historyItem1 = {
