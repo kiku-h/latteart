@@ -408,6 +408,13 @@ export class TestResultsController extends Controller {
     }
   }
 
+  /**
+   * Update movie start timestamp.
+   * @param testResultId Target test result id.
+   * @param requestBody.startTimestamp Start timestamp.
+   */
+  @Response<ServerErrorData<"start_movie_failed">>(500, "Start movie failed")
+  @SuccessResponse(204, "Success")
   @Patch("{testResultId}/start-movie")
   public async startMovie(
     @Path() testResultId: string,
@@ -426,5 +433,16 @@ export class TestResultsController extends Controller {
         });
       }
     }
+  }
+
+  /**
+   * Get video url.
+   * @param testResultId Target test result id.
+   * @returns Video url.
+   */
+  @SuccessResponse(200, "Success")
+  @Get("{testResultId}/video-url")
+  public async getVideoUrl(@Path() testResultId: string): Promise<string> {
+    return await new TestResultServiceImpl().getVideoUrl(testResultId);
   }
 }

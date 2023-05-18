@@ -739,4 +739,8 @@ export class TestResultServiceImpl implements TestResultService {
     testResult.movieStartTimestamp = startTimestamp;
     await testResultRepository.save(testResult);
   }
+
+  public async getVideoUrl(testResultId: string): Promise<string> {
+    return `movie/${testResultId}.webm`;
+  }
 }

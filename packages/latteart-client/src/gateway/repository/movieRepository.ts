@@ -23,7 +23,7 @@ import {
 } from "./result";
 
 export interface MovieRepository {
-  fetchWebm(testResultId: string): Promise<RepositoryAccessResult<Blob | null>>;
+  fetchWebm(videoUrl: string): Promise<RepositoryAccessResult<Blob | null>>;
   appendBuffer(
     testResultId: string,
     base64: string
@@ -34,12 +34,10 @@ export class MovieRestRepository implements MovieRepository {
   constructor(private restClient: RESTClient) {}
 
   public async fetchWebm(
-    testResultId: string
+    videoUrl: string
   ): Promise<RepositoryAccessResult<Blob | null>> {
     try {
-      const response = await this.restClient.httpGetFile(
-        `movie/${testResultId}.webm`
-      );
+      const response = await this.restClient.httpGetFile(videoUrl);
       if (response.status === 404) {
         return createRepositoryAccessSuccess({
           data: null as null,

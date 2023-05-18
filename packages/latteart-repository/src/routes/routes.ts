@@ -2198,6 +2198,33 @@ const models: TsoaRoute.Models = {
     type: { ref: "TestResultViewOption", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_start_movie_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["start_movie_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   "Pick_TestStep.id-or-operation_": {
     dataType: "refAlias",
     type: {
@@ -4602,7 +4629,47 @@ export function RegisterRoutes(app: Router) {
           controller,
           validatedArgs as any
         );
-        promiseHandler(controller, promise, response, undefined, next);
+        promiseHandler(controller, promise, response, 204, next);
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.get(
+    "/api/v1/test-results/:testResultId/video-url",
+    ...fetchMiddlewares<RequestHandler>(TestResultsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TestResultsController.prototype.getVideoUrl
+    ),
+
+    function TestResultsController_getVideoUrl(
+      request: any,
+      response: any,
+      next: any
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TestResultsController();
+
+        const promise = controller.getVideoUrl.apply(
+          controller,
+          validatedArgs as any
+        );
+        promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }

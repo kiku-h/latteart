@@ -14,38 +14,51 @@
  * limitations under the License.
  */
 
-import { MovieRepository } from "latteart-client";
+import { MovieRepository, TestResultRepository } from "latteart-client";
 
 export class CapturedMovieManager {
   private recorder: MediaRecorder | null;
   private testResultId: string;
   private webm: Blob | null;
-  private moveRepository: MovieRepository;
+  private movieRepository: MovieRepository;
+  private testResultRepository: TestResultRepository;
   private chunks: Blob[] = [];
   private setWebmUrlToStoreFunc: (url: string) => void;
   private firstTimeCaptured = false;
 
   constructor(
     testResultId: string,
-    moveRepository: MovieRepository,
+    repositories: {
+      movie: MovieRepository;
+      testResult: TestResultRepository;
+    },
     setWebmUrlToStoreFunc: (url: string) => void
   ) {
     this.testResultId = testResultId;
-    this.moveRepository = moveRepository;
+    this.movieRepository = repositories.movie;
+    this.testResultRepository = repositories.testResult;
     this.recorder = null;
     this.webm = null;
     this.setWebmUrlToStoreFunc = setWebmUrlToStoreFunc;
   }
 
   public async fetchChunksFromRepository(): Promise<void> {
-    const res = await this.moveRepository.fetchWebm(this.testResultId);
-    if (res.isFailure()) {
+    const videoUrlResult = await this.testResultRepository.getVideoUrl(
+      this.testResultId
+    );
+    if (videoUrlResult.isFailure()) {
+      throw new Error("failed getVideoUrl");
+    }
+    const fetchResult = await this.movieRepository.fetchWebm(
+      videoUrlResult.data
+    );
+    if (fetchResult.isFailure()) {
       throw new Error("failed fetchWebm");
     }
-    if (res.data === null) {
+    if (fetchResult.data === null) {
       return;
     }
-    this.chunks.push(res.data);
+    this.chunks.push(fetchResult.data);
     this.createWebm();
     const url = this.getCaptureMovieUrl();
     this.setWebmUrlToStoreFunc(url);
@@ -81,7 +94,7 @@ export class CapturedMovieManager {
       this.setWebmUrlToStoreFunc(url);
 
       const buffer = await blobEvent.data.arrayBuffer();
-      this.moveRepository.appendBuffer(
+      this.movieRepository.appendBuffer(
         this.testResultId,
         this.arrayBuffer2Base64(buffer)
       );

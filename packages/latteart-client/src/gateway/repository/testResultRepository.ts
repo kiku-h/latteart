@@ -266,4 +266,24 @@ export class TestResultRepository {
       return createConnectionRefusedFailure();
     }
   }
+
+  public async getVideoUrl(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<string>> {
+    try {
+      const response = await this.restClient.httpGet(
+        `api/v1/test-results/${testResultId}/video-url`
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as string,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
 }

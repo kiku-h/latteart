@@ -467,9 +467,13 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     );
 
     if (result.data.testResultInfo.mediaType === "movie") {
+      const repositories = {
+        movie: context.rootState.repositoryService.movieRepository,
+        testResult: context.rootState.repositoryService.testResultRepository,
+      };
       const capturedMovieManager = new CapturedMovieManager(
         result.data.testResultInfo.id,
-        context.rootState.repositoryService.movieRepository,
+        repositories,
         (url: string) => {
           context.commit(
             "captureControl/setCapturedMovieUrl",
