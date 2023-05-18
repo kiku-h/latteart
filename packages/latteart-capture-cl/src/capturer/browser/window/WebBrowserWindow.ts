@@ -294,8 +294,9 @@ export default class WebBrowserWindow {
     screenElements?: ElementInfo[];
     inputElements?: ElementInfo[];
     pageSource?: string;
+    timestamp?: number;
   }): Operation {
-    return new Operation({
+    const baseArgs = {
       type: args.type,
       input: args.input ?? "",
       scrollPosition: args.scrollPosition,
@@ -308,7 +309,13 @@ export default class WebBrowserWindow {
       imageData: this.currentOperationSummary.screenshotBase64,
       inputElements: args.inputElements ?? [],
       pageSource: args.pageSource ?? "",
-    });
+    };
+
+    return new Operation(
+      args.timestamp
+        ? { ...baseArgs, timestamp: args.timestamp.toString() }
+        : { ...baseArgs }
+    );
   }
 
   /**
@@ -622,6 +629,7 @@ export default class WebBrowserWindow {
           windowHandle: this._windowHandle,
           inputElements,
           pageSource: await this.client.getCurrentPageText(),
+          timestamp: data.operation.timestamp,
         });
       })
     );
