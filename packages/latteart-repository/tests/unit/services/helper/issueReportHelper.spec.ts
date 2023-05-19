@@ -140,6 +140,7 @@ describe("issueReportHelper", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
+        getVideoUrl: jest.fn(),
       };
       const testStep: TestStepService = {
         getTestStep: jest.fn().mockResolvedValue({

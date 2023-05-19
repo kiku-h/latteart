@@ -46,6 +46,7 @@ describe("IssueReportService", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
+        getVideoUrl: jest.fn(),
       };
 
       const testStepService: TestStepService = {

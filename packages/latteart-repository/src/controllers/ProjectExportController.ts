@@ -67,6 +67,7 @@ export class ProjectExportController extends Controller {
       const workingFileRepository = fileRepositoryManager.getRepository("work");
       const compareReportRepository =
         fileRepositoryManager.getRepository("temp");
+      const movieFileRepository = fileRepositoryManager.getRepository("movie");
       const exportFileRepositoryService = new ExportFileRepositoryServiceImpl({
         exportFileRepository,
         workingFileRepository,
@@ -82,6 +83,7 @@ export class ProjectExportController extends Controller {
         screenshotFileRepository,
         workingFileRepository,
         compareReportRepository,
+        movieFileRepository,
       });
 
       const testProgressService = new TestProgressServiceImpl();

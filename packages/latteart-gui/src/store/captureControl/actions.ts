@@ -596,9 +596,14 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         }),
       });
 
+      const repositories = {
+        movie: context.rootState.repositoryService.movieRepository,
+        testResult: context.rootState.repositoryService.testResultRepository,
+      };
+
       const capturedMovieManager = new CapturedMovieManager(
         operationHistoryState.testResultInfo.id,
-        context.rootState.repositoryService.movieRepository,
+        repositories,
         (url: string) => {
           context.commit("setCapturedMovieUrl", { url });
         }

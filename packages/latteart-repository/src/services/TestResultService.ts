@@ -103,6 +103,8 @@ export interface TestResultService {
     testResultId2: string,
     option?: PageAssertionOption
   ): Promise<CompareTestResultsResponse>;
+
+  getVideoUrl(testResultId: string): Promise<string>;
 }
 
 export class TestResultServiceImpl implements TestResultService {
@@ -113,6 +115,7 @@ export class TestResultServiceImpl implements TestResultService {
       screenshotFileRepository: FileRepository;
       workingFileRepository: FileRepository;
       compareReportRepository: FileRepository;
+      movieFileRepository?: FileRepository;
     }
   ) {}
 
@@ -738,5 +741,12 @@ export class TestResultServiceImpl implements TestResultService {
     const testResult = await testResultRepository.findOneOrFail(testResultId);
     testResult.movieStartTimestamp = startTimestamp;
     await testResultRepository.save(testResult);
+  }
+
+  public async getVideoUrl(testResultId: string): Promise<string> {
+    const videoUrl = this.service?.movieFileRepository
+      ? this.service.movieFileRepository.getFileUrl(`${testResultId}.webm`)
+      : "";
+    return videoUrl;
   }
 }

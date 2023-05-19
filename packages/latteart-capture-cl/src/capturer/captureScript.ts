@@ -243,6 +243,7 @@ type CapturedOperationInfo = {
   title: string;
   url: string;
   scrollPosition: { x: number; y: number };
+  timestamp: number;
 };
 
 type ExtendedDocument = Document & {
@@ -712,6 +713,7 @@ function setFunctionToBuildOperationInfo() {
         x: window.scrollX,
         y: window.scrollY,
       },
+      timestamp: new Date().valueOf(),
     };
   };
   return true;
