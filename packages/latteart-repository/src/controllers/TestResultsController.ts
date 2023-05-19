@@ -413,10 +413,13 @@ export class TestResultsController extends Controller {
    * @param testResultId Target test result id.
    * @param requestBody.startTimestamp Start timestamp.
    */
-  @Response<ServerErrorData<"start_movie_failed">>(500, "Start movie failed")
+  @Response<ServerErrorData<"update_movie_start_timestamp_failed">>(
+    500,
+    "Update movie start timestamp failed"
+  )
   @SuccessResponse(204, "Success")
   @Patch("{testResultId}/start-movie")
-  public async startMovie(
+  public async updateMovieStartTimestamp(
     @Path() testResultId: string,
     @Body() requestBody: { startTimestamp: number }
   ): Promise<void> {
@@ -427,9 +430,9 @@ export class TestResultsController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        createLogger().error("Start movie failed", error);
+        createLogger().error("Update movie start timestamp failed", error);
         throw new ServerError(500, {
-          code: "start_movie_failed",
+          code: "update_movie_start_timestamp_failed",
         });
       }
     }

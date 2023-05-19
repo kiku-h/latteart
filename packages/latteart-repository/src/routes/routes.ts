@@ -2198,7 +2198,7 @@ const models: TsoaRoute.Models = {
     type: { ref: "TestResultViewOption", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_start_movie_failed_: {
+  ServerErrorData_update_movie_start_timestamp_failed_: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
@@ -2217,7 +2217,7 @@ const models: TsoaRoute.Models = {
         message: { dataType: "string" },
         code: {
           dataType: "enum",
-          enums: ["start_movie_failed"],
+          enums: ["update_movie_start_timestamp_failed"],
           required: true,
         },
       },
@@ -4591,10 +4591,10 @@ export function RegisterRoutes(app: Router) {
     "/api/v1/test-results/:testResultId/start-movie",
     ...fetchMiddlewares<RequestHandler>(TestResultsController),
     ...fetchMiddlewares<RequestHandler>(
-      TestResultsController.prototype.startMovie
+      TestResultsController.prototype.updateMovieStartTimestamp
     ),
 
-    function TestResultsController_startMovie(
+    function TestResultsController_updateMovieStartTimestamp(
       request: any,
       response: any,
       next: any
@@ -4625,7 +4625,7 @@ export function RegisterRoutes(app: Router) {
 
         const controller = new TestResultsController();
 
-        const promise = controller.startMovie.apply(
+        const promise = controller.updateMovieStartTimestamp.apply(
           controller,
           validatedArgs as any
         );
