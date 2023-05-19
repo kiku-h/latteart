@@ -607,7 +607,10 @@ const models: TsoaRoute.Models = {
         { ref: "UpdateNoteDto" },
         {
           dataType: "nestedObjectLiteral",
-          nestedProperties: { imageData: { dataType: "string" } },
+          nestedProperties: {
+            timestamp: { dataType: "double" },
+            imageData: { dataType: "string" },
+          },
         },
       ],
       validators: {},

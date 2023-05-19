@@ -216,6 +216,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
     },
     testStepId: string,
     option: {
@@ -230,6 +231,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
         details: note.details ?? "",
         tags: note.tags ?? [],
         imageData: note.imageData,
+        timestamp: note.timestamp,
       }
     );
 

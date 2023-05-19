@@ -37,6 +37,7 @@ export interface NoteRepository {
       details: string;
       imageData?: string;
       tags?: string[];
+      timestamp?: number;
     }
   ): Promise<RepositoryAccessResult<NoteForRepository>>;
 
@@ -90,6 +91,7 @@ export class NoteRepositoryImpl implements NoteRepository {
       details: string;
       imageData?: string;
       tags?: string[];
+      timestamp?: number;
     }
   ): Promise<RepositoryAccessResult<NoteForRepository>> {
     try {

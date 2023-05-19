@@ -102,6 +102,7 @@ export type TestResultAccessor = {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
     },
     testStepId: string,
     option?: {
