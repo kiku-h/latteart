@@ -92,6 +92,7 @@ describe("ProjectExportService", () => {
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
+      getVideoUrl: jest.fn().mockResolvedValue(`movie/testResultId.webm`),
     };
 
     const exportFileRepositoryService: ExportFileRepositoryService = {

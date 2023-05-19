@@ -301,7 +301,8 @@ export class SnapshotFileRepositoryServiceImpl
     );
 
     if (testResultInfo.mediaType === "movie") {
-      await this.copyMovie(`movie/${testResultId}.webm`, destTestResultPath);
+      const videoUrl = await this.service.testResult.getVideoUrl(testResultId);
+      await this.copyMovie(videoUrl, destTestResultPath);
     }
 
     const { config } = await this.service.config.getProjectConfig("");

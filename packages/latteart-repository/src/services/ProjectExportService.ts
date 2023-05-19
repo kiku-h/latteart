@@ -70,7 +70,7 @@ export class ProjectExportService {
             ? await service.testResultService.collectAllTestStepScreenshots(
                 testResultEntity.id
               )
-            : `movie/${testResult.id}.webm`;
+            : await service.testResultService.getVideoUrl(testResult.id);
 
         const serializedTestResult = serializeTestResult(testResult);
         return {

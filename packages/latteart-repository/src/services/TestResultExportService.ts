@@ -46,7 +46,7 @@ export class TestResultExportServiceImpl implements TestResultExportService {
         ? await this.service.testResult.collectAllTestStepScreenshots(
             testResultId
           )
-        : `movie/${testResultId}.webm`;
+        : await this.service.testResult.getVideoUrl(testResultId);
 
     const serializedTestResult = serializeTestResult(testResult);
 

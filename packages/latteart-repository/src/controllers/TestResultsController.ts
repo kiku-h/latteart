@@ -443,6 +443,24 @@ export class TestResultsController extends Controller {
   @SuccessResponse(200, "Success")
   @Get("{testResultId}/video-url")
   public async getVideoUrl(@Path() testResultId: string): Promise<string> {
-    return await new TestResultServiceImpl().getVideoUrl(testResultId);
+    const timestampService = new TimestampServiceImpl();
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const screenshotFileRepository =
+      fileRepositoryManager.getRepository("screenshot");
+    const workingFileRepository = fileRepositoryManager.getRepository("work");
+    const compareReportRepository = fileRepositoryManager.getRepository("temp");
+    const movieFileRepository = fileRepositoryManager.getRepository("movie");
+    return new TestResultServiceImpl({
+      timestamp: timestampService,
+      testStep: new TestStepServiceImpl({
+        screenshotFileRepository,
+        timestamp: timestampService,
+        config: new ConfigsService(),
+      }),
+      screenshotFileRepository,
+      workingFileRepository,
+      compareReportRepository,
+      movieFileRepository,
+    }).getVideoUrl(testResultId);
   }
 }
