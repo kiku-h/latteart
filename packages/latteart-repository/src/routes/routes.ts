@@ -2045,6 +2045,7 @@ const models: TsoaRoute.Models = {
               array: {
                 dataType: "nestedObjectLiteral",
                 nestedProperties: {
+                  timestamp: { dataType: "double", required: true },
                   imageFileUrl: { dataType: "string" },
                   tags: { dataType: "array", array: { dataType: "string" } },
                   details: { dataType: "string", required: true },

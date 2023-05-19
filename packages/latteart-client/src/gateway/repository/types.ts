@@ -71,6 +71,7 @@ export type GraphViewForRepository = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
     }[];
   };
 };

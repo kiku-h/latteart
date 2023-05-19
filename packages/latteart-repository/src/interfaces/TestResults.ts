@@ -117,6 +117,7 @@ export type GetGraphViewResponse = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
     }[];
   };
 };

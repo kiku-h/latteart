@@ -552,10 +552,10 @@ export class TestResultServiceImpl implements TestResultService {
         relations: ["tags", "screenshot"],
       })
     ).map((noteEntity) => {
-      const { id, value, details } = noteEntity;
+      const { id, value, details, timestamp } = noteEntity;
       const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
       const imageFileUrl = noteEntity.screenshot?.fileUrl;
-      return { id, value, details, tags, imageFileUrl };
+      return { id, value, details, tags, imageFileUrl, timestamp };
     });
 
     const testPurposes = (

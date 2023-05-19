@@ -252,6 +252,7 @@ export type GraphView = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
     }[];
   };
 };
