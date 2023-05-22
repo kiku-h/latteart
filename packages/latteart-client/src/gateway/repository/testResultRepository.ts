@@ -116,7 +116,7 @@ export class TestResultRepository {
    * @returns List of test results.
    */
   public async getTestResults(): Promise<
-    RepositoryAccessResult<Array<TestResultSummaryForRepository>>
+    RepositoryAccessResult<TestResultSummaryForRepository[]>
   > {
     try {
       const response = await this.restClient.httpGet(`api/v1/test-results`);
@@ -126,11 +126,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as Array<{
-          id: string;
-          name: string;
-          mediaType: "image" | "movie";
-        }>,
+        data: response.data as TestResultSummaryForRepository[],
       });
     } catch (error) {
       return createConnectionRefusedFailure();

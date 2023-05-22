@@ -44,7 +44,14 @@ describe("issueReportHelper", () => {
     testerName: "testerName",
     memo: "memo",
     attachedFiles: [],
-    testResultFiles: [{ name: "testResultName", id: "testResultId" }],
+    testResultFiles: [
+      {
+        name: "testResultName",
+        id: "testResultId",
+        mediaType: "image" as "image" | "movie",
+        movieStartTimestamp: 0,
+      },
+    ],
     initialUrl: "",
     testPurposes: [],
     notes: [],

@@ -127,6 +127,8 @@ export class TestResultServiceImpl implements TestResultService {
         id: testResult.id,
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId,
+        mediaType: testResult.mediaType === "" ? "image" : testResult.mediaType,
+        movieStartTimestamp: testResult.movieStartTimestamp,
       };
     });
   }
@@ -209,6 +211,7 @@ export class TestResultServiceImpl implements TestResultService {
       id: newTestResult.id,
       name: newTestResult.name,
       mediaType: newTestResult.mediaType,
+      movieStartTimestamp: newTestResult.movieStartTimestamp,
     };
   }
 

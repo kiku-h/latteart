@@ -63,7 +63,12 @@ export type Session = {
   testerName: string;
   memo: string;
   attachedFiles: { name: string; fileUrl: string }[];
-  testResultFiles: { name: string; id: string }[];
+  testResultFiles: {
+    name: string;
+    id: string;
+    mediaType: "image" | "movie";
+    movieStartTimestamp: number;
+  }[];
   initialUrl: string;
   testPurposes: GetNoteResponse[];
   notes: GetNoteResponse[];

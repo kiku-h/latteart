@@ -37,7 +37,12 @@ export function createTestResultFiles(
   testResultFiles: Session["testResultFiles"]
 ): Session["testResultFiles"] {
   return testResultFiles.map((testResultFile) => {
-    return { name: testResultFile.name, id: testResultFile.id };
+    return {
+      name: testResultFile.name,
+      id: testResultFile.id,
+      mediaType: testResultFile.mediaType,
+      movieStartTimestamp: testResultFile.movieStartTimestamp,
+    };
   });
 }
 

@@ -155,8 +155,8 @@ export type TestResult = Omit<TestResultForRepository, "testSteps"> & {
 };
 
 export type TestResultSummary = Pick<
-  TestResult,
-  "id" | "name" | "parentTestResultId"
+  TestResultForRepository,
+  "id" | "name" | "parentTestResultId" | "mediaType" | "movieStartTimestamp"
 >;
 
 export type AutoOperation = {

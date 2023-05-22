@@ -34,6 +34,8 @@ export interface CreateTestResultDto {
  */
 export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
   parentTestResultId?: string;
+  mediaType: "image" | "movie";
+  movieStartTimestamp: number;
 };
 
 /**
@@ -43,6 +45,7 @@ export interface CreateTestResultResponse {
   id: string;
   name: string;
   mediaType: "image" | "movie";
+  movieStartTimestamp: number;
 }
 
 /**

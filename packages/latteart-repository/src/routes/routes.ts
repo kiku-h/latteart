@@ -914,6 +914,15 @@ const models: TsoaRoute.Models = {
           array: {
             dataType: "nestedObjectLiteral",
             nestedProperties: {
+              movieStartTimestamp: { dataType: "double", required: true },
+              mediaType: {
+                dataType: "union",
+                subSchemas: [
+                  { dataType: "enum", enums: ["image"] },
+                  { dataType: "enum", enums: ["movie"] },
+                ],
+                required: true,
+              },
               id: { dataType: "string", required: true },
               name: { dataType: "string", required: true },
             },
@@ -1506,7 +1515,18 @@ const models: TsoaRoute.Models = {
         { ref: "Pick_TestResult.id-or-name_" },
         {
           dataType: "nestedObjectLiteral",
-          nestedProperties: { parentTestResultId: { dataType: "string" } },
+          nestedProperties: {
+            movieStartTimestamp: { dataType: "double", required: true },
+            mediaType: {
+              dataType: "union",
+              subSchemas: [
+                { dataType: "enum", enums: ["image"] },
+                { dataType: "enum", enums: ["movie"] },
+              ],
+              required: true,
+            },
+            parentTestResultId: { dataType: "string" },
+          },
         },
       ],
       validators: {},
@@ -1782,6 +1802,7 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
+      movieStartTimestamp: { dataType: "double", required: true },
     },
     additionalProperties: false,
   },
