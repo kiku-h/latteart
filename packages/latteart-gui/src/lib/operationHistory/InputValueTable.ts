@@ -29,6 +29,7 @@ export type InputValueTableHeaderColumn = {
     tags: string[];
     value: string;
     details: string;
+    timestamp: number;
   }[];
   testPurposes: {
     id: string;
@@ -76,6 +77,7 @@ export type ScreenTransition = {
     tags: string[];
     value: string;
     details: string;
+    timestamp: number;
   }[];
   testPurposes: {
     id: string;

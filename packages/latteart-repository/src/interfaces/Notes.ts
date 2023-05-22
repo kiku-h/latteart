@@ -21,6 +21,7 @@ import { Note } from "@/domain/types";
  */
 export type CreateNoteDto = UpdateNoteDto & {
   imageData?: string;
+  timestamp?: number;
 };
 
 /**

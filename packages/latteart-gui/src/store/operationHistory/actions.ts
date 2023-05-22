@@ -217,12 +217,14 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
             return context.state.history[lastIndex]?.operation.sequence ?? 1;
           })();
     const testStepId = context.state.testStepIds[sequence - 1];
+    const timestamp = context.state.history[sequence - 1].operation.timestamp;
 
     const result = await (() => {
       const note = {
         value: payload.noteEditInfo.note,
         details: payload.noteEditInfo.noteDetails,
         tags: payload.noteEditInfo.tags,
+        timestamp: Number(timestamp),
       };
       const option = {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,

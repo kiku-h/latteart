@@ -127,6 +127,8 @@ export class TestResultServiceImpl implements TestResultService {
         id: testResult.id,
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId,
+        mediaType: testResult.mediaType === "" ? "image" : testResult.mediaType,
+        movieStartTimestamp: testResult.movieStartTimestamp,
       };
     });
   }
@@ -209,6 +211,7 @@ export class TestResultServiceImpl implements TestResultService {
       id: newTestResult.id,
       name: newTestResult.name,
       mediaType: newTestResult.mediaType,
+      movieStartTimestamp: newTestResult.movieStartTimestamp,
     };
   }
 
@@ -552,10 +555,10 @@ export class TestResultServiceImpl implements TestResultService {
         relations: ["tags", "screenshot"],
       })
     ).map((noteEntity) => {
-      const { id, value, details } = noteEntity;
+      const { id, value, details, timestamp } = noteEntity;
       const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
       const imageFileUrl = noteEntity.screenshot?.fileUrl;
-      return { id, value, details, tags, imageFileUrl };
+      return { id, value, details, tags, imageFileUrl, timestamp };
     });
 
     const testPurposes = (

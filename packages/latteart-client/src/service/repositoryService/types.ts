@@ -102,6 +102,7 @@ export type TestResultAccessor = {
       details?: string;
       tags?: string[];
       imageData?: string;
+      timestamp?: number;
     },
     testStepId: string,
     option?: {
@@ -252,6 +253,7 @@ export type GraphView = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
     }[];
   };
 };

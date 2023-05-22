@@ -130,6 +130,7 @@ describe("TestResultService", () => {
         id: expect.any(String),
         name: body.name,
         mediaType: body.mediaType,
+        movieStartTimestamp: 0,
       });
     });
   });

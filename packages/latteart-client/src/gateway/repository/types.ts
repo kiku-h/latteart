@@ -71,6 +71,7 @@ export type GraphViewForRepository = {
       details: string;
       tags?: string[];
       imageFileUrl?: string;
+      timestamp: number;
     }[];
   };
 };
@@ -297,6 +298,8 @@ export type AttachedFileForRepository = {
 export type TestResultFileForRepository = {
   name: string;
   id: string;
+  mediaType: "image" | "movie";
+  movieStartTimestamp: number;
 };
 
 export type StoryForRepository = {
@@ -365,7 +368,7 @@ export type TestResultForRepository = {
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId" | "mediaType"
+  "id" | "name" | "parentTestResultId" | "mediaType" | "movieStartTimestamp"
 >;
 
 export type TestResultComparisonResultForRepository = {

@@ -239,7 +239,10 @@
                               props.item.value,
                               props.item.details,
                               props.item.imageFilePath,
-                              props.item.tags
+                              props.item.tags,
+                              props.item.videoUrl,
+                              props.item.seekTime,
+                              props.item.mediaType
                             )
                           "
                           >{{
@@ -309,7 +312,12 @@
               ></note-tag-chip-group>
             </v-list-item-content>
           </v-list-item>
-          <popup-image :imageFileUrl="issueDetailsDialogImagePath" />
+          <video-display
+            v-if="issueDetailsDialogMediaType === 'movie'"
+            :videoUrl="issueDetailsDialogVideoUrl"
+            :startTime="issueDetailsDialogSeekTime"
+          />
+          <popup-image v-else :imageFileUrl="issueDetailsDialogImagePath" />
         </v-list>
       </template>
 
@@ -385,6 +393,9 @@ import { formatTime } from "@/lib/common/Timestamp";
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import NoteTagChipGroup from "@/components/pages/common/organisms/NoteTagChipGroup.vue";
 import { TestResultSummary } from "@/lib/operationHistory/types";
+import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
+import { OperationHistoryState } from "@/store/operationHistory";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -393,6 +404,7 @@ import { TestResultSummary } from "@/lib/operationHistory/types";
     "confirm-dialog": ConfirmDialog,
     "popup-image": PopupImage,
     "note-tag-chip-group": NoteTagChipGroup,
+    "video-display": VideoDisplay,
   },
 })
 export default class SessionInfo extends Vue {
@@ -405,6 +417,8 @@ export default class SessionInfo extends Vue {
   private testResults: {
     name: string;
     id: string;
+    mediaType: "image" | "movie";
+    movieStartTimestamp: number;
   }[] = [];
 
   private errorMessageDialogOpened = false;
@@ -423,6 +437,9 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogText = "";
   private issueDetailsDialogImagePath = "";
   private issueDetailsDialogTags: string[] = [];
+  private issueDetailsDialogVideoUrl = "";
+  private issueDetailsDialogSeekTime = 0;
+  private issueDetailsDialogMediaType = "image" as "image" | "movie";
 
   private attachedFileOpened = false;
   private attachedImageFileSource = "";
@@ -478,9 +495,11 @@ export default class SessionInfo extends Vue {
       const testResultSummaries: TestResultSummary[] =
         await this.$store.dispatch("testManagement/getTestResults");
 
-      this.testResults = testResultSummaries.map(({ id, name }) => {
-        return { id, name };
-      });
+      this.testResults = testResultSummaries.map(
+        ({ id, name, mediaType, movieStartTimestamp }) => {
+          return { id, name, mediaType, movieStartTimestamp };
+        }
+      );
     } finally {
       this.$store.dispatch("closeProgressDialog");
     }
@@ -664,12 +683,17 @@ export default class SessionInfo extends Vue {
         return "";
       })();
 
+      const videoInfo = this.getVideoInfo(note.timestamp);
+
       return {
         status,
         value: note.value,
         details: note.details,
         tags: note.tags ?? [],
         imageFilePath: note.imageFileUrl ?? "",
+        videoUrl: videoInfo.url,
+        seekTime: videoInfo.seekTime,
+        mediaType: videoInfo.mediaType,
       };
     });
 
@@ -681,7 +705,10 @@ export default class SessionInfo extends Vue {
     summary: string,
     text: string,
     imageFilePath: string,
-    tags: string[]
+    tags: string[],
+    videoUrl: string,
+    seekTime: number,
+    mediaType: "image" | "movie"
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -695,6 +722,9 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogText = text;
     this.issueDetailsDialogImagePath = imageFilePath;
     this.issueDetailsDialogTags = tags ?? [];
+    this.issueDetailsDialogVideoUrl = videoUrl;
+    this.issueDetailsDialogSeekTime = seekTime;
+    this.issueDetailsDialogMediaType = mediaType;
     this.issueDetailsDialogOpened = true;
   }
 
@@ -708,16 +738,23 @@ export default class SessionInfo extends Vue {
       const testResultId = testResultFiles[0].id;
       window.open(`${url}&testResultId=${testResultId}`, "_blank");
     } else {
+      const mediaType = (this.$store.state as RootState).projectSettings.config
+        .captureMediaSetting.mediaType;
       await this.$store.dispatch("operationHistory/createTestResult", {
         initialUrl: "",
         name: "",
+        mediaType,
       });
 
-      const newTestResult = this.$store.state.operationHistory.testResultInfo;
+      const newTestResult = (
+        this.$store.state.operationHistory as OperationHistoryState
+      ).testResultInfo;
 
       this.addTestResultToSession({
         id: newTestResult.id,
         name: newTestResult.name,
+        mediaType: newTestResult.mediaType,
+        movieStartTimestamp: newTestResult.movieStartTimestamp,
       });
 
       window.open(`${url}&testResultId=${newTestResult.id}`, "_blank");
@@ -730,6 +767,48 @@ export default class SessionInfo extends Vue {
       : [];
     const memos = this.session?.memo ? [this.session.memo] : [];
     return [...testItems, ...memos].join("\n");
+  }
+
+  private get serviceUrl() {
+    return this.$store.state.repositoryService.serviceUrl;
+  }
+
+  private getVideoInfo(timeStamp?: number) {
+    const testResult = this.session?.testResultFiles.at(0);
+
+    if (!testResult || !timeStamp) {
+      return {
+        mediaType: "image" as "image" | "movie",
+        url: "",
+        seekTime: 0,
+      };
+    }
+
+    const startTimestamp = testResult.movieStartTimestamp;
+
+    if (!startTimestamp) {
+      return {
+        mediaType: testResult.mediaType,
+        url: "",
+        seekTime: 0,
+      };
+    }
+
+    const url = `${this.serviceUrl}/movie/${testResult.id}.webm`;
+    const seekTime = (timeStamp - startTimestamp) / 1000;
+    if (seekTime < 0) {
+      return {
+        mediaType: testResult.mediaType,
+        url,
+        seekTime: 0,
+      };
+    }
+
+    return {
+      mediaType: testResult.mediaType,
+      url,
+      seekTime: seekTime,
+    };
   }
 }
 </script>

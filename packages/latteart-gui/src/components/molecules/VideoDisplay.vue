@@ -16,7 +16,7 @@
 
 <template>
   <div style="position: relative; height: 100%">
-    <video ref="video" controls style="height: 100%">
+    <video ref="video" controls style="height: 100%; width: 100%">
       <source type="video/webm" />
     </video>
     <slot></slot>
@@ -48,6 +48,7 @@ export default class VideoDisplay extends Vue {
       this.notifyLeavePictureInPicture
     );
     video.src = this.videoUrl;
+    video.currentTime = this.startTime;
   }
 
   beforeDestroy() {
