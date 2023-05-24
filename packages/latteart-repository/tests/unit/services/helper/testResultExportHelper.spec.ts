@@ -39,7 +39,6 @@ describe("testResultExportHelper", () => {
         ],
         coverageSources: [],
         mediaType: "image",
-        movieStartTimestamp: 0,
       };
 
       const testStep = {
@@ -71,7 +70,6 @@ describe("testResultExportHelper", () => {
         initialUrl: "",
         testingTime: 0,
         mediaType: "image",
-        movieStartTimestamp: 0,
         history: {
           "1": {
             testStep,

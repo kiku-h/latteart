@@ -83,16 +83,16 @@ describe("ProjectExportService", () => {
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
       collectAllTestPurposeIds: jest.fn(),
-      collectAllTestStepScreenshots: jest.fn().mockResolvedValue([
-        {
-          id: "id",
-          fileUrl: "fileUrl",
-        },
-      ]),
+      collectAllTestStepScreenshots: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: "fileUrl" }]),
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
-      getVideoUrl: jest.fn().mockResolvedValue(`movie/testResultId.webm`),
+      getVideoUrl: jest.fn(),
+      getVideos: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: `movie/testResultId.webm` }]),
     };
 
     const exportFileRepositoryService: ExportFileRepositoryService = {
