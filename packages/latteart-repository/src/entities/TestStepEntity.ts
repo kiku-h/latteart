@@ -86,6 +86,10 @@ export class TestStepEntity {
   @Column({ name: "is_automatic", nullable: true, default: false })
   isAutomatic: boolean = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "video_index", nullable: true })
+  videoIndex?: number;
+
   @ManyToOne(() => TestResultEntity, (testResult) => testResult.testSteps)
   @JoinColumn({ name: "test_result_id" })
   testResult?: TestResultEntity;

@@ -46,6 +46,10 @@ export class NoteEntity {
   @Column({ name: "timestamp" })
   timestamp: number = 0;
 
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "video_index", nullable: true })
+  videoIndex?: number;
+
   @ManyToOne(() => TestResultEntity, (testResult) => testResult.notes)
   @JoinColumn({ name: "test_result_id" })
   testResult?: TestResultEntity;
