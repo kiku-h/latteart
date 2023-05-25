@@ -20,6 +20,7 @@ import {
   HistoryItemExportDataV0,
   HistoryItemExportDataV1,
   HistoryItemExportDataV2,
+  HistoryItemExportDataV3,
   TestResultExportDataV0,
   TestResultExportDataV1,
   TestResultExportDataV2,
@@ -153,7 +154,6 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     testSteps,
     coverageSources: formattedData.coverageSources,
     mediaType: "image" as "image" | "movie",
-    movieStartTimestamp: 0,
   };
   return testResult;
 };
@@ -214,7 +214,6 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     testSteps,
     coverageSources: formattedData.coverageSources,
     mediaType: "image" as "image" | "movie",
-    movieStartTimestamp: 0,
   };
   return testResult;
 };
@@ -270,13 +269,12 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     testSteps,
     coverageSources: formattedData.coverageSources,
     mediaType: "image" as "image" | "movie",
-    movieStartTimestamp: 0,
   };
   return testResult;
 };
 
 const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
-  const entries: [string, HistoryItemExportDataV2][] = Object.entries(
+  const entries: [string, HistoryItemExportDataV3][] = Object.entries(
     formattedData.history
   );
   const testSteps = entries.map(([_, item]) => {
@@ -310,6 +308,7 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
         isAutomatic: item.testStep.operation.isAutomatic ?? false,
         scrollPosition: item.testStep.operation.scrollPosition,
         clientSize: item.testStep.operation.clientSize,
+        videoIndex: item.testStep.operation.videoIndex,
       },
       testPurpose,
       notes,
@@ -326,7 +325,7 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
     testSteps,
     coverageSources: formattedData.coverageSources,
     mediaType: formattedData.mediaType,
-    movieStartTimestamp: formattedData.movieStartTimestamp,
+    videos: formattedData.videos,
   };
   return testResult;
 };

@@ -878,7 +878,6 @@ describe("TestResultImportService", () => {
         initialUrl: "initialUrl",
         testingTime: 0,
         mediaType: "image",
-        movieStartTimestamp: 0,
         history: { "1": historyItem1 },
         notes: [testPurpose1, note1],
         coverageSources: [
@@ -998,7 +997,6 @@ describe("TestResultImportService", () => {
       expect(testResultEntity.mediaType).toEqual(
         testResultExportData.mediaType
       );
-      expect(testResultEntity.movieStartTimestamp).toEqual(0);
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.screenshotIds).toContain(
@@ -1128,7 +1126,6 @@ describe("TestResultImportService", () => {
         initialUrl: "initialUrl",
         testingTime: 0,
         mediaType: "movie",
-        movieStartTimestamp: 0,
         history: { "1": historyItem1 },
         notes: [testPurpose1, note1],
         coverageSources: [
@@ -1230,7 +1227,6 @@ describe("TestResultImportService", () => {
       expect(testResultEntity.mediaType).toEqual(
         testResultExportData.mediaType
       );
-      expect(testResultEntity.movieStartTimestamp).toEqual(0);
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.testPurposeIds).toContain(testPurposeEntity?.id);

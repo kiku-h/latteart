@@ -48,7 +48,6 @@ describe("ProjectExportService", () => {
       testingTime: 0,
       testSteps: [],
       mediaType: "image",
-      movieStartTimestamp: 0,
       coverageSources: [],
     };
 
@@ -230,7 +229,6 @@ describe("ProjectExportService", () => {
               initialUrl: "",
               testingTime: 0,
               mediaType: "image",
-              movieStartTimestamp: 0,
               history: {},
               notes: [],
               coverageSources: [],
@@ -247,6 +245,7 @@ describe("ProjectExportService", () => {
       const data = {
         ...testResultData,
         mediaType: "movie",
+        videos: { url: `movie/testResultId.webm`, startTimestamp: 0 },
       };
       testResultService.getTestResult = jest.fn().mockResolvedValue(data);
 
@@ -270,13 +269,13 @@ describe("ProjectExportService", () => {
               initialUrl: "",
               testingTime: 0,
               mediaType: "movie",
-              movieStartTimestamp: 0,
               history: {},
               notes: [],
               coverageSources: [],
+              videos: [{ url: `movie/testResultId.webm`, startTimestamp: 0 }],
             }),
           },
-          fileData: `movie/testResultId.webm`,
+          fileData: { id: `id`, fileUrl: `movie/testResultId.webm` },
         },
       ]);
     });
