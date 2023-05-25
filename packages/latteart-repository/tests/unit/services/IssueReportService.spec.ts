@@ -47,6 +47,7 @@ describe("IssueReportService", () => {
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
         getVideoUrl: jest.fn(),
+        getVideos: jest.fn(),
       };
 
       const testStepService: TestStepService = {
@@ -146,7 +147,6 @@ describe("IssueReportService", () => {
                     id: "testResult1",
                     name: "testResultName1",
                     mediaType: "image",
-                    movieStartTimestamp: 0,
                   },
                 ],
                 initialUrl: "",

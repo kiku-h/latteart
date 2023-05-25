@@ -38,7 +38,6 @@ describe("snapshotHelper", () => {
         ],
         coverageSources: [],
         mediaType: "image",
-        movieStartTimestamp: 0,
       };
 
       const result = await createTestPurposes(testResult);
