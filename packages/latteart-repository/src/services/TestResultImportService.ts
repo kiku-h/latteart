@@ -207,12 +207,15 @@ export class TestResultImportServiceImpl implements TestResultImportService {
 
     if (testResult.mediaType === "movie") {
       const videoFilePathToEntity = await Promise.all(
-        importFileData.fileData.map(async (video, index) => {
-          const videoEntity = await getRepository(VideoEntity).save(
-            new VideoEntity()
-          );
+        importFileData.fileData.map(async (video) => {
           const substrings = video.filePath.split(".");
           const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
+          const videoFileName = path.basename(video.filePath);
+          const videoInfo = testResult.videos?.find((item) =>
+            item.url.match(videoFileName)
+          );
+          const index = videoInfo ? videoInfo.index : 0;
+
           const fileName = `${newTestResultEntity.id}_${index}${fileExt}`;
           await this.service.movieFileRepository.outputFile(
             fileName,
@@ -220,7 +223,14 @@ export class TestResultImportServiceImpl implements TestResultImportService {
           );
           const videoUrl =
             this.service.movieFileRepository.getFileUrl(fileName);
-          videoEntity.url = videoUrl;
+
+          const videoEntity = await getRepository(VideoEntity).save(
+            new VideoEntity({
+              url: videoUrl,
+              startTimestamp: videoInfo ? videoInfo.startTimestamp : 0,
+              index,
+            })
+          );
 
           return videoEntity;
         })

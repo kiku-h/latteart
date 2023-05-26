@@ -315,6 +315,13 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
     };
   });
 
+  const videos =
+    formattedData.videos
+      ?.sort((a, b) => a.startTimestamp - b.startTimestamp)
+      .map((video, index) => {
+        return { index, ...video };
+      }) ?? undefined;
+
   const testResult = {
     id: formattedData.sessionId,
     name: formattedData.name,
@@ -325,7 +332,7 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
     testSteps,
     coverageSources: formattedData.coverageSources,
     mediaType: formattedData.mediaType,
-    videos: formattedData.videos,
+    videos,
   };
   return testResult;
 };

@@ -23,6 +23,7 @@ import {
   TestResultExportDataV2,
   TestResultExportDataV3,
 } from "@/interfaces/exportData";
+import { VideoEntity } from "@/entities/VideoEntity";
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();
@@ -1096,6 +1097,14 @@ describe("TestResultImportService", () => {
         imageFileUrl: "",
         tags: ["tag"],
         timestamp: 0,
+        videoIndex: 0,
+      };
+
+      const video1 = {
+        id: "video1",
+        index: 0,
+        url: "movie/testResult.webm",
+        startTimestamp: 1000,
       };
 
       const historyItem1 = {
@@ -1111,6 +1120,7 @@ describe("TestResultImportService", () => {
             type: "type",
             elementInfo: element1,
             isAutomatic: false,
+            videoIndex: 0,
           },
           inputElements: [element1],
         },
@@ -1131,6 +1141,7 @@ describe("TestResultImportService", () => {
         coverageSources: [
           { title: "title", url: "url", screenElements: [element1] },
         ],
+        videos: [{ url: video1.url, startTimestamp: video1.startTimestamp }],
       };
 
       const result = await service.saveImportFileData(
@@ -1153,6 +1164,7 @@ describe("TestResultImportService", () => {
           "testSteps.testPurpose",
           "testSteps.screenshot",
           "coverageSources",
+          "videos",
         ],
       });
 
@@ -1182,6 +1194,9 @@ describe("TestResultImportService", () => {
       expect(testStepEntity.pageUrl).toEqual(
         historyItem1.testStep.pageInfo.url
       );
+      expect(testStepEntity.videoIndex).toEqual(
+        historyItem1.testStep.operation.videoIndex
+      );
 
       // TestStepのスクリーンショットの確認
       const testStepScreenshotEntity = testStepEntity.screenshot;
@@ -1195,6 +1210,7 @@ describe("TestResultImportService", () => {
       expect((noteEntity.tags ?? []).length).toEqual(1);
       expect((noteEntity.tags ?? [])[0].name).toEqual(note1.tags[0]);
       expect(noteEntity.timestamp).toEqual(note1.timestamp);
+      expect(noteEntity.videoIndex).toEqual(note1.videoIndex);
 
       // Noteのスクリーンショットの確認
       const noteScreenshotEntity = noteEntity.screenshot;
@@ -1210,6 +1226,15 @@ describe("TestResultImportService", () => {
       );
       expect(testStepEntity.windowHandle).toEqual(
         historyItem1.testStep.windowInfo.windowHandle
+      );
+
+      // Videosの確認
+      const videoEntities = testResultEntity.videos ?? [];
+      const videoEntity = videoEntities[0];
+      expect(videoEntity.index).toEqual(video1.index);
+      expect(videoEntity.startTimestamp).toEqual(video1.startTimestamp);
+      expect(videoEntity.url).toEqual(
+        `movie/${testResultEntity.id}_${video1.index}.webm`
       );
 
       // TestResultの確認
@@ -1230,6 +1255,7 @@ describe("TestResultImportService", () => {
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.testPurposeIds).toContain(testPurposeEntity?.id);
+      expect(testResultEntity.videoIds).toContain(videoEntity.id);
 
       // CoverageSourceの確認
       const coverageSourceEntity = (testResultEntity.coverageSources ?? [])[0];
@@ -1253,6 +1279,7 @@ describe("TestResultImportService", () => {
       expect((await getRepository(CoverageSourceEntity).find()).length).toEqual(
         1
       );
+      expect((await getRepository(VideoEntity).find()).length).toEqual(1);
     });
   });
 });

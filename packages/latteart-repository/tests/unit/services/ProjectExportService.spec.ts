@@ -88,7 +88,7 @@ describe("ProjectExportService", () => {
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
-      getVideoUrl: jest.fn(),
+      createVideo: jest.fn(),
       getVideos: jest
         .fn()
         .mockResolvedValue([{ id: "id", fileUrl: `movie/testResultId.webm` }]),
@@ -233,6 +233,7 @@ describe("ProjectExportService", () => {
               notes: [],
               coverageSources: [],
             }),
+            mediaType: "image",
           },
           fileData: [{ id: "id", fileUrl: "fileUrl" }],
         },
@@ -245,7 +246,7 @@ describe("ProjectExportService", () => {
       const data = {
         ...testResultData,
         mediaType: "movie",
-        videos: { url: `movie/testResultId.webm`, startTimestamp: 0 },
+        videos: [{ url: `movie/testResultId.webm`, startTimestamp: 0 }],
       };
       testResultService.getTestResult = jest.fn().mockResolvedValue(data);
 
@@ -274,8 +275,9 @@ describe("ProjectExportService", () => {
               coverageSources: [],
               videos: [{ url: `movie/testResultId.webm`, startTimestamp: 0 }],
             }),
+            mediaType: "movie",
           },
-          fileData: { id: `id`, fileUrl: `movie/testResultId.webm` },
+          fileData: [{ id: `id`, fileUrl: `movie/testResultId.webm` }],
         },
       ]);
     });

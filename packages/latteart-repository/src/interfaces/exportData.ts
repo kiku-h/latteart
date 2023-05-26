@@ -32,7 +32,11 @@ export type DeserializedTestResult = Omit<
   coverageSources: (Pick<CoverageSource, "title" | "url"> & {
     screenElements: DeserializedElementInfo[];
   })[];
+  videos?: DeserializedVideo[];
 };
+
+type DeserializedVideo = VideoInfo & { index: number };
+
 export type DeserializedTestStep = Pick<TestStep, "id"> & {
   operation: Omit<
     Operation,
@@ -42,9 +46,13 @@ export type DeserializedTestStep = Pick<TestStep, "id"> & {
     inputElements: DeserializedElementInfo[];
     keywordTexts: (string | { tagname: string; value: string })[];
     imageFileUrl: string;
+    videoIndex?: number;
   };
   testPurpose: (Omit<Note, "screenshot"> & { imageFileUrl: string }) | null;
-  notes: (Omit<Note, "screenshot"> & { imageFileUrl: string })[];
+  notes: (Omit<Note, "screenshot"> & {
+    imageFileUrl: string;
+    videoIndex?: number;
+  })[];
 };
 
 type DeserializedElementInfo = Pick<ElementInfo, "tagname" | "xpath"> & {
@@ -178,10 +186,23 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
 };
 
 // V3 Format
-export type TestResultExportDataV3 = Omit<TestResultExportDataV2, "history"> & {
+export type TestResultExportDataV3 = Omit<
+  TestResultExportDataV2,
+  "history" | "notes"
+> & {
   history: { [k: string]: HistoryItemExportDataV3 };
   mediaType: "image" | "movie";
   videos?: VideoInfo[];
+  notes: {
+    id: string;
+    type: string;
+    value: string;
+    details: string;
+    imageFileUrl: string;
+    tags: string[];
+    timestamp: number;
+    videoIndex?: number;
+  }[];
 };
 
 export type HistoryItemExportDataV3 = Omit<
