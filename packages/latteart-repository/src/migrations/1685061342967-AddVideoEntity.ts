@@ -1,7 +1,7 @@
 import {MigrationInterface, QueryRunner} from "typeorm";
 
-export class AddVideoEntity1684993943001 implements MigrationInterface {
-    name = 'AddVideoEntity1684993943001'
+export class AddVideoEntity1685061342967 implements MigrationInterface {
+    name = 'AddVideoEntity1685061342967'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "VIDEO" ("video_id" varchar PRIMARY KEY NOT NULL, "index" integer NOT NULL, "url" varchar NOT NULL, "start_timestamp" integer NOT NULL, "test_result_id" varchar)`);

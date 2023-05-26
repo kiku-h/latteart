@@ -28,8 +28,9 @@ export class VideoEntity {
   @PrimaryGeneratedColumn("uuid", { name: "video_id" })
   id!: string;
 
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "index" })
-  index!: number;
+  index: number = 0;
 
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "url" })
