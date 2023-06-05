@@ -95,6 +95,17 @@ export class NotesServiceImpl implements NotesService {
       registeredNoteEntity.screenshot = screenshotEntity;
     }
 
+    if (testResultEntity.mediaType === "movie") {
+      const { videos } = await getRepository(TestResultEntity).findOneOrFail(
+        testResultId,
+        { relations: ["videos"] }
+      );
+      const videoIndex =
+        videos?.sort((a, b) => a.index - b.index).at(-1)?.index ?? 0;
+
+      registeredNoteEntity.videoIndex = requestBody.videoIndex ?? videoIndex;
+    }
+
     const updatedNoteEntity = await getRepository(NoteEntity).save(
       registeredNoteEntity
     );
@@ -169,6 +180,8 @@ export class NotesServiceImpl implements NotesService {
       imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
       tags: noteEntity.tags?.map((tag) => tag.name) ?? [],
       timestamp: noteEntity.timestamp,
+      videoIndex:
+        noteEntity.videoIndex != null ? noteEntity.videoIndex : undefined,
     };
   }
 }

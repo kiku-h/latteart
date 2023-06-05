@@ -124,13 +124,12 @@ describe("TestResultService", () => {
         mediaType: "image",
       };
 
-      const result = await service.createTestResult(body, null);
+      const result = await service.createTestResult(body);
 
       expect(result).toEqual({
         id: expect.any(String),
         name: body.name,
         mediaType: body.mediaType,
-        movieStartTimestamp: 0,
       });
     });
   });

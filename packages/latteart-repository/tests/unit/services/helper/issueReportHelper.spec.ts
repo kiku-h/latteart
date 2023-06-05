@@ -146,7 +146,7 @@ describe("issueReportHelper", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
-        getVideoUrl: jest.fn(),
+        createVideo: jest.fn(),
         getVideos: jest.fn(),
       };
       const testStep: TestStepService = {

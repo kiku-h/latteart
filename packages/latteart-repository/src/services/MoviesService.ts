@@ -14,14 +14,29 @@
  * limitations under the License.
  */
 
+import { TestResultEntity } from "@/entities/TestResultEntity";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
+import { getRepository } from "typeorm";
+import path from "path";
 
 export class MoviesService {
   public async append(testResultId: string, base64: string): Promise<void> {
     const buf = Uint8Array.from(Buffer.from(base64, "base64"));
 
+    const { videos } = await getRepository(TestResultEntity).findOneOrFail(
+      testResultId,
+      {
+        relations: ["videos"],
+      }
+    );
+
+    const videoUrl =
+      videos && videos.length > 0
+        ? path.basename(videos[0].url)
+        : `${testResultId}_0.webm`;
+
     const fileRepositoryManager = await createFileRepositoryManager();
     const movieFileRepository = fileRepositoryManager.getRepository("movie");
-    await movieFileRepository.appendFile(`${testResultId}.webm`, buf);
+    await movieFileRepository.appendFile(videoUrl, buf);
   }
 }

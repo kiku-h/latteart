@@ -107,6 +107,7 @@ export class ProjectsServiceImpl implements ProjectsService {
               "stories.sessions.testResult.notes.testSteps",
               "stories.sessions.testResult.notes.testSteps.screenshot",
               "stories.sessions.testResult.notes.tags",
+              "stories.sessions.testResult.videos",
               "stories.viewPoint",
               "stories.testTarget",
             ],

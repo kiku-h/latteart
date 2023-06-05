@@ -218,6 +218,7 @@ export class SessionsService {
         "testResult.notes.testSteps.screenshot",
         "testResult.notes.tags",
         "testResult.notes.screenshot",
+        "testResult.videos",
       ],
     });
     if (!session) {

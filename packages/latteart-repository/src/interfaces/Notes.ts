@@ -22,6 +22,7 @@ import { Note } from "@/domain/types";
 export type CreateNoteDto = UpdateNoteDto & {
   imageData?: string;
   timestamp?: number;
+  videoIndex?: number;
 };
 
 /**
@@ -36,6 +37,7 @@ export type UpdateNoteDto = Pick<Note, "type" | "value" | "details"> & {
  */
 export type CreateNoteResponse = Omit<Note, "screenshot"> & {
   imageFileUrl: string;
+  videoIndex?: number;
 };
 
 /**

@@ -137,6 +137,7 @@ describe("NotesService", () => {
         details: note2.details,
         value: note2.value,
         timestamp: 0,
+        videoIndex: null,
       });
     });
   });

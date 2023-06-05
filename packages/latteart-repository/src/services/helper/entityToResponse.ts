@@ -62,6 +62,7 @@ const noteEntityToResponse = (note: NoteEntity): GetNoteResponse => {
       note.screenshot?.fileUrl ?? testStep?.screenshot?.fileUrl ?? "",
     tags,
     timestamp: note.timestamp,
+    videoIndex: note.videoIndex != null ? note.videoIndex : undefined,
   };
 };
 
@@ -126,7 +127,7 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
               session.testResult?.mediaType === ""
                 ? "image"
                 : session.testResult.mediaType,
-            movieStartTimestamp: session.testResult?.movieStartTimestamp,
+            videos: session.testResult?.videos,
           },
         ]
       : [],
@@ -303,6 +304,8 @@ export const convertToTestStepOperation = (
             height: testStepEntity.clientSizeHeight,
           }
         : undefined,
+    videoIndex:
+      testStepEntity.videoIndex != null ? testStepEntity.videoIndex : undefined,
   };
 };
 
