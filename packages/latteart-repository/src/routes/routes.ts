@@ -2199,6 +2199,7 @@ const models: TsoaRoute.Models = {
                 array: {
                   dataType: "nestedObjectLiteral",
                   nestedProperties: {
+                    videoIndex: { dataType: "double" },
                     imageFileUrl: { dataType: "string" },
                     pageTitle: { dataType: "string", required: true },
                     pageUrl: { dataType: "string", required: true },
@@ -2259,7 +2260,7 @@ const models: TsoaRoute.Models = {
     type: { ref: "TestResultViewOption", validators: {} },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_save_movie_failed_: {
+  ServerErrorData_create_video_failed_: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
@@ -2278,7 +2279,7 @@ const models: TsoaRoute.Models = {
         message: { dataType: "string" },
         code: {
           dataType: "enum",
-          enums: ["save_movie_failed"],
+          enums: ["create_video_failed"],
           required: true,
         },
       },

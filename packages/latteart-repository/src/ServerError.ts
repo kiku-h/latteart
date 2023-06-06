@@ -68,7 +68,8 @@ export type ServerErrorCode =
   | "generate_graph_view_failed"
   | "compare_test_results_failed"
   | "comparison_targets_not_same_procedures"
-  | "save_movie_failed";
+  | "save_movie_failed"
+  | "create_video_failed";
 
 /**
  * Server error data.

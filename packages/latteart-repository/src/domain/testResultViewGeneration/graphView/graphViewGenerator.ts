@@ -242,6 +242,7 @@ function createNodes(
       testPurposeId: testStep.intention?.id,
       pageUrl: testStep.operation.url,
       pageTitle: testStep.operation.title,
+      videoIndex: testStep.operation.videoIndex,
     });
 
     const defaultValues = collectDefaultValues(

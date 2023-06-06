@@ -410,7 +410,7 @@ export class TestResultsController extends Controller {
    * @param requestBody.startTimestamp Start timestamp.
    * @returns Video url and start timestamp.
    */
-  @Response<ServerErrorData<"save_movie_failed">>(500, "Save movie failed")
+  @Response<ServerErrorData<"create_video_failed">>(500, "Create video failed")
   @SuccessResponse(200, "Success")
   @Post("{testResultId}/video")
   public async createVideo(
@@ -424,9 +424,9 @@ export class TestResultsController extends Controller {
       );
     } catch (error) {
       if (error instanceof Error) {
-        createLogger().error("Save movie failed", error);
+        createLogger().error("Create video failed", error);
         throw new ServerError(500, {
-          code: "save_movie_failed",
+          code: "create_video_failed",
         });
       }
       throw error;
