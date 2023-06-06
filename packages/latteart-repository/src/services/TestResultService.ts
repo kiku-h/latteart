@@ -17,7 +17,7 @@
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { NoteEntity } from "@/entities/NoteEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
-import { SessionEntity } from "@/entities/SessionEntity";
+import { VideoEntity } from "@/entities/VideoEntity";
 import { TestPurposeEntity } from "@/entities/TestPurposeEntity";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
@@ -28,6 +28,7 @@ import {
   GetTestResultResponse,
   PatchTestResultResponse,
   GetGraphViewResponse,
+  PatchTestResultDto,
 } from "@/interfaces/TestResults";
 import { TransactionRunner } from "@/TransactionRunner";
 import { getRepository, In } from "typeorm";
@@ -104,7 +105,12 @@ export interface TestResultService {
     option?: PageAssertionOption
   ): Promise<CompareTestResultsResponse>;
 
-  getVideoUrl(testResultId: string): Promise<string>;
+  createVideo(
+    testResultId: string,
+    startTimestamp: number
+  ): Promise<{ url: string; startTimestamp: number }>;
+
+  getVideos(testResultId: string): Promise<{ id: string; fileUrl: string }[]>;
 }
 
 export class TestResultServiceImpl implements TestResultService {
@@ -120,7 +126,9 @@ export class TestResultServiceImpl implements TestResultService {
   ) {}
 
   public async getTestResultIdentifiers(): Promise<ListTestResultResponse[]> {
-    const testResultEntities = await getRepository(TestResultEntity).find();
+    const testResultEntities = await getRepository(TestResultEntity).find({
+      relations: ["videos"],
+    });
 
     return testResultEntities.map((testResult) => {
       return {
@@ -128,7 +136,7 @@ export class TestResultServiceImpl implements TestResultService {
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId,
         mediaType: testResult.mediaType === "" ? "image" : testResult.mediaType,
-        movieStartTimestamp: testResult.movieStartTimestamp,
+        videos: testResult.videos,
       };
     });
   }
@@ -151,11 +159,15 @@ export class TestResultServiceImpl implements TestResultService {
       });
       const { coverageSources } = await getRepository(
         TestResultEntity
-      ).findOneOrFail(id, {
-        relations: ["coverageSources"],
-      });
+      ).findOneOrFail(id, { relations: ["coverageSources"] });
+
+      const { videos } = await getRepository(TestResultEntity).findOneOrFail(
+        id,
+        { relations: ["videos"] }
+      );
 
       return await this.convertTestResultEntityToTestResult({
+        videos,
         coverageSources,
         ...testResultEntity,
       });
@@ -165,13 +177,11 @@ export class TestResultServiceImpl implements TestResultService {
   }
 
   public async createTestResult(
-    body: CreateTestResultDto,
-    testResultId: string | null
+    body: CreateTestResultDto
   ): Promise<CreateTestResultResponse> {
-    const createTimestamp = body.initialUrl
+    const startTimestamp = body.initialUrl
       ? this.service?.timestamp.epochMilliseconds()
       : 0;
-    const startTimestamp = body.startTimeStamp ?? createTimestamp;
     const mediaType = body.mediaType ?? "image";
 
     const lastUpdateTimestamp = -1;
@@ -195,23 +205,12 @@ export class TestResultServiceImpl implements TestResultService {
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
       mediaType,
-      movieStartTimestamp: 0,
     });
-
-    if (testResultId) {
-      const oldTestResult = await repository.findOne(testResultId);
-      const sessionRepository = getRepository(SessionEntity);
-      sessionRepository.update(
-        { testResult: oldTestResult },
-        { testResult: newTestResult }
-      );
-    }
 
     return {
       id: newTestResult.id,
       name: newTestResult.name,
       mediaType: newTestResult.mediaType,
-      movieStartTimestamp: newTestResult.movieStartTimestamp,
     };
   }
 
@@ -253,13 +252,11 @@ export class TestResultServiceImpl implements TestResultService {
     return;
   }
 
-  public async patchTestResult(params: {
-    id: string;
-    name?: string;
-    startTime?: number;
-    initialUrl?: string;
-    movieStartTimestamp?: number;
-  }): Promise<PatchTestResultResponse> {
+  public async patchTestResult(
+    params: PatchTestResultDto & {
+      id: string;
+    }
+  ): Promise<PatchTestResultResponse> {
     const id = params.id;
     const testResultEntity = await getRepository(
       TestResultEntity
@@ -276,9 +273,7 @@ export class TestResultServiceImpl implements TestResultService {
 
     const { coverageSources } = await getRepository(
       TestResultEntity
-    ).findOneOrFail(id, {
-      relations: ["coverageSources"],
-    });
+    ).findOneOrFail(id, { relations: ["coverageSources"] });
 
     if (params.initialUrl) {
       testResultEntity.initialUrl = params.initialUrl;
@@ -292,15 +287,16 @@ export class TestResultServiceImpl implements TestResultService {
       testResultEntity.startTimestamp = params.startTime;
     }
 
-    if (params.movieStartTimestamp) {
-      testResultEntity.movieStartTimestamp = params.movieStartTimestamp;
-    }
-
     const updatedTestResultEntity = await getRepository(TestResultEntity).save(
       testResultEntity
     );
 
+    const { videos } = await getRepository(TestResultEntity).findOneOrFail(id, {
+      relations: ["videos"],
+    });
+
     return this.convertTestResultEntityToTestResult({
+      videos,
       coverageSources,
       ...updatedTestResultEntity,
     });
@@ -555,10 +551,10 @@ export class TestResultServiceImpl implements TestResultService {
         relations: ["tags", "screenshot"],
       })
     ).map((noteEntity) => {
-      const { id, value, details, timestamp } = noteEntity;
+      const { id, value, details, timestamp, videoIndex } = noteEntity;
       const tags = noteEntity.tags?.map((tagEntity) => tagEntity.name);
       const imageFileUrl = noteEntity.screenshot?.fileUrl;
-      return { id, value, details, tags, imageFileUrl, timestamp };
+      return { id, value, details, tags, imageFileUrl, timestamp, videoIndex };
     });
 
     const testPurposes = (
@@ -684,6 +680,8 @@ export class TestResultServiceImpl implements TestResultService {
                 tags: note.tags?.map((tag) => tag.name) ?? [],
                 imageFileUrl: note.screenshot?.fileUrl ?? "",
                 timestamp: note.timestamp,
+                videoIndex:
+                  note.videoIndex != null ? note.videoIndex : undefined,
               };
             }) ?? [];
 
@@ -718,13 +716,22 @@ export class TestResultServiceImpl implements TestResultService {
         };
       }) ?? [];
 
+    const videos =
+      testResultEntity.videos
+        ?.sort((a, b) => a.index - b.index)
+        .map((video) => {
+          return {
+            url: video.url,
+            startTimestamp: video.startTimestamp,
+          };
+        }) ?? [];
+
     return {
       id: testResultEntity.id,
       name: testResultEntity.name,
       startTimeStamp: testResultEntity.startTimestamp,
       lastUpdateTimeStamp: testResultEntity.lastUpdateTimestamp,
       initialUrl: testResultEntity.initialUrl,
-      movieStartTimestamp: testResultEntity.movieStartTimestamp,
       testingTime: testResultEntity.testingTime,
       mediaType:
         testResultEntity.mediaType === ""
@@ -733,23 +740,64 @@ export class TestResultServiceImpl implements TestResultService {
       testSteps,
       coverageSources,
       parentTestResultId: testResultEntity.parentTestResultId,
+      videos,
     };
   }
 
-  public async setMovieStartTimestamp(
+  public async createVideo(
     testResultId: string,
     startTimestamp: number
-  ): Promise<void> {
+  ): Promise<{ url: string; startTimestamp: number }> {
     const testResultRepository = getRepository(TestResultEntity);
-    const testResult = await testResultRepository.findOneOrFail(testResultId);
-    testResult.movieStartTimestamp = startTimestamp;
+    const testResult = await testResultRepository.findOneOrFail(testResultId, {
+      relations: ["videos"],
+    });
+    const index =
+      testResult.videos && testResult.videos.length > 0
+        ? testResult.videos.length - 1
+        : 0;
+    const url = this.service?.movieFileRepository
+      ? this.service.movieFileRepository.getFileUrl(
+          `${testResultId}_${index}.webm`
+        )
+      : "";
+    const registeredVideoEntity = await getRepository(VideoEntity).save(
+      new VideoEntity({
+        index,
+        url,
+        startTimestamp,
+        testResult,
+      })
+    );
+    if (testResult.videos) {
+      testResult.videos.push(registeredVideoEntity);
+    } else {
+      testResult.videos = [registeredVideoEntity];
+    }
+
     await testResultRepository.save(testResult);
+
+    return { url, startTimestamp };
   }
 
-  public async getVideoUrl(testResultId: string): Promise<string> {
-    const videoUrl = this.service?.movieFileRepository
-      ? this.service.movieFileRepository.getFileUrl(`${testResultId}.webm`)
-      : "";
-    return videoUrl;
+  public async getVideos(
+    testResultId: string
+  ): Promise<{ id: string; fileUrl: string }[]> {
+    const { videos } = await getRepository(TestResultEntity).findOneOrFail(
+      testResultId,
+      {
+        relations: ["videos"],
+      }
+    );
+
+    const videoInfo =
+      videos?.map((video) => {
+        return {
+          id: video.id,
+          fileUrl: video.url,
+        };
+      }) ?? [];
+
+    return videoInfo;
   }
 }

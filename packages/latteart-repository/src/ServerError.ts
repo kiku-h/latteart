@@ -69,7 +69,7 @@ export type ServerErrorCode =
   | "compare_test_results_failed"
   | "comparison_targets_not_same_procedures"
   | "save_movie_failed"
-  | "update_movie_start_timestamp_failed";
+  | "create_video_failed";
 
 /**
  * Server error data.

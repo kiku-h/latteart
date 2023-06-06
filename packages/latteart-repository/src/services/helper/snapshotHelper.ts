@@ -41,7 +41,7 @@ export function createTestResultFiles(
       name: testResultFile.name,
       id: testResultFile.id,
       mediaType: testResultFile.mediaType,
-      movieStartTimestamp: testResultFile.movieStartTimestamp,
+      videos: testResultFile.videos,
     };
   });
 }
@@ -62,6 +62,7 @@ export function createNotes(
       )}`,
       tags: note.tags,
       timestamp: note.timestamp,
+      videoIndex: note.videoIndex,
     };
   });
 }

@@ -46,6 +46,7 @@ export type GetTestStepResponse = TestStep;
  */
 export type TestStepOperation = Omit<Operation, "screenshot"> & {
   imageFileUrl: string;
+  videoIndex?: number;
 };
 
 /**

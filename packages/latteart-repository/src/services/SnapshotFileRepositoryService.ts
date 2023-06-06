@@ -199,13 +199,10 @@ export class SnapshotFileRepositoryServiceImpl
     const testResult = await this.service.testResult.getTestResult(
       testResultId
     );
+
     const testResultInfo = {
       mediaType: testResult?.mediaType ?? "image",
-      movieStartTimestamp: testResult?.movieStartTimestamp ?? 0,
-      movieFileUrl:
-        testResult?.mediaType === "movie"
-          ? path.join("testResult", `${testResultId}.webm`)
-          : "",
+      videos: testResult?.videos,
     };
 
     const testStepIds = await this.service.testResult.collectAllTestStepIds(
@@ -241,6 +238,7 @@ export class SnapshotFileRepositoryServiceImpl
           windowHandle: testStep.operation.windowHandle,
           keywordTexts: testStep.operation.keywordTexts,
           isAutomatic: testStep.operation.isAutomatic,
+          videoIndex: testStep.operation.videoIndex,
         };
 
         if (testResultInfo.mediaType === "image") {
@@ -278,9 +276,8 @@ export class SnapshotFileRepositoryServiceImpl
                 imageFileUrl: note.imageFileUrl
                   ? path.join("testResult", path.basename(note.imageFileUrl))
                   : "",
-                timestamp: this.service.timestamp
-                  .epochMilliseconds()
-                  .toString(),
+                timestamp: note.timestamp.toString(),
+                videoIndex: note.videoIndex,
               };
             })
           )) ?? [];
@@ -301,8 +298,10 @@ export class SnapshotFileRepositoryServiceImpl
     );
 
     if (testResultInfo.mediaType === "movie") {
-      const videoUrl = await this.service.testResult.getVideoUrl(testResultId);
-      await this.copyMovie(videoUrl, destTestResultPath);
+      testResultInfo.videos?.map(async (video) => {
+        const videoUrl = path.join("testResult", path.basename(video.url));
+        await this.copyMovie(videoUrl, destTestResultPath);
+      });
     }
 
     const { config } = await this.service.config.getProjectConfig("");

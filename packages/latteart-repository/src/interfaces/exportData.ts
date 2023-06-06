@@ -22,6 +22,7 @@ import {
   TestResult,
   TestStep,
 } from "@/domain/types";
+import { VideoInfo } from "./Videos";
 
 export type DeserializedTestResult = Omit<
   TestResult,
@@ -31,7 +32,11 @@ export type DeserializedTestResult = Omit<
   coverageSources: (Pick<CoverageSource, "title" | "url"> & {
     screenElements: DeserializedElementInfo[];
   })[];
+  videos?: DeserializedVideo[];
 };
+
+type DeserializedVideo = VideoInfo & { index: number };
+
 export type DeserializedTestStep = Pick<TestStep, "id"> & {
   operation: Omit<
     Operation,
@@ -41,9 +46,13 @@ export type DeserializedTestStep = Pick<TestStep, "id"> & {
     inputElements: DeserializedElementInfo[];
     keywordTexts: (string | { tagname: string; value: string })[];
     imageFileUrl: string;
+    videoIndex?: number;
   };
   testPurpose: (Omit<Note, "screenshot"> & { imageFileUrl: string }) | null;
-  notes: (Omit<Note, "screenshot"> & { imageFileUrl: string })[];
+  notes: (Omit<Note, "screenshot"> & {
+    imageFileUrl: string;
+    videoIndex?: number;
+  })[];
 };
 
 type DeserializedElementInfo = Pick<ElementInfo, "tagname" | "xpath"> & {
@@ -146,17 +155,19 @@ export type HistoryItemExportDataV2 = Omit<
   HistoryItemExportDataV1,
   "testStep"
 > & {
-  testStep: Omit<
-    HistoryItemExportDataV1["testStep"],
-    "operation" | "inputElements" | "pageInfo"
-  > & {
-    operation: OperationExportDataV2;
-    inputElements: ElementInfoExportDataV2[];
-    pageInfo: {
-      title: string;
-      url: string;
-      keywordTexts: (string | { tagname: string; value: string })[];
-    };
+  testStep: TestStepExportDataV2;
+};
+
+type TestStepExportDataV2 = Omit<
+  HistoryItemExportDataV1["testStep"],
+  "operation" | "inputElements" | "pageInfo"
+> & {
+  operation: OperationExportDataV2;
+  inputElements: ElementInfoExportDataV2[];
+  pageInfo: {
+    title: string;
+    url: string;
+    keywordTexts: (string | { tagname: string; value: string })[];
   };
 };
 type OperationExportDataV2 = Omit<OperationExportDataV1, "elementInfo"> & {
@@ -175,7 +186,33 @@ type ElementInfoExportDataV2 = ElementInfoExportDataV1 & {
 };
 
 // V3 Format
-export type TestResultExportDataV3 = TestResultExportDataV2 & {
+export type TestResultExportDataV3 = Omit<
+  TestResultExportDataV2,
+  "history" | "notes"
+> & {
+  history: { [k: string]: HistoryItemExportDataV3 };
   mediaType: "image" | "movie";
-  movieStartTimestamp: number;
+  videos?: VideoInfo[];
+  notes: {
+    id: string;
+    type: string;
+    value: string;
+    details: string;
+    imageFileUrl: string;
+    tags: string[];
+    timestamp: number;
+    videoIndex?: number;
+  }[];
 };
+
+export type HistoryItemExportDataV3 = Omit<
+  HistoryItemExportDataV2,
+  "testStep"
+> & {
+  testStep: TestStepExportDataV3;
+};
+
+type TestStepExportDataV3 = Omit<TestStepExportDataV2, "operation"> & {
+  operation: OperationExportDataV3;
+};
+type OperationExportDataV3 = OperationExportDataV2 & { videoIndex?: number };

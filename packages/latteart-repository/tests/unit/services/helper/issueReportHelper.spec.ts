@@ -49,7 +49,6 @@ describe("issueReportHelper", () => {
         name: "testResultName",
         id: "testResultId",
         mediaType: "image" as "image" | "movie",
-        movieStartTimestamp: 0,
       },
     ],
     initialUrl: "",
@@ -147,7 +146,8 @@ describe("issueReportHelper", () => {
         generateSequenceView: jest.fn(),
         generateGraphView: jest.fn(),
         compareTestResults: jest.fn(),
-        getVideoUrl: jest.fn(),
+        createVideo: jest.fn(),
+        getVideos: jest.fn(),
       };
       const testStep: TestStepService = {
         getTestStep: jest.fn().mockResolvedValue({

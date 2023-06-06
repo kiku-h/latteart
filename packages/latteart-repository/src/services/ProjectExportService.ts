@@ -70,12 +70,16 @@ export class ProjectExportService {
             ? await service.testResultService.collectAllTestStepScreenshots(
                 testResultEntity.id
               )
-            : await service.testResultService.getVideoUrl(testResult.id);
+            : await service.testResultService.getVideos(testResult.id);
 
         const serializedTestResult = serializeTestResult(testResult);
         return {
           testResultId: testResult.id,
-          testResultFile: { fileName: "log.json", data: serializedTestResult },
+          testResultFile: {
+            fileName: "log.json",
+            data: serializedTestResult,
+            mediaType: testResult.mediaType,
+          },
           fileData,
         };
       })

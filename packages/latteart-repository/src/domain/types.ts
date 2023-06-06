@@ -28,7 +28,6 @@ export type TestResult = {
   testingTime: number;
   testSteps: TestStep[];
   mediaType: "image" | "movie";
-  movieStartTimestamp: number;
   coverageSources: {
     title: string;
     url: string;

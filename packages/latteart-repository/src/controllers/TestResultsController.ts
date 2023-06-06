@@ -44,6 +44,7 @@ import {
   GetSequenceViewResponse,
   GetGraphViewDto,
   GetGraphViewResponse,
+  PatchTestResultDto,
 } from "../interfaces/TestResults";
 import { TestResultServiceImpl } from "../services/TestResultService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
@@ -178,7 +179,7 @@ export class TestResultsController extends Controller {
         screenshotFileRepository,
         workingFileRepository,
         compareReportRepository,
-      }).createTestResult(requestBody, null);
+      }).createTestResult(requestBody);
 
       return result;
     } catch (error) {
@@ -208,12 +209,7 @@ export class TestResultsController extends Controller {
   public async updateTestResult(
     @Path() testResultId: string,
     @Body()
-    requestBody: {
-      name?: string;
-      startTime?: number;
-      initialUrl?: string;
-      movieStartTimestamp?: number;
-    }
+    requestBody: PatchTestResultDto
   ): Promise<PatchTestResultResponse> {
     console.log("TestResultsController - updateTestResult");
 
@@ -409,61 +405,31 @@ export class TestResultsController extends Controller {
   }
 
   /**
-   * Update movie start timestamp.
+   * Create video.
    * @param testResultId Target test result id.
    * @param requestBody.startTimestamp Start timestamp.
+   * @returns Video url and start timestamp.
    */
-  @Response<ServerErrorData<"update_movie_start_timestamp_failed">>(
-    500,
-    "Update movie start timestamp failed"
-  )
-  @SuccessResponse(204, "Success")
-  @Patch("{testResultId}/start-movie")
-  public async updateMovieStartTimestamp(
+  @Response<ServerErrorData<"create_video_failed">>(500, "Create video failed")
+  @SuccessResponse(200, "Success")
+  @Post("{testResultId}/video")
+  public async createVideo(
     @Path() testResultId: string,
     @Body() requestBody: { startTimestamp: number }
-  ): Promise<void> {
+  ): Promise<{ url: string; startTimestamp: number }> {
     try {
-      await new TestResultServiceImpl().setMovieStartTimestamp(
+      return await new TestResultServiceImpl().createVideo(
         testResultId,
         requestBody.startTimestamp
       );
     } catch (error) {
       if (error instanceof Error) {
-        createLogger().error("Update movie start timestamp failed", error);
+        createLogger().error("Create video failed", error);
         throw new ServerError(500, {
-          code: "update_movie_start_timestamp_failed",
+          code: "create_video_failed",
         });
       }
+      throw error;
     }
-  }
-
-  /**
-   * Get video url.
-   * @param testResultId Target test result id.
-   * @returns Video url.
-   */
-  @SuccessResponse(200, "Success")
-  @Get("{testResultId}/video-url")
-  public async getVideoUrl(@Path() testResultId: string): Promise<string> {
-    const timestampService = new TimestampServiceImpl();
-    const fileRepositoryManager = await createFileRepositoryManager();
-    const screenshotFileRepository =
-      fileRepositoryManager.getRepository("screenshot");
-    const workingFileRepository = fileRepositoryManager.getRepository("work");
-    const compareReportRepository = fileRepositoryManager.getRepository("temp");
-    const movieFileRepository = fileRepositoryManager.getRepository("movie");
-    return new TestResultServiceImpl({
-      timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
-        screenshotFileRepository,
-        timestamp: timestampService,
-        config: new ConfigsService(),
-      }),
-      screenshotFileRepository,
-      workingFileRepository,
-      compareReportRepository,
-      movieFileRepository,
-    }).getVideoUrl(testResultId);
   }
 }

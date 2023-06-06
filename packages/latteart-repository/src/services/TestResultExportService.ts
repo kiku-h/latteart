@@ -46,13 +46,17 @@ export class TestResultExportServiceImpl implements TestResultExportService {
         ? await this.service.testResult.collectAllTestStepScreenshots(
             testResultId
           )
-        : await this.service.testResult.getVideoUrl(testResultId);
+        : await this.service.testResult.getVideos(testResultId);
 
     const serializedTestResult = serializeTestResult(testResult);
 
     const url = await this.service.exportFileRepository.exportTestResult({
       name: testResult.name,
-      testResultFile: { fileName: "log.json", data: serializedTestResult },
+      testResultFile: {
+        fileName: "log.json",
+        data: serializedTestResult,
+        mediaType: testResult.mediaType,
+      },
       fileData,
     });
 

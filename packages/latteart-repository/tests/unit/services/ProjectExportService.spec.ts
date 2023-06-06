@@ -48,7 +48,6 @@ describe("ProjectExportService", () => {
       testingTime: 0,
       testSteps: [],
       mediaType: "image",
-      movieStartTimestamp: 0,
       coverageSources: [],
     };
 
@@ -83,16 +82,16 @@ describe("ProjectExportService", () => {
       patchTestResult: jest.fn(),
       collectAllTestStepIds: jest.fn(),
       collectAllTestPurposeIds: jest.fn(),
-      collectAllTestStepScreenshots: jest.fn().mockResolvedValue([
-        {
-          id: "id",
-          fileUrl: "fileUrl",
-        },
-      ]),
+      collectAllTestStepScreenshots: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: "fileUrl" }]),
       generateSequenceView: jest.fn(),
       generateGraphView: jest.fn(),
       compareTestResults: jest.fn(),
-      getVideoUrl: jest.fn().mockResolvedValue(`movie/testResultId.webm`),
+      createVideo: jest.fn(),
+      getVideos: jest
+        .fn()
+        .mockResolvedValue([{ id: "id", fileUrl: `movie/testResultId.webm` }]),
     };
 
     const exportFileRepositoryService: ExportFileRepositoryService = {
@@ -230,11 +229,11 @@ describe("ProjectExportService", () => {
               initialUrl: "",
               testingTime: 0,
               mediaType: "image",
-              movieStartTimestamp: 0,
               history: {},
               notes: [],
               coverageSources: [],
             }),
+            mediaType: "image",
           },
           fileData: [{ id: "id", fileUrl: "fileUrl" }],
         },
@@ -247,6 +246,7 @@ describe("ProjectExportService", () => {
       const data = {
         ...testResultData,
         mediaType: "movie",
+        videos: [{ url: `movie/testResultId.webm`, startTimestamp: 0 }],
       };
       testResultService.getTestResult = jest.fn().mockResolvedValue(data);
 
@@ -270,13 +270,14 @@ describe("ProjectExportService", () => {
               initialUrl: "",
               testingTime: 0,
               mediaType: "movie",
-              movieStartTimestamp: 0,
               history: {},
               notes: [],
               coverageSources: [],
+              videos: [{ url: `movie/testResultId.webm`, startTimestamp: 0 }],
             }),
+            mediaType: "movie",
           },
-          fileData: `movie/testResultId.webm`,
+          fileData: [{ id: `id`, fileUrl: `movie/testResultId.webm` }],
         },
       ]);
     });

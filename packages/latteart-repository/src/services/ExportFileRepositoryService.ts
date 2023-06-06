@@ -34,8 +34,12 @@ interface exportProjectData {
 }
 interface exportTestResultData {
   testResultId: string;
-  testResultFile: { fileName: string; data: string };
-  fileData: string | { id: string; fileUrl: string }[];
+  testResultFile: {
+    fileName: string;
+    data: string;
+    mediaType: "image" | "movie";
+  };
+  fileData: { id: string; fileUrl: string }[];
 }
 export interface ExportFileRepositoryService {
   exportProject(
@@ -45,8 +49,12 @@ export interface ExportFileRepositoryService {
 
   exportTestResult(testResult: {
     name: string;
-    testResultFile: { fileName: string; data: string };
-    fileData: string | { id: string; fileUrl: string }[];
+    testResultFile: {
+      fileName: string;
+      data: string;
+      mediaType: "image" | "movie";
+    };
+    fileData: { id: string; fileUrl: string }[];
   }): Promise<string>;
 }
 
@@ -166,13 +174,17 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    if (typeof testResult.fileData === "string") {
-      const movieFileName = testResult.fileData.split("/").slice(-1)[0];
+    if (testResult.testResultFile.mediaType === "movie") {
+      await Promise.all(
+        testResult.fileData.map(async (video) => {
+          const fileName = video.fileUrl.split("/").slice(-1)[0];
 
-      await this.service.workingFileRepository.copyFile(
-        movieFileName,
-        path.join(testResultPath, "movie", movieFileName),
-        "movie"
+          return await this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(testResultPath, "movie", fileName),
+            "movie"
+          );
+        })
       );
     } else {
       await Promise.all(
@@ -194,8 +206,12 @@ export class ExportFileRepositoryServiceImpl
 
   public async exportTestResult(testResult: {
     name: string;
-    testResultFile: { fileName: string; data: string };
-    fileData: string | { id: string; fileUrl: string }[];
+    testResultFile: {
+      fileName: string;
+      data: string;
+      mediaType: "image" | "movie";
+    };
+    fileData: { id: string; fileUrl: string }[];
   }): Promise<string> {
     const outputDirName = await this.outputFiles(testResult);
 
@@ -218,8 +234,12 @@ export class ExportFileRepositoryServiceImpl
 
   private async outputFiles(testResult: {
     name: string;
-    testResultFile: { fileName: string; data: string };
-    fileData: string | { id: string; fileUrl: string }[];
+    testResultFile: {
+      fileName: string;
+      data: string;
+      mediaType: "image" | "movie";
+    };
+    fileData: { id: string; fileUrl: string }[];
   }) {
     const outputDirName = `test_result`;
     await this.service.workingFileRepository.outputFile(
@@ -227,13 +247,19 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    if (typeof testResult.fileData === "string") {
-      const movieFileName = testResult.fileData.split("/").slice(-1)[0];
+    if (testResult.testResultFile.mediaType === "movie") {
+      const movieFileNames = testResult.fileData.map(({ fileUrl }) => {
+        return fileUrl.split("/").slice(-1)[0];
+      });
 
-      await this.service.workingFileRepository.copyFile(
-        movieFileName,
-        path.join(outputDirName, path.basename(movieFileName)),
-        "movie"
+      await Promise.all(
+        movieFileNames.map((fileName) => {
+          return this.service.workingFileRepository.copyFile(
+            fileName,
+            path.join(outputDirName, path.basename(fileName)),
+            "movie"
+          );
+        })
       );
     } else {
       const screenshotFileNames = testResult.fileData.map(({ fileUrl }) => {

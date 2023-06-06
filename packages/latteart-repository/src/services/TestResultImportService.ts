@@ -31,6 +31,7 @@ import {
   DeserializedTestResult,
   DeserializedTestStep,
 } from "@/interfaces/exportData";
+import { VideoEntity } from "@/entities/VideoEntity";
 
 export interface TestResultImportService {
   importTestResult(
@@ -205,11 +206,38 @@ export class TestResultImportServiceImpl implements TestResultImportService {
     );
 
     if (testResult.mediaType === "movie") {
-      const fileName = `${newTestResultEntity.id}.webm`;
-      await this.service.movieFileRepository.outputFile(
-        fileName,
-        importFileData.fileData[0].data
+      const videoFilePathToEntity = await Promise.all(
+        importFileData.fileData.map(async (video) => {
+          const substrings = video.filePath.split(".");
+          const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
+          const videoFileName = path.basename(video.filePath);
+          const videoInfo = testResult.videos?.find((item) =>
+            item.url.match(videoFileName)
+          );
+          const index = videoInfo ? videoInfo.index : 0;
+
+          const fileName = `${newTestResultEntity.id}_${index}${fileExt}`;
+          await this.service.movieFileRepository.outputFile(
+            fileName,
+            video.data
+          );
+          const videoUrl =
+            this.service.movieFileRepository.getFileUrl(fileName);
+
+          const videoEntity = await getRepository(VideoEntity).save(
+            new VideoEntity({
+              url: videoUrl,
+              startTimestamp: videoInfo ? videoInfo.startTimestamp : 0,
+              index,
+            })
+          );
+
+          return videoEntity;
+        })
       );
+
+      newTestResultEntity.videos = videoFilePathToEntity;
+      await getRepository(TestResultEntity).save(newTestResultEntity);
     }
 
     return {
@@ -258,7 +286,6 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       initialUrl: testResult.initialUrl ?? "",
       testingTime: testResult.testingTime,
       mediaType: testResult.mediaType,
-      movieStartTimestamp: testResult.movieStartTimestamp,
       screenshots: screenshotFilePathToEntity
         ? Array.from(screenshotFilePathToEntity.values())
         : undefined,
@@ -306,6 +333,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       keywordTexts: JSON.stringify(testStep.operation.keywordTexts ?? []),
       isAutomatic: testStep.operation.isAutomatic,
       timestamp: parseInt(testStep.operation.timestamp, 10),
+      videoIndex: testStep.operation.videoIndex,
       screenshot: screenshotEntity,
       testPurpose: testPurposeEntity,
       notes: noteEntities,
@@ -321,6 +349,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       imageFileUrl: string;
       tags: string[];
       timestamp: number;
+      videoIndex?: number;
     },
     tagEntities: TagEntity[],
     screenshotFilePathToEntity?: Map<string, ScreenshotEntity>
@@ -333,6 +362,7 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       value: note.value,
       details: note.details,
       timestamp: note.timestamp,
+      videoIndex: note.videoIndex,
       screenshot: screenshotEntity,
       tags: tagEntities,
     });

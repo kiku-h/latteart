@@ -53,6 +53,7 @@ export type GraphViewNode = {
     testPurposeId?: string;
     pageUrl: string;
     pageTitle: string;
+    videoIndex?: number;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -71,6 +72,7 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
       ElementInfo,
       "xpath" | "tagname" | "text" | "attributes" | "checked" | "value"
     >[];
+    videoIndex?: number;
   };
   intention: Pick<
     NonNullable<TestStep["intention"]>,

@@ -15,6 +15,7 @@
  */
 
 import { GetNoteResponse } from "./Notes";
+import { VideoInfo } from "./Videos";
 
 /**
  * Registered session data.
@@ -44,10 +45,7 @@ export interface PatchSessionDto {
     fileUrl?: string;
     fileData?: string;
   }[];
-  testResultFiles?: {
-    name: string;
-    id: string;
-  }[];
+  testResultFiles?: TestResultFile[];
 }
 
 /**
@@ -63,14 +61,16 @@ export type Session = {
   testerName: string;
   memo: string;
   attachedFiles: { name: string; fileUrl: string }[];
-  testResultFiles: {
-    name: string;
-    id: string;
-    mediaType: "image" | "movie";
-    movieStartTimestamp: number;
-  }[];
+  testResultFiles: TestResultFile[];
   initialUrl: string;
   testPurposes: GetNoteResponse[];
   notes: GetNoteResponse[];
   testingTime: number;
+};
+
+type TestResultFile = {
+  name: string;
+  id: string;
+  mediaType: "image" | "movie";
+  videos?: VideoInfo[];
 };

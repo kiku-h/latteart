@@ -95,6 +95,10 @@ export class NotesServiceImpl implements NotesService {
       registeredNoteEntity.screenshot = screenshotEntity;
     }
 
+    if (requestBody.videoIndex) {
+      registeredNoteEntity.videoIndex = requestBody.videoIndex;
+    }
+
     const updatedNoteEntity = await getRepository(NoteEntity).save(
       registeredNoteEntity
     );
@@ -169,6 +173,8 @@ export class NotesServiceImpl implements NotesService {
       imageFileUrl: noteEntity.screenshot?.fileUrl ?? "",
       tags: noteEntity.tags?.map((tag) => tag.name) ?? [],
       timestamp: noteEntity.timestamp,
+      videoIndex:
+        noteEntity.videoIndex != null ? noteEntity.videoIndex : undefined,
     };
   }
 }
