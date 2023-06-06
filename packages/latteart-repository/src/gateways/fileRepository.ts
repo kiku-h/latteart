@@ -218,7 +218,7 @@ export class StaticDirectory {
           console.error(err);
           return reject(err);
         }
-        return resolve;
+        return resolve();
       });
     });
   }

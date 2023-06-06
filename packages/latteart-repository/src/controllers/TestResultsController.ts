@@ -405,7 +405,7 @@ export class TestResultsController extends Controller {
   }
 
   /**
-   * Create video entity.
+   * Create video.
    * @param testResultId Target test result id.
    * @param requestBody.startTimestamp Start timestamp.
    * @returns Video url and start timestamp.

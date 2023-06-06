@@ -23,7 +23,7 @@ import {
 } from "typeorm";
 import { TestResultEntity } from "./TestResultEntity";
 
-@Entity("VIDEO")
+@Entity("VIDEOS")
 export class VideoEntity {
   @PrimaryGeneratedColumn("uuid", { name: "video_id" })
   id!: string;
