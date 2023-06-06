@@ -95,15 +95,8 @@ export class NotesServiceImpl implements NotesService {
       registeredNoteEntity.screenshot = screenshotEntity;
     }
 
-    if (testResultEntity.mediaType === "movie") {
-      const { videos } = await getRepository(TestResultEntity).findOneOrFail(
-        testResultId,
-        { relations: ["videos"] }
-      );
-      const videoIndex =
-        videos?.sort((a, b) => a.index - b.index).at(-1)?.index ?? 0;
-
-      registeredNoteEntity.videoIndex = requestBody.videoIndex ?? videoIndex;
+    if (requestBody.videoIndex) {
+      registeredNoteEntity.videoIndex = requestBody.videoIndex;
     }
 
     const updatedNoteEntity = await getRepository(NoteEntity).save(
