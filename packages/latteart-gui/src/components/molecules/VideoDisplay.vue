@@ -30,8 +30,6 @@ import { Vue, Prop, Component, Watch } from "vue-property-decorator";
 export default class VideoDisplay extends Vue {
   @Prop({ type: String, default: "" })
   public readonly videoUrl!: string;
-  @Prop({ type: Number, default: 0 })
-  public readonly startTime!: number;
   @Prop({ type: Boolean, default: false })
   public readonly pictureInPicture!: boolean;
 
@@ -48,13 +46,12 @@ export default class VideoDisplay extends Vue {
       this.notifyLeavePictureInPicture
     );
     video.src = this.videoUrl;
-    video.currentTime = this.startTime;
   }
 
   beforeDestroy() {
     const video = this.$refs.video as HTMLVideoElement;
 
-    video.addEventListener("playing", this.notifyPlaying);
+    video.removeEventListener("playing", this.notifyPlaying);
     video.removeEventListener(
       "enterpictureinpicture",
       this.notifyEnterPictureInPicture
@@ -66,16 +63,11 @@ export default class VideoDisplay extends Vue {
   }
 
   @Watch("videoUrl")
-  private updateVideo(): void {
-    const video = this.$refs.video as HTMLVideoElement;
-    video.src = this.videoUrl;
-  }
-
-  @Watch("startTime")
-  private updateCurrentTime(): void {
-    const video = this.$refs.video as HTMLVideoElement;
-    video.pause();
-    video.currentTime = this.startTime;
+  private updateVideoUrl(): void {
+    const videoElement = this.$refs.video as HTMLVideoElement;
+    videoElement.pause();
+    videoElement.src = this.videoUrl;
+    videoElement.load();
   }
 
   @Watch("pictureInPicture")

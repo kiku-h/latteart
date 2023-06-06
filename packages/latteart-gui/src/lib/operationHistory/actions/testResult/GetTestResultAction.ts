@@ -47,6 +47,14 @@ export class GetTestResultAction {
       });
     }
 
+    const videos =
+      result.data.videos?.map(({ url, startTimestamp }) => {
+        return {
+          url: new URL(url, this.repositoryService.serviceUrl).toString(),
+          startTimestamp,
+        };
+      }) ?? [];
+
     return new ActionSuccess({
       ...result.data,
       testSteps: result.data.testSteps.map((testStep) => {
@@ -57,9 +65,37 @@ export class GetTestResultAction {
             ).toString()
           : "";
 
+        const {
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          inputElements,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
+          videoIndex,
+        } = testStep.operation;
+
         const operation = {
-          ...testStep.operation,
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          inputElements,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
           imageFileUrl: operationImageFileUrl,
+          video: videoIndex ? videos.at(videoIndex) : undefined,
         };
 
         return {
@@ -73,9 +109,18 @@ export class GetTestResultAction {
                 ).toString()
               : "";
 
+            const { id, type, value, details, tags, timestamp, videoIndex } =
+              note;
+
             return {
-              ...note,
+              id,
+              type,
+              value,
+              details,
+              tags,
+              timestamp,
               imageFileUrl: noteImageFileUrl,
+              video: videoIndex ? videos.at(videoIndex) : undefined,
             };
           }),
           bugs: [],

@@ -241,34 +241,14 @@ export class TestResultRepository {
     }
   }
 
-  public async setMovieStartTimestamp(
+  public async createVideo(
     testResultId: string,
     startTimestamp: number
-  ): Promise<RepositoryAccessResult<void>> {
+  ): Promise<RepositoryAccessResult<{ url: string; startTimestamp: number }>> {
     try {
-      const response = await this.restClient.httpPatch(
-        `api/v1/test-results/${testResultId}/start-movie`,
+      const response = await this.restClient.httpPost(
+        `api/v1/test-results/${testResultId}/video`,
         { startTimestamp }
-      );
-
-      if (response.status !== 204) {
-        return createRepositoryAccessFailure(response);
-      }
-
-      return createRepositoryAccessSuccess({
-        data: response.data as void,
-      });
-    } catch (error) {
-      return createConnectionRefusedFailure();
-    }
-  }
-
-  public async getVideoUrl(
-    testResultId: string
-  ): Promise<RepositoryAccessResult<string>> {
-    try {
-      const response = await this.restClient.httpGet(
-        `api/v1/test-results/${testResultId}/video-url`
       );
 
       if (response.status !== 200) {
@@ -276,7 +256,7 @@ export class TestResultRepository {
       }
 
       return createRepositoryAccessSuccess({
-        data: response.data as string,
+        data: response.data as { url: string; startTimestamp: number },
       });
     } catch (error) {
       return createConnectionRefusedFailure();

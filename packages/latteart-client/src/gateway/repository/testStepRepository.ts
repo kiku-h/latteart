@@ -136,7 +136,22 @@ export class TestStepRepositoryImpl implements TestStepRepository {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/test-results/${testResultId}/test-steps`,
-        capturedOperation
+        {
+          input: capturedOperation.input,
+          type: capturedOperation.type,
+          elementInfo: capturedOperation.elementInfo,
+          title: capturedOperation.title,
+          url: capturedOperation.url,
+          imageData: capturedOperation.imageData,
+          windowHandle: capturedOperation.windowHandle,
+          timestamp: capturedOperation.timestamp,
+          screenElements: capturedOperation.screenElements,
+          pageSource: capturedOperation.pageSource,
+          inputElements: capturedOperation.inputElements,
+          scrollPosition: capturedOperation.scrollPosition,
+          clientSize: capturedOperation.clientSize,
+          isAutomatic: capturedOperation.isAutomatic,
+        }
       );
 
       if (response.status !== 200) {

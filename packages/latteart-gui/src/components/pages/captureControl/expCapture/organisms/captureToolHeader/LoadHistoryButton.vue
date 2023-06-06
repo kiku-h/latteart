@@ -122,7 +122,6 @@ export default class LoadHistoryButton extends Vue {
           id: "",
           name: "EMPTY",
           mediaType,
-          movieStartTimestamp: 0,
         });
       }
 

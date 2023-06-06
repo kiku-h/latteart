@@ -485,7 +485,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       name: string;
       parentTestResultId: string;
       mediaType: "image" | "movie";
-      movieStartTimestamp: number;
     }
   ) {
     state.testResultInfo = {
@@ -494,7 +493,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       name: payload.name,
       parentTestResultId: payload.parentTestResultId,
       mediaType: payload.mediaType,
-      movieStartTimestamp: payload.movieStartTimestamp,
     };
   },
 
@@ -502,14 +500,9 @@ const mutations: MutationTree<OperationHistoryState> = {
    * Set test result movie info to the State.
    * @param state State.
    * @param payload.mediaType Media type.
-   * @param payload.movieStartTimestamp Movie start time stamp.
    */
-  setTestResultMovieInfo(
-    state,
-    payload: { mediaType: "image" | "movie"; movieStartTimestamp: number }
-  ) {
+  setTestResultMovieInfo(state, payload: { mediaType: "image" | "movie" }) {
     state.testResultInfo.mediaType = payload.mediaType;
-    state.testResultInfo.movieStartTimestamp = payload.movieStartTimestamp;
   },
 
   /**
@@ -570,15 +563,6 @@ const mutations: MutationTree<OperationHistoryState> = {
    */
   clearWindows(state) {
     Vue.set(state, "windows", []);
-  },
-
-  /**
-   * Set movie start timestamp.
-   * @param state State.
-   * @param payload.movieStartTimestamp Movie start timestamp.
-   */
-  setMovieStartTimestamp(state, payload: { movieStartTimestamp: number }) {
-    state.testResultInfo.movieStartTimestamp = payload.movieStartTimestamp;
   },
 
   /**

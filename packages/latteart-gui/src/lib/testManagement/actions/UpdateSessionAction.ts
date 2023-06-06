@@ -42,7 +42,13 @@ export class UpdateSessionAction {
     const result = await this.repositoryService.sessionRepository.patchSession(
       projectId,
       sessionId,
-      body
+      {
+        ...body,
+        testResultFiles:
+          body.testResultFiles?.map((testResultFile) => {
+            return { ...testResultFile, movieStartTimestamp: 0 };
+          }) ?? [],
+      }
     );
 
     if (result.isFailure()) {

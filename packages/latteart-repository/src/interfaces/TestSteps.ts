@@ -34,6 +34,7 @@ export type CreateTestStepDto = {
   isAutomatic?: boolean;
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
+  videoIndex?: number;
 };
 
 /**

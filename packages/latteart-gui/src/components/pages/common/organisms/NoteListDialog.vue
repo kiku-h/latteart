@@ -90,18 +90,16 @@ export default class NoteListDialog extends Vue {
     value: string;
     details: string;
     timestamp: number;
+    video?: { url: string; startTimestamp: number };
   }[];
   @Prop({ type: Function }) public readonly message!: MessageProvider;
 
   private get noteWithTime() {
     return this.notes
       ? this.notes.map((note) => {
-          const currentNoteTime = this.currentTime(note.timestamp);
-          return {
-            ...note,
-            videoUrl: this.$store.state.captureControl.capturedMovieUrl,
-            currentNoteTime,
-          };
+          const videoUrl = note.video?.url ?? "";
+          const currentNoteTime = this.currentTime(note);
+          return { ...note, videoUrl, currentNoteTime };
         })
       : [];
   }
@@ -114,16 +112,15 @@ export default class NoteListDialog extends Vue {
     return this.operationHistoryState.testResultInfo.mediaType;
   }
 
-  private get startTimestamp(): number {
-    return this.operationHistoryState.testResultInfo.movieStartTimestamp;
-  }
-
-  private currentTime(timeStamp?: number) {
-    if (!timeStamp || !this.startTimestamp) {
+  private currentTime(note: {
+    timestamp: number;
+    video?: { url: string; startTimestamp: number };
+  }) {
+    if (!note.timestamp || !note.video?.startTimestamp) {
       return 0;
     }
 
-    const unixTime = (timeStamp - this.startTimestamp) / 1000;
+    const unixTime = (note.timestamp - note.video.startTimestamp) / 1000;
     if (unixTime < 0) {
       return 0;
     }

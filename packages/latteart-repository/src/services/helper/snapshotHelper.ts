@@ -40,7 +40,6 @@ export function createTestResultFiles(
     return {
       name: testResultFile.name,
       id: testResultFile.id,
-      mediaType: testResultFile.mediaType,
       videos: testResultFile.videos,
     };
   });

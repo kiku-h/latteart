@@ -123,10 +123,6 @@ export const sessionEntityToResponse = (session: SessionEntity): Session => {
           {
             name: session.testResult?.name ?? "",
             id: session.testResult?.id ?? "",
-            mediaType:
-              session.testResult?.mediaType === ""
-                ? "image"
-                : session.testResult.mediaType,
             videos: session.testResult?.videos,
           },
         ]

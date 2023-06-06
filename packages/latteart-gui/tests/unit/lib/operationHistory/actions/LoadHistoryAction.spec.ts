@@ -26,7 +26,6 @@ describe("LoadHistoryAction", () => {
         testSteps: [],
         coverageSources: [],
         mediaType: "image",
-        movieStartTimestamp: 0,
       };
       const expectedTestResult = {
         coverageSources: [],
@@ -36,7 +35,6 @@ describe("LoadHistoryAction", () => {
           id: "id",
           mediaType: "image",
           name: "name",
-          movieStartTimestamp: 0,
           parentTestResultId: undefined,
         },
         testStepIds: [],

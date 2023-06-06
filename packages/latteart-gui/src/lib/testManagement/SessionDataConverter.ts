@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import { SessionForRepository } from "latteart-client";
 import { Session } from "./types";
 
 export default class SessionDataConverter {
   public convertToSession(
-    target: Partial<Session>,
+    target: Partial<SessionForRepository>,
     serviceUrl: string
   ): Session {
     return {
@@ -39,9 +40,25 @@ export default class SessionDataConverter {
             const noteImageFileUrl = note.imageFileUrl
               ? new URL(note.imageFileUrl, serviceUrl).toString()
               : "";
+
+            const video = (() => {
+              if (!note.videoIndex) return;
+
+              const videos = target.testResultFiles?.at(0)?.videos;
+              const video = videos?.at(note.videoIndex);
+
+              if (!video) return;
+
+              return {
+                url: new URL(video.url, serviceUrl).toString(),
+                startTimestamp: video.startTimestamp,
+              };
+            })();
+
             return {
               ...note,
               imageFileUrl: noteImageFileUrl,
+              video,
             };
           })
         : [],

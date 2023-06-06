@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 
+import {
+  CapturedOperationForCaptureCl,
+  CapturedScreenTransitionForCaptureCl,
+  ElementInfoForCaptureCl,
+} from "@/gateway/captureCl";
+
 export type TestResultViewOption = {
   node: {
     unit: "title" | "url";
@@ -28,53 +34,29 @@ export type TestResultViewOption = {
   };
 };
 
-export type CapturedScreenTransition = {
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
+export type CapturedScreenTransition = Omit<
+  CapturedScreenTransitionForCaptureCl,
+  "screenElements"
+> & {
   screenElements: ElementInfo[];
-  pageSource: string;
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
+  video?: Video;
 };
 
-export type CapturedOperation = {
-  input: string;
-  type: string;
+export type CapturedOperation = Omit<
+  CapturedOperationForCaptureCl,
+  "elementInfo" | "screenElements" | "inputElements"
+> & {
   elementInfo: ElementInfo | null;
-  title: string;
-  url: string;
-  imageData: string;
-  windowHandle: string;
-  timestamp: string;
   screenElements: ElementInfo[];
-  pageSource: string;
   inputElements: ElementInfo[];
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
-  isAutomatic?: boolean;
+  video?: Video;
 };
 
-export type ElementInfo = {
-  tagname: string;
-  text?: string;
-  xpath: string;
-  value?: string;
-  checked?: boolean;
-  attributes: { [key: string]: string };
-  boundingRect?: {
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-  };
-  innerHeight?: number;
-  innerWidth?: number;
-  outerHeight?: number;
-  outerWidth?: number;
-  textWithoutChildren?: string;
+export type ElementInfo = ElementInfoForCaptureCl;
+
+export type Video = {
+  url: string;
+  startTimestamp: number;
 };
 
 export type Operation = {
@@ -91,6 +73,7 @@ export type Operation = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
+  video?: Video;
 };
 
 export type RunnableOperation = Pick<
@@ -115,6 +98,7 @@ export type Note = {
   imageFileUrl: string;
   tags: string[];
   timestamp: number;
+  video?: Video;
 };
 
 export type TestStepNote = {

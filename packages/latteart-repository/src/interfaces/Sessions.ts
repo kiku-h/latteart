@@ -71,6 +71,5 @@ export type Session = {
 type TestResultFile = {
   name: string;
   id: string;
-  mediaType: "image" | "movie";
   videos?: VideoInfo[];
 };

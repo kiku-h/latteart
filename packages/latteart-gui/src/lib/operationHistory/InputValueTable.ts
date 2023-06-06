@@ -30,6 +30,7 @@ export type InputValueTableHeaderColumn = {
     value: string;
     details: string;
     timestamp: number;
+    video?: { url: string; startTimestamp: number };
   }[];
   testPurposes: {
     id: string;
@@ -78,6 +79,7 @@ export type ScreenTransition = {
     value: string;
     details: string;
     timestamp: number;
+    video?: { url: string; startTimestamp: number };
   }[];
   testPurposes: {
     id: string;

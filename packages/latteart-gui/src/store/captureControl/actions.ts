@@ -39,7 +39,10 @@ import {
 } from "latteart-client";
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import { DeviceSettings } from "@/lib/common/settings/Settings";
-import { CapturedMovieManager } from "@/lib/captureControl/CapturedMovieManager";
+import {
+  VideoRecorder,
+  createVideoRecorder,
+} from "@/lib/captureControl/VideoRecorder";
 
 const actions: ActionTree<CaptureControlState, RootState> = {
   /**
@@ -399,6 +402,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
       callbacks?: {
         onEnd?: (error?: Error) => void;
       };
+      videoRecorder?: VideoRecorder;
     } = {}
   ) {
     const postRegisterOperation = async (data: {
@@ -443,9 +447,7 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         { root: true }
       );
 
-      if (operationHistoryState.testResultInfo.mediaType === "movie") {
-        context.state.capturedMovieManager?.requestData();
-      }
+      payload.videoRecorder?.requestData();
     };
 
     const callbacks = {
@@ -588,28 +590,19 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         context.rootState.repositoryService.createTestResultAccessor(
           operationHistoryState.testResultInfo.id
         );
+
+      const videoRecorder =
+        operationHistoryState.testResultInfo.mediaType === "movie"
+          ? createVideoRecorder(testResult)
+          : undefined;
+
       const client = captureCl.createCaptureClient({
         testResult,
         config,
         eventListeners: await context.dispatch("createCaptureEventListeners", {
           callbacks: payload.callbacks,
+          videoRecorder,
         }),
-      });
-
-      const repositories = {
-        movie: context.rootState.repositoryService.movieRepository,
-        testResult: context.rootState.repositoryService.testResultRepository,
-      };
-
-      const capturedMovieManager = new CapturedMovieManager(
-        operationHistoryState.testResultInfo.id,
-        repositories,
-        (url: string) => {
-          context.commit("setCapturedMovieUrl", { url });
-        }
-      );
-      context.commit("setCapturedMovieManager", {
-        capturedMovieManager,
       });
 
       const result = await client.startCapture(payload.url, {
@@ -643,33 +636,29 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         });
       }
 
+      if (videoRecorder) {
+        const startRecordingResult = await videoRecorder.startRecording();
+
+        if (startRecordingResult.isFailure()) {
+          const errorMessage = context.rootGetters.message(
+            `error.capture_control.${startRecordingResult.error.errorCode}`
+          );
+          payload.callbacks.onEnd(new Error(errorMessage));
+          return;
+        }
+
+        const recordingVideo = videoRecorder.recordingVideo;
+
+        if (recordingVideo) {
+          session.setRecordingVideo(recordingVideo);
+        }
+      }
+
       context.dispatch("stopTimer");
       context.dispatch("startTimer");
 
       context.commit("setCapturing", { isCapturing: true });
       context.commit("setCaptureSession", { session });
-
-      if (operationHistoryState.testResultInfo.mediaType === "movie") {
-        await capturedMovieManager.setMediaRecorder(
-          10,
-          "video/webm; codecs=vp9",
-          2048000
-        );
-
-        capturedMovieManager.setOndataavailable();
-        await capturedMovieManager.fetchChunksFromRepository();
-        capturedMovieManager.createWebm();
-        const movieStartTimestamp = capturedMovieManager.startRecorder();
-        context.commit(
-          "operationHistory/setMovieStartTimestamp",
-          { movieStartTimestamp },
-          { root: true }
-        );
-
-        await context.rootState.repositoryService
-          .createTestResultAccessor(operationHistoryState.testResultInfo.id)
-          .updateMovieStartTimestamp(movieStartTimestamp);
-      }
     } catch (error) {
       context.dispatch("endCapture");
     }

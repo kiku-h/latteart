@@ -148,7 +148,6 @@ describe("IssueReportService", () => {
                   {
                     id: "testResult1",
                     name: "testResultName1",
-                    mediaType: "image",
                   },
                 ],
                 initialUrl: "",

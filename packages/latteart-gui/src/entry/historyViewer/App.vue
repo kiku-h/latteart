@@ -81,10 +81,6 @@ export default class App extends Vue {
       );
       this.$store.commit("operationHistory/setTestResultMovieInfo", {
         mediaType: testResultInfo.mediaType,
-        movieStartTimestamp: testResultInfo.movieStartTimestamp,
-      });
-      this.$store.commit("captureControl/setCapturedMovieUrl", {
-        url: testResultInfo.movieFileUrl,
       });
 
       await this.$store.dispatch("operationHistory/updateTestResultViewModel");
@@ -101,7 +97,6 @@ export default class App extends Vue {
     coverageSources: CoverageSource[];
     testResultInfo: {
       mediaType: "image" | "movie";
-      movieStartTimestamp: number;
       movieFileUrl: string;
     };
   } {

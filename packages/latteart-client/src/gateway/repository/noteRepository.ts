@@ -38,6 +38,7 @@ export interface NoteRepository {
       imageData?: string;
       tags?: string[];
       timestamp?: number;
+      videoIndex?: number;
     }
   ): Promise<RepositoryAccessResult<NoteForRepository>>;
 
@@ -92,12 +93,21 @@ export class NoteRepositoryImpl implements NoteRepository {
       imageData?: string;
       tags?: string[];
       timestamp?: number;
+      videoIndex?: number;
     }
   ): Promise<RepositoryAccessResult<NoteForRepository>> {
     try {
       const response = await this.restClient.httpPost(
         `api/v1/test-results/${testResultId}/notes`,
-        note
+        {
+          type: note.type,
+          value: note.value,
+          details: note.details,
+          imageData: note.imageData,
+          tags: note.tags,
+          timestamp: note.timestamp,
+          videoIndex: note.videoIndex,
+        }
       );
 
       if (response.status !== 200) {

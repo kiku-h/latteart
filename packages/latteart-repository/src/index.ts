@@ -64,6 +64,7 @@ import { createLogger } from "./logger/logger";
 import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
 import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-UpdateTestResultEntity";
 import { AddVideoEntity1686024818768 } from "./migrations/1686024818768-AddVideoEntity";
+import { VideoEntity } from "./entities/VideoEntity";
 
 export const transactionRunner = new TransactionRunner();
 
@@ -112,6 +113,7 @@ async function initializeOrmConnection() {
       ViewPointEntity,
       ViewPointPresetEntity,
       TestProgressEntity,
+      VideoEntity,
     ],
     migrations: [
       Init1638930268191,

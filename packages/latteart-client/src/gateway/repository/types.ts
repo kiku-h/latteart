@@ -72,6 +72,7 @@ export type GraphViewForRepository = {
       tags?: string[];
       imageFileUrl?: string;
       timestamp: number;
+      videoIndex?: number;
     }[];
   };
 };
@@ -89,6 +90,7 @@ export type GraphViewNodeForRepository = {
     pageUrl: string;
     pageTitle: string;
     imageFileUrl?: string;
+    videoIndex?: number;
   }[];
   defaultValues: { elementId: string; value?: string }[];
 };
@@ -101,6 +103,7 @@ export type NoteForRepository = {
   imageFileUrl: string;
   tags: string[];
   timestamp: number;
+  videoIndex?: number;
 };
 
 export type CapturedOperationForRepository = {
@@ -118,6 +121,7 @@ export type CapturedOperationForRepository = {
   scrollPosition: { x: number; y: number };
   clientSize: { width: number; height: number };
   isAutomatic?: boolean;
+  videoIndex?: number;
 };
 
 export type TestStepForRepository = {
@@ -142,6 +146,7 @@ export type OperationForRepository = {
   scrollPosition?: { x: number; y: number };
   clientSize?: { width: number; height: number };
   isAutomatic: boolean;
+  videoIndex?: number;
 };
 
 export type ElementInfoForRepository = {
@@ -298,8 +303,7 @@ export type AttachedFileForRepository = {
 export type TestResultFileForRepository = {
   name: string;
   id: string;
-  mediaType: "image" | "movie";
-  movieStartTimestamp: number;
+  videos?: { url: string; startTimestamp: number }[];
 };
 
 export type StoryForRepository = {
@@ -363,12 +367,12 @@ export type TestResultForRepository = {
   coverageSources: CoverageSourceForRepository[];
   parentTestResultId?: string;
   mediaType: "image" | "movie";
-  movieStartTimestamp: number;
+  videos?: { url: string; startTimestamp: number }[];
 };
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId" | "mediaType" | "movieStartTimestamp"
+  "id" | "name" | "parentTestResultId" | "mediaType" | "videos"
 >;
 
 export type TestResultComparisonResultForRepository = {

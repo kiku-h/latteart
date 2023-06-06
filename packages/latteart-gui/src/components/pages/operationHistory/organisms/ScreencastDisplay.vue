@@ -1,10 +1,10 @@
 <template>
   <v-container fluid class="fill-height">
     <video-display
+      v-if="videoUrl"
       :videoUrl="videoUrl"
-      :startTime="currentTime"
       :pictureInPicture="isPipMode"
-      @playing="rectStyle = { display: 'none' }"
+      @playing="isRectDisplayed = false"
       @enterPictureInPicture="togglePipMode(true)"
       @leavePictureInPicture="togglePipMode(false)"
     >
@@ -15,10 +15,8 @@
 
 <script lang="ts">
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
-import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { OperationHistory } from "@/lib/operationHistory/types";
 import { OperationHistoryState } from "@/store/operationHistory";
-import { ElementInfo } from "latteart-client";
 import { Vue, Prop, Component, Watch } from "vue-property-decorator";
 
 @Component({
@@ -30,17 +28,15 @@ export default class ScreencastDisplay extends Vue {
   @Prop({ type: Array, default: () => [] })
   public readonly history!: OperationHistory;
 
-  private currentTime = 0;
-
   private isRectDisplayed = false;
 
-  private rectStyle: {
-    top?: string;
-    left?: string;
-    width?: string;
-    height?: string;
-    display: string;
-  } = { display: "none" };
+  private get selectedOperation() {
+    const selectedItem = (this.history ?? []).find(({ operation }) => {
+      return operation.sequence === this.selectedOperationSequence;
+    });
+
+    return selectedItem?.operation ?? null;
+  }
 
   private get operationHistoryState() {
     return this.$store.state.operationHistory as OperationHistoryState;
@@ -54,53 +50,15 @@ export default class ScreencastDisplay extends Vue {
     return this.operationHistoryState.selectedOperationSequence;
   }
 
-  private get startTimestamp(): number {
-    return this.operationHistoryState.testResultInfo.movieStartTimestamp;
-  }
+  private get rectStyle(): {
+    top?: string;
+    left?: string;
+    width?: string;
+    height?: string;
+    display: string;
+  } {
+    const rectElement = this.selectedOperation?.elementInfo;
 
-  private get videoUrl(): string {
-    return this.$store.state.captureControl.capturedMovieUrl;
-  }
-
-  private togglePipMode(isPipMode: boolean) {
-    this.isRectDisplayed = !isPipMode;
-
-    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
-      isDisplayed: isPipMode,
-    });
-  }
-
-  @Watch("selectedOperationSequence")
-  private displayRect() {
-    const selectedItem = (this.history ?? []).find(({ operation }) => {
-      return operation.sequence === this.selectedOperationSequence;
-    });
-
-    if (!selectedItem) {
-      return;
-    }
-
-    this.updateCurrentTime(selectedItem.operation);
-    this.updateRect(selectedItem.operation);
-  }
-
-  private updateCurrentTime(operation: OperationForGUI) {
-    const operationTimestamp = Number(operation.timestamp);
-
-    if (!operationTimestamp || !this.startTimestamp) {
-      this.currentTime = 0;
-      return;
-    }
-
-    this.currentTime = (operationTimestamp - this.startTimestamp) / 1000;
-  }
-
-  private updateRect(operation: OperationForGUI) {
-    this.rectStyle = this.buildRectStyle(operation.elementInfo);
-    this.isRectDisplayed = true;
-  }
-
-  private buildRectStyle(rectElement: ElementInfo | null) {
     if (!rectElement?.boundingRect) {
       return { display: "none" };
     }
@@ -121,6 +79,43 @@ export default class ScreencastDisplay extends Vue {
       height: `${(height / outerHeight) * 100}%`,
       display: "block",
     };
+  }
+
+  private togglePipMode(isPipMode: boolean) {
+    if (isPipMode) {
+      this.isRectDisplayed = false;
+    }
+
+    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
+      isDisplayed: isPipMode,
+    });
+  }
+
+  @Watch("selectedOperationSequence")
+  private displayRect() {
+    if (this.isPipMode) {
+      return;
+    }
+
+    this.isRectDisplayed = true;
+  }
+
+  private get videoUrl() {
+    const operation = this.selectedOperation;
+
+    if (!operation?.video) {
+      return "";
+    }
+
+    const operationTimestamp = Number(operation.timestamp);
+    const videoStartTimestamp = operation.video.startTimestamp;
+
+    const time =
+      videoStartTimestamp > 0
+        ? (operationTimestamp - videoStartTimestamp) / 1000
+        : 0;
+
+    return `${operation.video.url}#t=${time}`;
   }
 }
 </script>

@@ -418,10 +418,27 @@ export class TestResultsController extends Controller {
     @Body() requestBody: { startTimestamp: number }
   ): Promise<{ url: string; startTimestamp: number }> {
     try {
-      return await new TestResultServiceImpl().createVideo(
-        testResultId,
-        requestBody.startTimestamp
-      );
+      const timestampService = new TimestampServiceImpl();
+      const fileRepositoryManager = await createFileRepositoryManager();
+      const screenshotFileRepository =
+        fileRepositoryManager.getRepository("screenshot");
+      const workingFileRepository = fileRepositoryManager.getRepository("work");
+      const compareReportRepository =
+        fileRepositoryManager.getRepository("temp");
+      const movieFileRepository = fileRepositoryManager.getRepository("movie");
+
+      return await new TestResultServiceImpl({
+        timestamp: timestampService,
+        testStep: new TestStepServiceImpl({
+          screenshotFileRepository,
+          timestamp: timestampService,
+          config: new ConfigsService(),
+        }),
+        screenshotFileRepository,
+        workingFileRepository,
+        compareReportRepository,
+        movieFileRepository,
+      }).createVideo(testResultId, requestBody.startTimestamp);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Create video failed", error);

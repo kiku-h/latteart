@@ -26,7 +26,7 @@ export interface MovieRepository {
   fetchWebm(videoUrl: string): Promise<RepositoryAccessResult<Blob | null>>;
   appendBuffer(
     testResultId: string,
-    base64: string
+    buffer: ArrayBuffer
   ): Promise<RepositoryAccessResult<void>>;
 }
 
@@ -56,13 +56,13 @@ export class MovieRestRepository implements MovieRepository {
 
   public async appendBuffer(
     testResultId: string,
-    base64: string
+    buffer: ArrayBuffer
   ): Promise<RepositoryAccessResult<void>> {
     try {
       const response = await this.restClient.httpPatch(
         `api/v1/movies/${testResultId}`,
         {
-          base64,
+          base64: this.arrayBuffer2Base64(buffer),
         }
       );
 
@@ -76,5 +76,15 @@ export class MovieRestRepository implements MovieRepository {
     } catch (error) {
       return createConnectionRefusedFailure();
     }
+  }
+
+  private arrayBuffer2Base64(arrayBuffer: ArrayBuffer): string {
+    let binary = "";
+    const bytes = new Uint8Array(arrayBuffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
   }
 }

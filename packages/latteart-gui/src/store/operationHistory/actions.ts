@@ -55,7 +55,6 @@ import { extractWindowHandles } from "@/lib/common/windowHandle";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import SequenceDiagramGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/SequenceDiagramGraphExtender";
 import FlowChartGraphExtender from "@/lib/operationHistory/mermaidGraph/extender/FlowChartGraphExtender";
-import { CapturedMovieManager } from "@/lib/captureControl/CapturedMovieManager";
 
 const actions: ActionTree<OperationHistoryState, RootState> = {
   /**
@@ -445,7 +444,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       name: result.data.testResultInfo.name,
       mediaType: result.data.testResultInfo.mediaType ?? "image",
       parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
-      movieStartTimestamp: result.data.testResultInfo.movieStartTimestamp ?? 0,
     });
     context.commit(
       "operationHistory/setWindows",
@@ -467,25 +465,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       { isResuming: false },
       { root: true }
     );
-
-    if (result.data.testResultInfo.mediaType === "movie") {
-      const repositories = {
-        movie: context.rootState.repositoryService.movieRepository,
-        testResult: context.rootState.repositoryService.testResultRepository,
-      };
-      const capturedMovieManager = new CapturedMovieManager(
-        result.data.testResultInfo.id,
-        repositories,
-        (url: string) => {
-          context.commit(
-            "captureControl/setCapturedMovieUrl",
-            { url },
-            { root: true }
-          );
-        }
-      );
-      await capturedMovieManager.fetchChunksFromRepository();
-    }
   },
 
   /**
@@ -565,15 +544,7 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       id: "",
       name: "",
       parentTestResultId: "",
-      movieStartTimestamp: 0,
     });
-    context.commit(
-      "captureControl/setCapturedMovieUrl",
-      {
-        url: "",
-      },
-      { root: true }
-    );
     context.commit("clearTestStepIds");
   },
 
@@ -1011,7 +982,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       name: testResultInfo.name,
       parentTestResultId: payload.parentTestResultId ?? "",
       mediaType: testResultInfo.mediaType,
-      movieStartTimestamp: 0,
     });
   },
 

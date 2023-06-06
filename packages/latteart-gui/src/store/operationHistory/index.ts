@@ -56,8 +56,6 @@ export interface OperationHistoryState {
      * Media type.
      */
     mediaType: "image" | "movie";
-
-    movieStartTimestamp: number;
   };
 
   /**
@@ -243,7 +241,6 @@ const state: OperationHistoryState = {
     name: "",
     parentTestResultId: "",
     mediaType: "image",
-    movieStartTimestamp: 0,
   },
   testStepIds: [],
   history: [],

@@ -29,6 +29,7 @@ import {
   TestStepNote,
   Note,
   TestResultViewOption,
+  Video,
 } from "../types";
 import {
   TestResultRepository,
@@ -144,10 +145,39 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       inputElementInfo: InputElementInfo;
     }>
   > {
+    const videoIndex = operation.video
+      ? await this.getVideoIndex(operation.video)
+      : undefined;
+
+    if (videoIndex !== undefined && videoIndex < 0) {
+      const error: ServiceError = {
+        errorCode: "add_test_step_failed",
+        message: "Add Test Step failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,
-        operation
+        {
+          input: operation.input,
+          type: operation.type,
+          elementInfo: operation.elementInfo,
+          title: operation.title,
+          url: operation.url,
+          imageData: operation.imageData,
+          windowHandle: operation.windowHandle,
+          timestamp: operation.timestamp,
+          screenElements: operation.screenElements,
+          pageSource: operation.pageSource,
+          inputElements: operation.inputElements,
+          scrollPosition: operation.scrollPosition,
+          clientSize: operation.clientSize,
+          isAutomatic: operation.isAutomatic,
+          videoIndex,
+        }
       );
 
     if (registerOperationResult.isFailure()) {
@@ -158,6 +188,23 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       console.error(error.message);
       return new ServiceFailure(error);
     }
+
+    const video = operation.video;
+
+    const {
+      input,
+      type,
+      elementInfo,
+      title,
+      url,
+      timestamp,
+      inputElements,
+      windowHandle,
+      keywordTexts,
+      scrollPosition,
+      clientSize,
+      isAutomatic,
+    } = registerOperationResult.data.operation;
 
     if (
       !option.compressScreenshot ||
@@ -173,8 +220,20 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceSuccess({
         ...registerOperationResult.data,
         operation: {
-          ...registerOperationResult.data.operation,
+          input,
+          type,
+          elementInfo,
+          title,
+          url,
+          timestamp,
+          inputElements,
+          windowHandle,
+          keywordTexts,
+          scrollPosition,
+          clientSize,
+          isAutomatic,
           imageFileUrl,
+          video,
         },
       });
     }
@@ -204,8 +263,20 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     return new ServiceSuccess({
       ...registerOperationResult.data,
       operation: {
-        ...registerOperationResult.data.operation,
+        input,
+        type,
+        elementInfo,
+        title,
+        url,
+        timestamp,
+        inputElements,
+        windowHandle,
+        keywordTexts,
+        scrollPosition,
+        clientSize,
+        isAutomatic,
         imageFileUrl,
+        video,
       },
     });
   }
@@ -217,12 +288,26 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       tags?: string[];
       imageData?: string;
       timestamp?: number;
+      video?: Video;
     },
     testStepId: string,
     option: {
       compressScreenshot?: boolean;
     } = {}
   ): Promise<ServiceResult<TestStepNote>> {
+    const videoIndex = note.video
+      ? await this.getVideoIndex(note.video)
+      : undefined;
+
+    if (videoIndex !== undefined && videoIndex < 0) {
+      const error: ServiceError = {
+        errorCode: "add_note_failed",
+        message: "Add Note failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
     const postNotesResult = await this.repositories.noteRepository.postNotes(
       this.testResultId,
       {
@@ -232,6 +317,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
         tags: note.tags ?? [],
         imageData: note.imageData,
         timestamp: note.timestamp,
+        videoIndex,
       }
     );
 
@@ -278,6 +364,10 @@ export class TestResultAccessorImpl implements TestResultAccessor {
 
     const savedTestStep = linkTestStepResult.data;
 
+    const { id, type, value, details, tags, timestamp } = savedNote;
+
+    const video = note.video;
+
     if (!option.compressScreenshot || !savedNote.imageFileUrl) {
       const imageFileUrl = savedNote.imageFileUrl
         ? new URL(savedNote.imageFileUrl, this.serviceUrl).toString()
@@ -286,8 +376,14 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceSuccess({
         testStep: savedTestStep,
         note: {
-          ...savedNote,
+          id,
+          type,
+          value,
+          details,
+          tags,
+          timestamp,
           imageFileUrl,
+          video,
         },
       });
     }
@@ -317,8 +413,14 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     return new ServiceSuccess({
       testStep: savedTestStep,
       note: {
-        ...savedNote,
+        id,
+        type,
+        value,
+        details,
+        tags,
+        timestamp,
         imageFileUrl,
+        video,
       },
     });
   }
@@ -355,9 +457,44 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       ? new URL(result.data.imageFileUrl, this.serviceUrl).toString()
       : "";
 
+    const { id, type, value, details, tags, timestamp, videoIndex } =
+      result.data;
+
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "edit_note_failed",
+        message: "Edit Note failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const videos =
+      getTestResultsResult.data
+        .find(({ id }) => {
+          return id === this.testResultId;
+        })
+        ?.videos?.map((video) => {
+          return {
+            url: new URL(video.url, this.serviceUrl).toString(),
+            startTimestamp: video.startTimestamp,
+          };
+        }) ?? [];
+
+    const video = videoIndex ? videos.at(videoIndex) : undefined;
+
     return new ServiceSuccess({
-      ...result.data,
+      id,
+      type,
+      value,
+      details,
+      tags,
+      timestamp,
       imageFileUrl,
+      video,
     });
   }
 
@@ -551,6 +688,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
 
     return new ServiceSuccess(result.data);
   }
+
   async generateGraphView(
     option?: TestResultViewOption
   ): Promise<ServiceResult<GraphView>> {
@@ -569,27 +707,184 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    return new ServiceSuccess(result.data);
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_graph_view_failed",
+        message: "Generate Graph View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const videos =
+      getTestResultsResult.data
+        .find(({ id }) => {
+          return id === this.testResultId;
+        })
+        ?.videos?.map((video) => {
+          return {
+            url: new URL(video.url, this.serviceUrl).toString(),
+            startTimestamp: video.startTimestamp,
+          };
+        }) ?? [];
+
+    const nodes = await Promise.all(
+      result.data.nodes.map(async (node) => {
+        const { windowId, screenId, defaultValues } = node;
+        const testSteps = await Promise.all(
+          node.testSteps.map(async (testStep) => {
+            const {
+              id,
+              type,
+              input,
+              targetElementId,
+              noteIds,
+              testPurposeId,
+              pageUrl,
+              pageTitle,
+              imageFileUrl,
+              videoIndex,
+            } = testStep;
+
+            const video = videoIndex ? videos.at(videoIndex) : undefined;
+
+            return {
+              id,
+              type,
+              input,
+              targetElementId,
+              noteIds,
+              testPurposeId,
+              pageUrl,
+              pageTitle,
+              imageFileUrl,
+              video,
+            };
+          })
+        );
+
+        return { windowId, screenId, testSteps, defaultValues };
+      })
+    );
+
+    const store = {
+      ...result.data.store,
+      notes: await Promise.all(
+        result.data.store.notes.map(async (note) => {
+          const {
+            id,
+            value,
+            details,
+            tags,
+            imageFileUrl,
+            timestamp,
+            videoIndex,
+          } = note;
+
+          const video = videoIndex ? videos.at(videoIndex) : undefined;
+
+          return { id, value, details, tags, imageFileUrl, timestamp, video };
+        })
+      ),
+    };
+
+    return new ServiceSuccess({ nodes, store });
   }
 
-  async updateMovieStartTimestamp(
-    movieStartTimestamp: number
-  ): Promise<ServiceResult<void>> {
-    const result =
-      await this.repositories.testResultRepository.setMovieStartTimestamp(
-        this.testResultId,
-        movieStartTimestamp
-      );
+  async createVideo(startTimestamp: number): Promise<ServiceResult<Video>> {
+    const result = await this.repositories.testResultRepository.createVideo(
+      this.testResultId,
+      startTimestamp
+    );
 
     if (result.isFailure()) {
       const error: ServiceError = {
-        errorCode: "update_movie_startt_imestamp_failed",
-        message: "Update movie starttimestamp failed.",
+        errorCode: "create_video_failed",
+        message: "Create video failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const video = {
+      url: new URL(result.data.url, this.serviceUrl).toString(),
+      startTimestamp: result.data.startTimestamp,
+    };
+
+    return new ServiceSuccess(video);
+  }
+
+  async appendVideoBuffer(buffer: ArrayBuffer): Promise<ServiceResult<void>> {
+    const result = await this.repositories.movieRepository.appendBuffer(
+      this.testResultId,
+      buffer
+    );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "append_video_buffer_failed",
+        message: "Append video buffer failed.",
       };
       console.error(error.message);
       return new ServiceFailure(error);
     }
 
     return new ServiceSuccess(result.data);
+  }
+
+  async collectVideos(): Promise<ServiceResult<Video[]>> {
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "add_note_failed",
+        message: "Add Note failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const videos =
+      getTestResultsResult.data
+        .find(({ id }) => {
+          return id === this.testResultId;
+        })
+        ?.videos?.map((video) => {
+          return {
+            url: new URL(video.url, this.serviceUrl).toString(),
+            startTimestamp: video.startTimestamp,
+          };
+        }) ?? [];
+
+    return new ServiceSuccess(videos);
+  }
+
+  private async getVideoIndex(video: Video) {
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      return -1;
+    }
+
+    const videos =
+      getTestResultsResult.data
+        .find(({ id }) => {
+          return id === this.testResultId;
+        })
+        ?.videos?.map((video) => {
+          return {
+            url: new URL(video.url, this.serviceUrl).toString(),
+            startTimestamp: video.startTimestamp,
+          };
+        }) ?? [];
+
+    return videos.findIndex(({ url }) => {
+      return url === video.url;
+    });
   }
 }

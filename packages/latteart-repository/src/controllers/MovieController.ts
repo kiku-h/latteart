@@ -27,7 +27,7 @@ export class Movies extends Controller {
     @Body() requestBody: { base64: string }
   ): Promise<void> {
     try {
-      new MoviesService().append(testResultId, requestBody.base64);
+      await new MoviesService().append(testResultId, requestBody.base64);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Save movie failed.", error);

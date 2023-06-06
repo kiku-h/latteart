@@ -129,11 +129,6 @@ export class TestStepServiceImpl implements TestStepService {
       requestBody.timestamp
     );
 
-    // video
-    const videoIndex =
-      testResultEntity.videos?.sort((a, b) => a.index - b.index).at(-1)
-        ?.index ?? 0;
-
     // add test step.
     const keywordTexts = requestBody.screenElements
       .map((screenElement) => {
@@ -159,8 +154,7 @@ export class TestStepServiceImpl implements TestStepService {
       scrollPositionY: requestBody.scrollPosition?.y,
       clientSizeWidth: requestBody.clientSize?.width,
       clientSizeHeight: requestBody.clientSize?.height,
-      videoIndex:
-        testResultEntity.mediaType === "movie" ? videoIndex : undefined,
+      videoIndex: requestBody.videoIndex,
     });
     const fileName = `${newTestStepEntity.id}.png`;
     await this.service.screenshotFileRepository.outputFile(

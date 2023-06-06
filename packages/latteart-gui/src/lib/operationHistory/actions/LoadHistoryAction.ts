@@ -56,7 +56,6 @@ export class LoadHistoryAction {
         name: string;
         parentTestResultId?: string;
         mediaType?: "image" | "movie";
-        movieStartTimestamp: number;
       };
       testStepIds: string[];
       testingTime: number;
@@ -104,7 +103,6 @@ export class LoadHistoryAction {
         id: testResult.id,
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId,
-        movieStartTimestamp: testResult.movieStartTimestamp,
         mediaType: testResult.mediaType,
       },
       testStepIds: testResult.testSteps.map(({ id }) => id),

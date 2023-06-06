@@ -915,14 +915,6 @@ const models: TsoaRoute.Models = {
           dataType: "array",
           array: { dataType: "refAlias", ref: "VideoInfo" },
         },
-        mediaType: {
-          dataType: "union",
-          subSchemas: [
-            { dataType: "enum", enums: ["image"] },
-            { dataType: "enum", enums: ["movie"] },
-          ],
-          required: true,
-        },
         id: { dataType: "string", required: true },
         name: { dataType: "string", required: true },
       },
@@ -2365,6 +2357,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        videoIndex: { dataType: "double" },
         clientSize: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
