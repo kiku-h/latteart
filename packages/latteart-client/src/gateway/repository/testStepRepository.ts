@@ -151,6 +151,7 @@ export class TestStepRepositoryImpl implements TestStepRepository {
           scrollPosition: capturedOperation.scrollPosition,
           clientSize: capturedOperation.clientSize,
           isAutomatic: capturedOperation.isAutomatic,
+          videoIndex: capturedOperation.videoIndex,
         }
       );
 

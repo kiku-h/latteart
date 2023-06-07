@@ -362,7 +362,53 @@ export class TestResultAccessorImpl implements TestResultAccessor {
       return new ServiceFailure(error);
     }
 
-    const savedTestStep = linkTestStepResult.data;
+    const getTestResultsResult =
+      await this.repositories.testResultRepository.getTestResults();
+
+    if (getTestResultsResult.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "generate_graph_view_failed",
+        message: "Generate Graph View failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const videos =
+      getTestResultsResult.data
+        .find(({ id }) => {
+          return id === this.testResultId;
+        })
+        ?.videos?.map((video) => {
+          return {
+            url: new URL(video.url, this.serviceUrl).toString(),
+            startTimestamp: video.startTimestamp,
+          };
+        }) ?? [];
+
+    const operationVideo = linkTestStepResult.data.operation.videoIndex
+      ? videos.at(linkTestStepResult.data.operation.videoIndex)
+      : undefined;
+
+    const savedTestStep = {
+      ...linkTestStepResult.data,
+      operation: {
+        input: linkTestStepResult.data.operation.input,
+        type: linkTestStepResult.data.operation.type,
+        elementInfo: linkTestStepResult.data.operation.elementInfo,
+        title: linkTestStepResult.data.operation.title,
+        url: linkTestStepResult.data.operation.url,
+        imageFileUrl: linkTestStepResult.data.operation.imageFileUrl,
+        timestamp: linkTestStepResult.data.operation.timestamp,
+        inputElements: linkTestStepResult.data.operation.inputElements,
+        windowHandle: linkTestStepResult.data.operation.windowHandle,
+        keywordTexts: linkTestStepResult.data.operation.keywordTexts,
+        scrollPosition: linkTestStepResult.data.operation.scrollPosition,
+        clientSize: linkTestStepResult.data.operation.clientSize,
+        isAutomatic: linkTestStepResult.data.operation.isAutomatic,
+        video: operationVideo,
+      },
+    };
 
     const { id, type, value, details, tags, timestamp } = savedNote;
 
