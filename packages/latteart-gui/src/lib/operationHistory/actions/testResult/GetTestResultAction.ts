@@ -95,7 +95,7 @@ export class GetTestResultAction {
           clientSize,
           isAutomatic,
           imageFileUrl: operationImageFileUrl,
-          video: videoIndex ? videos.at(videoIndex) : undefined,
+          video: videoIndex !== undefined ? videos.at(videoIndex) : undefined,
         };
 
         return {
@@ -120,7 +120,8 @@ export class GetTestResultAction {
               tags,
               timestamp,
               imageFileUrl: noteImageFileUrl,
-              video: videoIndex ? videos.at(videoIndex) : undefined,
+              video:
+                videoIndex !== undefined ? videos.at(videoIndex) : undefined,
             };
           }),
           bugs: [],

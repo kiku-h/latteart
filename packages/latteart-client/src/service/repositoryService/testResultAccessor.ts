@@ -530,7 +530,7 @@ export class TestResultAccessorImpl implements TestResultAccessor {
           };
         }) ?? [];
 
-    const video = videoIndex ? videos.at(videoIndex) : undefined;
+    const video = videoIndex !== undefined ? videos.at(videoIndex) : undefined;
 
     return new ServiceSuccess({
       id,
@@ -795,7 +795,8 @@ export class TestResultAccessorImpl implements TestResultAccessor {
               videoIndex,
             } = testStep;
 
-            const video = videoIndex ? videos.at(videoIndex) : undefined;
+            const video =
+              videoIndex !== undefined ? videos.at(videoIndex) : undefined;
 
             return {
               id,
@@ -830,7 +831,8 @@ export class TestResultAccessorImpl implements TestResultAccessor {
             videoIndex,
           } = note;
 
-          const video = videoIndex ? videos.at(videoIndex) : undefined;
+          const video =
+            videoIndex !== undefined ? videos.at(videoIndex) : undefined;
 
           return { id, value, details, tags, imageFileUrl, timestamp, video };
         })
