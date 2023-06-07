@@ -46,26 +46,7 @@ class VideoRecorderImpl implements VideoRecorder {
   }
 
   public async startRecording(): Promise<ServiceResult<void>> {
-    const stream = await (navigator.mediaDevices as any).getDisplayMedia({
-      audio: false,
-      video: { frameRate: 10 },
-    });
-    const tracks = [...stream.getTracks()];
-    const mediaStream = new MediaStream(tracks);
-
-    const mediaRecorder = new MediaRecorder(mediaStream, {
-      mimeType: "video/webm; codecs=vp9",
-      videoBitsPerSecond: 2048000,
-    });
-    mediaRecorder.ondataavailable = async (blobEvent) => {
-      const buffer = await blobEvent.data.arrayBuffer();
-
-      this.testResult.appendVideoBuffer(buffer);
-    };
-
-    mediaRecorder.start();
-
-    const startTimestamp = new Date().getTime();
+    const { startTimestamp, mediaRecorder } = await this.startMediaRecorder();
 
     const createVideoResult = await this.testResult.createVideo(startTimestamp);
 
@@ -90,5 +71,37 @@ class VideoRecorderImpl implements VideoRecorder {
     }
 
     this.mediaRecorder.requestData();
+  }
+
+  private async startMediaRecorder() {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      audio: false,
+      video: { frameRate: 10 },
+    });
+    const tracks = [...stream.getTracks()];
+    const mediaStream = new MediaStream(tracks);
+
+    return new Promise<{
+      startTimestamp: number;
+      mediaRecorder: MediaRecorder;
+    }>((resolve) => {
+      const mediaRecorder = new MediaRecorder(mediaStream, {
+        mimeType: "video/webm; codecs=vp9",
+        videoBitsPerSecond: 2048000,
+      });
+      mediaRecorder.ondataavailable = async (blobEvent) => {
+        const buffer = await blobEvent.data.arrayBuffer();
+
+        this.testResult.appendVideoBuffer(buffer);
+      };
+      mediaRecorder.onstart = () => {
+        resolve({
+          startTimestamp: new Date().getTime(),
+          mediaRecorder: mediaRecorder,
+        });
+      };
+
+      mediaRecorder.start();
+    });
   }
 }
