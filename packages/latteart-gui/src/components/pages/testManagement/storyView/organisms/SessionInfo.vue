@@ -240,8 +240,7 @@
                               props.item.details,
                               props.item.imageFilePath,
                               props.item.tags,
-                              props.item.videoUrl,
-                              props.item.videoTime
+                              props.item.videoUrl
                             )
                           "
                           >{{
@@ -314,7 +313,6 @@
           <video-display
             v-if="issueDetailsDialogMediaType === 'movie'"
             :videoUrl="issueDetailsDialogVideoUrl"
-            :startTime="issueDetailsDialogVideoTime"
           />
           <popup-image v-else :imageFileUrl="issueDetailsDialogImagePath" />
         </v-list>
@@ -435,7 +433,6 @@ export default class SessionInfo extends Vue {
   private issueDetailsDialogImagePath = "";
   private issueDetailsDialogTags: string[] = [];
   private issueDetailsDialogVideoUrl = "";
-  private issueDetailsDialogVideoTime = 0;
   private issueDetailsDialogMediaType = "image" as "image" | "movie";
 
   private attachedFileOpened = false;
@@ -688,9 +685,10 @@ export default class SessionInfo extends Vue {
             tags: note.tags ?? [],
             imageFilePath: note.imageFileUrl ?? "",
             videoUrl: "",
-            videoTime: 0,
           };
         }
+
+        const time = this.calcVideoTime(note);
 
         return {
           status,
@@ -698,8 +696,7 @@ export default class SessionInfo extends Vue {
           details: note.details,
           tags: note.tags ?? [],
           imageFilePath: "",
-          videoUrl: note.video.url,
-          videoTime: this.calcVideoTime(note),
+          videoUrl: `${note.video.url}#t=${time}`,
         };
       }),
     ];
@@ -711,8 +708,7 @@ export default class SessionInfo extends Vue {
     text: string,
     imageFilePath: string,
     tags: string[],
-    videoUrl: string,
-    videoTime: number
+    videoUrl: string
   ) {
     const none = this.$store.getters.message("session-info.none") as string;
 
@@ -727,7 +723,6 @@ export default class SessionInfo extends Vue {
     this.issueDetailsDialogImagePath = imageFilePath;
     this.issueDetailsDialogTags = tags ?? [];
     this.issueDetailsDialogVideoUrl = videoUrl;
-    this.issueDetailsDialogVideoTime = videoTime;
     this.issueDetailsDialogOpened = true;
   }
 

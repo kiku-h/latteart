@@ -49,7 +49,6 @@
           <video-display
             v-if="mediaType === 'movie'"
             :videoUrl="note.videoUrl"
-            :startTime="note.currentNoteTime"
           />
           <v-img v-else :src="note.imageFileUrl" />
         </v-card-text>
@@ -97,9 +96,10 @@ export default class NoteListDialog extends Vue {
   private get noteWithTime() {
     return this.notes
       ? this.notes.map((note) => {
-          const videoUrl = note.video?.url ?? "";
-          const currentNoteTime = this.currentTime(note);
-          return { ...note, videoUrl, currentNoteTime };
+          const time = this.currentTime(note);
+          const videoUrl = note.video?.url ? `${note.video.url}#t=${time}` : "";
+
+          return { ...note, videoUrl };
         })
       : [];
   }

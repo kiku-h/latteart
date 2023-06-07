@@ -44,10 +44,7 @@ export class UpdateSessionAction {
       sessionId,
       {
         ...body,
-        testResultFiles:
-          body.testResultFiles?.map((testResultFile) => {
-            return { ...testResultFile, movieStartTimestamp: 0 };
-          }) ?? [],
+        testResultFiles: body.testResultFiles ?? [],
       }
     );
 
