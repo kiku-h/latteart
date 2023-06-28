@@ -82,14 +82,21 @@
             </v-combobox>
 
             <v-checkbox
+              v-if="testResultMediaType === 'image'"
               :disabled="!shouldRecordAsIssue"
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
             <thumbnail-image
-              v-if="isThumbnailVisible"
+              v-if="isThumbnailVisible && testResultMediaType === 'image'"
               :imageFileUrl="screenshot"
             />
+            <v-btn
+              v-if="testResultMediaType === 'video'"
+              :disabled="isPictureInPictureVideoDisplayed"
+              @click="displayPictureInPictureVideo"
+              >{{ $store.getters.message("note-edit.check-video") }}</v-btn
+            >
           </v-card-text>
         </v-card>
 
@@ -254,6 +261,20 @@ export default class TakeNoteWithPurposeDialog extends Vue {
 
   private updateNewTargetSequence(data: { id: string; value: number }): void {
     this.newTargetSequence = data.value;
+  }
+
+  private get testResultMediaType() {
+    return this.$store.state.operationHistory.testResultInfo.mediaType;
+  }
+
+  private get isPictureInPictureVideoDisplayed() {
+    return this.$store.state.operationHistory.isPictureInPictureWindowDisplayed;
+  }
+
+  private displayPictureInPictureVideo() {
+    this.$store.commit("operationHistory/setPictureInPictureWindowDisplayed", {
+      isDisplayed: true,
+    });
   }
 
   private get canSave() {

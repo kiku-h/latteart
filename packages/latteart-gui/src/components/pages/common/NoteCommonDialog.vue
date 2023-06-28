@@ -67,7 +67,9 @@
         </v-combobox>
 
         <v-checkbox
-          v-if="isCapturing && oldIndex === null"
+          v-if="
+            isCapturing && oldIndex === null && testResultMediaType === 'image'
+          "
           v-model="shouldTakeScreenshot"
           :disabled="isAlertVisible"
           :label="$store.getters.message('note-edit.take-screenshot')"
@@ -81,7 +83,7 @@
           v-if="testResultMediaType === 'video'"
           :disabled="isPictureInPictureVideoDisplayed"
           @click="displayPictureInPictureVideo"
-          >動画を確認する</v-btn
+          >{{ $store.getters.message("note-edit.check-video") }}</v-btn
         >
       </template>
     </execute-dialog>

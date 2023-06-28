@@ -255,7 +255,8 @@
     "note-for-current-purpose": "現在のテスト目的では...",
     "next-purpose": "次のテスト目的は...",
     "continue-same-purpose": "同じテスト目的で続ける",
-    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
+    "check-video": "動画を確認する"
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",

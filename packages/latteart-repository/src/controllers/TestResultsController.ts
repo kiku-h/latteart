@@ -261,6 +261,7 @@ export class TestResultsController extends Controller {
     const fileRepositoryManager = await createFileRepositoryManager();
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
+    const videoFileRepository = fileRepositoryManager.getRepository("video");
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
@@ -280,7 +281,8 @@ export class TestResultsController extends Controller {
       return await service.deleteTestResult(
         testResultId,
         transactionRunner,
-        screenshotFileRepository
+        screenshotFileRepository,
+        videoFileRepository
       );
     } catch (error) {
       if (error instanceof Error) {
