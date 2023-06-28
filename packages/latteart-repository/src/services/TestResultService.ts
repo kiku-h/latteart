@@ -220,7 +220,8 @@ export class TestResultServiceImpl implements TestResultService {
   public async deleteTestResult(
     testResultId: string,
     transactionRunner: TransactionRunner,
-    screenshotFileRepository: FileRepository
+    screenshotFileRepository: FileRepository,
+    videoFileRepository: FileRepository
   ): Promise<void> {
     await transactionRunner.waitAndRun(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(NoteEntity, {
@@ -237,6 +238,16 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
 
+      const videoFileUrls = (
+        await transactionalEntityManager.find(VideoEntity, {
+          testResult: { id: testResultId },
+        })
+      ).map((video) => video.fileUrl);
+
+      await transactionalEntityManager.delete(VideoEntity, {
+        testResult: { id: testResultId },
+      });
+
       const fileUrls = (
         await transactionalEntityManager.find(ScreenshotEntity, {
           testResult: { id: testResultId },
@@ -247,6 +258,10 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
       await transactionalEntityManager.delete(TestResultEntity, testResultId);
+
+      videoFileUrls.forEach((fileUrl) => {
+        videoFileRepository.removeFile(path.basename(fileUrl));
+      });
 
       fileUrls.forEach((fileUrl) => {
         screenshotFileRepository.removeFile(path.basename(fileUrl));
