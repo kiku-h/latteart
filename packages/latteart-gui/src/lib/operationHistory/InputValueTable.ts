@@ -23,6 +23,7 @@ export type InputValueTableHeaderColumn = {
   targetScreenDef: string;
   trigger: { elementText: string; eventType: string };
   notes: {
+    sequence: number;
     id: string;
     tags: string[];
     value: string;

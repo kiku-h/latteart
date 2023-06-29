@@ -80,6 +80,7 @@ type EdgeDetails = {
     defaultValue?: string;
   })[];
   notes: {
+    sequence: number;
     id: string;
     tags: string[];
     value: string;
@@ -142,6 +143,11 @@ export async function convertToScreenTransitionDiagramGraph(
 }
 
 function extractGraphSources(view: GraphView): GraphSource {
+  const testStepIdToSequence = new Map(
+    view.nodes
+      .flatMap(({ testSteps }) => testSteps.map(({ id }) => id))
+      .map((testStepId, index) => [testStepId, { sequence: index + 1 }])
+  );
   const screens = view.nodes
     .filter(
       ({ screenId: id1 }, index, array) =>
@@ -233,7 +239,7 @@ function extractGraphSources(view: GraphView): GraphSource {
       return [{ ...element, image, defaultValue: value, inputs }];
     });
 
-    const notes = node.testSteps.flatMap((testStep) => {
+    const notes = node.testSteps.flatMap((testStep, index) => {
       return testStep.noteIds.flatMap((noteId) => {
         const note = view.store.notes.find(({ id }) => id === noteId);
 
@@ -246,8 +252,9 @@ function extractGraphSources(view: GraphView): GraphSource {
           imageFileUrl: note.imageFileUrl ?? testStep.imageFileUrl,
           videoFrame: note.videoFrame ?? testStep.videoFrame,
         };
+        const sequence = testStepIdToSequence.get(testStep.id)?.sequence ?? 0;
 
-        return [{ id, value, details, tags, timestamp, image }];
+        return [{ sequence, id, value, details, tags, timestamp, image }];
       });
     });
 
