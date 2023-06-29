@@ -30,10 +30,11 @@ export class VideoService {
       }
     );
 
-    const videoUrl =
-      videos && videos.length > 0
-        ? path.basename(videos[0].fileUrl)
-        : `${testResultId}_0.webm`;
+    if (!videos || videos.length === 0) {
+      throw new Error(`Video not found.`);
+    }
+
+    const videoUrl = path.basename(videos[videos.length - 1].fileUrl);
 
     const fileRepositoryManager = await createFileRepositoryManager();
     const videoFileRepository = fileRepositoryManager.getRepository("video");

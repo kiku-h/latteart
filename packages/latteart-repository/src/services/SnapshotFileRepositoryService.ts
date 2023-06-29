@@ -202,7 +202,12 @@ export class SnapshotFileRepositoryServiceImpl
 
     const testResultInfo = {
       mediaType: testResult?.mediaType ?? "image",
-      videos: testResult?.videos,
+      videos: testResult?.videos?.map((video) => {
+        return {
+          ...video,
+          url: path.join("testResult", path.basename(video.url)),
+        };
+      }),
     };
 
     const testStepIds = await this.service.testResult.collectAllTestStepIds(
@@ -299,8 +304,7 @@ export class SnapshotFileRepositoryServiceImpl
 
     if (testResultInfo.mediaType === "video") {
       testResultInfo.videos?.map(async (video) => {
-        const videoUrl = path.join("testResult", path.basename(video.url));
-        await this.copyVideo(videoUrl, destTestResultPath);
+        await this.copyVideo(path.basename(video.url), destTestResultPath);
       });
     }
 
