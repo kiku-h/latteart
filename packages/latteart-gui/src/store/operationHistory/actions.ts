@@ -1061,6 +1061,9 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
           },
         },
       });
+      context.commit("setInputValueTable", {
+        inputValueTable: new InputValueTable(),
+      });
 
       await context.dispatch("buildElementCoverages", { graphView });
     } finally {
