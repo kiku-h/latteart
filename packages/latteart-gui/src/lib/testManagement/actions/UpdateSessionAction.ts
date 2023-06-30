@@ -42,10 +42,7 @@ export class UpdateSessionAction {
     const result = await this.repositoryService.sessionRepository.patchSession(
       projectId,
       sessionId,
-      {
-        ...body,
-        testResultFiles: body.testResultFiles ?? [],
-      }
+      body
     );
 
     if (result.isFailure()) {

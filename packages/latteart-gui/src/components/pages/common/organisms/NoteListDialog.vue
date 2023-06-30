@@ -48,7 +48,7 @@
           </v-textarea>
           <video-display
             v-if="note.image.videoFrame"
-            :videoUrl="note.image.videoFrame.url"
+            :videoUrl="note.videoUrl"
           />
           <v-img
             v-else-if="note.image.imageFileUrl"
