@@ -257,6 +257,7 @@
   "replay-option": {
     "start-replay": "Replay",
     "replay-capture": "Save replay result",
+    "saving-replay-results-warning-message": "Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
     "alert-pause-capturing": "The test contains some unrecorded operations due to capture pause, so operations up to the pause will be replayed."
