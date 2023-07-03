@@ -261,6 +261,7 @@
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
     "replay-capture": "リプレイ結果を保存する",
+    "saving-replay-results-warning-message": "リプレイ時の動画は保存できません",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
     "alert-pause-capturing": "「記録の一時停止」により記録されなかった操作があるため、一時停止されるまでの操作のみリプレイします。"
