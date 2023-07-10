@@ -24,14 +24,12 @@ describe("LoadHistoryAction", () => {
         initialUrl: "url",
         testingTime: 0,
         testSteps: [],
-        mediaType: "image",
       };
       const expectedTestResult = {
         historyItems: [],
         url: "url",
         testResultInfo: {
           id: "id",
-          mediaType: "image",
           name: "name",
           parentTestResultId: undefined,
         },

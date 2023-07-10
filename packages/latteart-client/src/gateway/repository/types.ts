@@ -369,13 +369,12 @@ export type TestResultForRepository = {
   }[];
   coverageSources: CoverageSourceForRepository[];
   parentTestResultId?: string;
-  mediaType: "image" | "video";
   videos?: Video[];
 };
 
 export type TestResultSummaryForRepository = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId" | "mediaType" | "videos"
+  "id" | "name" | "parentTestResultId" | "videos"
 >;
 
 export type TestResultComparisonResultForRepository = {

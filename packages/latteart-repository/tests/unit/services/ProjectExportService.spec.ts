@@ -47,7 +47,6 @@ describe("ProjectExportService", () => {
       initialUrl: "",
       testingTime: 0,
       testSteps: [],
-      mediaType: "image",
       coverageSources: [],
     };
 
@@ -195,99 +194,6 @@ describe("ProjectExportService", () => {
           data: JSON.stringify(dailyTestProgress),
         },
       });
-    });
-
-    it("extractTestResultsExportDataで、TestRsultのexportDataを返す(mediaTypeがimageの場合)", async () => {
-      const service = new ProjectExportService();
-      projectService.getProject = jest.fn().mockResolvedValue(projectData);
-      testResultService.collectAllTestStepScreenshots = jest
-        .fn()
-        .mockResolvedValue([
-          {
-            id: "id",
-            fileUrl: "fileUrl",
-          },
-        ]);
-
-      await getRepository(TestResultEntity).save(new TestResultEntity());
-
-      const testResult = await service["extractTestResultsExportData"]({
-        testResultService,
-      });
-
-      expect(testResult).toEqual([
-        {
-          testResultId: "testResultId",
-          testResultFile: {
-            fileName: "log.json",
-            data: JSON.stringify({
-              version: 3,
-              name: "testResultName",
-              sessionId: "testResultId",
-              startTimeStamp: 0,
-              lastUpdateTimeStamp: 0,
-              initialUrl: "",
-              testingTime: 0,
-              mediaType: "image",
-              history: {},
-              notes: [],
-              coverageSources: [],
-            }),
-            mediaType: "image",
-          },
-          fileData: [{ id: "id", fileUrl: "fileUrl" }],
-        },
-      ]);
-    });
-
-    it("extractTestResultsExportDataで、TestRsultのexportDataを返す(mediaTypeがvideoの場合)", async () => {
-      const service = new ProjectExportService();
-      projectService.getProject = jest.fn().mockResolvedValue(projectData);
-      const data = {
-        ...testResultData,
-        mediaType: "video",
-        videos: [
-          { id: "video1", url: `video/testResultId.webm`, startTimestamp: 0 },
-        ],
-      };
-      testResultService.getTestResult = jest.fn().mockResolvedValue(data);
-
-      await getRepository(TestResultEntity).save(new TestResultEntity());
-
-      const testResult = await service["extractTestResultsExportData"]({
-        testResultService,
-      });
-
-      expect(testResult).toEqual([
-        {
-          testResultId: "testResultId",
-          testResultFile: {
-            fileName: "log.json",
-            data: JSON.stringify({
-              version: 3,
-              name: "testResultName",
-              sessionId: "testResultId",
-              startTimeStamp: 0,
-              lastUpdateTimeStamp: 0,
-              initialUrl: "",
-              testingTime: 0,
-              mediaType: "video",
-              history: {},
-              notes: [],
-              coverageSources: [],
-              videos: [
-                {
-                  id: "video1",
-                  url: `video/testResultId.webm`,
-                  startTimestamp: 0,
-                },
-              ],
-            }),
-            mediaType: "video",
-          },
-          fileData: [{ id: `id`, fileUrl: `video/testResultId.webm` }],
-        },
-      ]);
     });
   });
 });

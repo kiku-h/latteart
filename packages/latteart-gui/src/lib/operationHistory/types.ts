@@ -158,7 +158,7 @@ export type TestResult = Omit<
 
 export type TestResultSummary = Pick<
   TestResultForRepository,
-  "id" | "name" | "parentTestResultId" | "mediaType" | "videos"
+  "id" | "name" | "parentTestResultId" | "videos"
 >;
 
 export type AutoOperation = {

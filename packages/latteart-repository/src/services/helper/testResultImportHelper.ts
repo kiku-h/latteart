@@ -153,7 +153,6 @@ const deserializeTestResultV0 = (formattedData: TestResultExportDataV0) => {
     testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    mediaType: "image" as "image" | "video",
   };
   return testResult;
 };
@@ -213,7 +212,6 @@ const deserializeTestResultV1 = (formattedData: TestResultExportDataV1) => {
     testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    mediaType: "image" as "image" | "video",
   };
   return testResult;
 };
@@ -268,7 +266,6 @@ const deserializeTestResultV2 = (formattedData: TestResultExportDataV2) => {
     testingTime: formattedData.testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    mediaType: "image" as "image" | "video",
   };
   return testResult;
 };

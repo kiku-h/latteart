@@ -48,7 +48,6 @@ describe("issueReportHelper", () => {
       {
         name: "testResultName",
         id: "testResultId",
-        mediaType: "image" as "image" | "video",
       },
     ],
     initialUrl: "",
