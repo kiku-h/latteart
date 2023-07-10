@@ -200,15 +200,12 @@ export class SnapshotFileRepositoryServiceImpl
       testResultId
     );
 
-    const testResultInfo = {
-      mediaType: testResult?.mediaType ?? "image",
-      videos: testResult?.videos?.map((video) => {
-        return {
-          ...video,
-          url: path.join("testResult", path.basename(video.url)),
-        };
-      }),
-    };
+    const videos = testResult?.videos?.map((video) => {
+      return {
+        ...video,
+        url: path.join("testResult", path.basename(video.url)),
+      };
+    });
 
     const testStepIds = await this.service.testResult.collectAllTestStepIds(
       testResultId
@@ -232,7 +229,7 @@ export class SnapshotFileRepositoryServiceImpl
           title: testStep.operation.title,
           url: testStep.operation.url,
           imageFileUrl:
-            testResultInfo.mediaType === "image"
+            testStep.operation.imageFileUrl !== ""
               ? path.join(
                   "testResult",
                   path.basename(testStep.operation.imageFileUrl ?? "")
@@ -246,7 +243,7 @@ export class SnapshotFileRepositoryServiceImpl
           videoId: testStep.operation.videoId,
         };
 
-        if (testResultInfo.mediaType === "image") {
+        if (testStep.operation.imageFileUrl !== "") {
           await this.copyScreenshot(
             testStep.operation.imageFileUrl,
             destTestResultPath
@@ -264,7 +261,7 @@ export class SnapshotFileRepositoryServiceImpl
         const notices =
           (await Promise.all(
             notes.map(async (note) => {
-              if (testResultInfo.mediaType === "image") {
+              if (note.imageFileUrl !== "") {
                 await this.copyScreenshot(
                   note.imageFileUrl,
                   destTestResultPath
@@ -302,11 +299,9 @@ export class SnapshotFileRepositoryServiceImpl
       })
     );
 
-    if (testResultInfo.mediaType === "video") {
-      testResultInfo.videos?.map(async (video) => {
-        await this.copyVideo(path.basename(video.url), destTestResultPath);
-      });
-    }
+    videos?.map(async (video) => {
+      await this.copyVideo(path.basename(video.url), destTestResultPath);
+    });
 
     const { config } = await this.service.config.getProjectConfig("");
     const viewOption = {
@@ -344,7 +339,7 @@ export class SnapshotFileRepositoryServiceImpl
     const historyLogData = {
       history,
       coverageSources: testResult?.coverageSources ?? [],
-      testResultInfo,
+      videos,
     };
 
     // output log file
@@ -427,14 +422,33 @@ export class SnapshotFileRepositoryServiceImpl
               session.testResultFiles
             );
 
-            const notes = createNotes(story.id, sessionIdAlias, session.notes);
-
             const testResultFile = testResultFiles.at(0);
 
             const testResultId = testResultFile ? testResultFile.id : "";
 
             const testResult = await this.service.testResult.getTestResult(
               testResultId
+            );
+
+            const videos = testResult?.videos?.map((video) => {
+              return {
+                ...video,
+                url: path.join(
+                  "data",
+                  story.id,
+                  (sessionIndex + 1).toString(),
+                  "testResult",
+                  path.basename(video.url)
+                ),
+              };
+            });
+            console.log({ videos });
+
+            const notes = createNotes(
+              story.id,
+              sessionIdAlias,
+              session.notes,
+              videos ?? []
             );
 
             const testPurposes = await createTestPurposes(testResult);

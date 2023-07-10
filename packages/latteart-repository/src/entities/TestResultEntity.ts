@@ -58,9 +58,6 @@ export class TestResultEntity {
   @Column({ name: "testing_time" })
   testingTime: number = 0;
 
-  @Column({ name: "media_type", default: "" })
-  mediaType: "image" | "video" | "" = "";
-
   @OneToMany(() => SessionEntity, (session) => session.testResult)
   sessions?: SessionEntity[];
 

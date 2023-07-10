@@ -82,17 +82,17 @@
             </v-combobox>
 
             <v-checkbox
-              v-if="testResultMediaType === 'image'"
+              v-if="mediaType === 'image'"
               :disabled="!shouldRecordAsIssue"
               v-model="shouldTakeScreenshot"
               :label="$store.getters.message('note-edit.take-screenshot')"
             ></v-checkbox>
             <thumbnail-image
-              v-if="isThumbnailVisible && testResultMediaType === 'image'"
+              v-if="isThumbnailVisible && mediaType === 'image'"
               :imageFileUrl="screenshot"
             />
             <v-btn
-              v-if="testResultMediaType === 'video'"
+              v-if="mediaType === 'video'"
               :disabled="isPictureInPictureVideoDisplayed"
               @click="displayPictureInPictureVideo"
               >{{ $store.getters.message("note-edit.check-video") }}</v-btn
@@ -141,6 +141,7 @@ import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue
 import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import ThumbnailImage from "@/components/molecules/ThumbnailImage.vue";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -263,8 +264,9 @@ export default class TakeNoteWithPurposeDialog extends Vue {
     this.newTargetSequence = data.value;
   }
 
-  private get testResultMediaType() {
-    return this.$store.state.operationHistory.testResultInfo.mediaType;
+  private get mediaType() {
+    return (this.$store.state as RootState).projectSettings.config
+      .captureMediaSetting.mediaType;
   }
 
   private get isPictureInPictureVideoDisplayed() {

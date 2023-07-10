@@ -65,12 +65,11 @@ export class ProjectExportService {
           throw new Error();
         }
 
-        const fileData =
-          testResult.mediaType === "image"
-            ? await service.testResultService.collectAllTestStepScreenshots(
-                testResultEntity.id
-              )
-            : await service.testResultService.getVideos(testResult.id);
+        const fileData = (
+          await service.testResultService.collectAllTestStepScreenshots(
+            testResultEntity.id
+          )
+        ).concat(await service.testResultService.getVideos(testResult.id));
 
         const serializedTestResult = serializeTestResult(testResult);
         return {
@@ -78,7 +77,6 @@ export class ProjectExportService {
           testResultFile: {
             fileName: "log.json",
             data: serializedTestResult,
-            mediaType: testResult.mediaType,
           },
           fileData,
         };

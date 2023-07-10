@@ -27,7 +27,6 @@ export type TestResult = {
   initialUrl: string;
   testingTime: number;
   testSteps: TestStep[];
-  mediaType: "image" | "video";
   coverageSources: {
     title: string;
     url: string;

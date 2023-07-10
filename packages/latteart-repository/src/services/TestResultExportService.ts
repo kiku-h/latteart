@@ -41,12 +41,9 @@ export class TestResultExportServiceImpl implements TestResultExportService {
       throw Error(`Test result not found: ${testResultId}`);
     }
 
-    const fileData =
-      testResult.mediaType === "image"
-        ? await this.service.testResult.collectAllTestStepScreenshots(
-            testResultId
-          )
-        : await this.service.testResult.getVideos(testResultId);
+    const fileData = (
+      await this.service.testResult.collectAllTestStepScreenshots(testResultId)
+    ).concat(await this.service.testResult.getVideos(testResultId));
 
     const serializedTestResult = serializeTestResult(testResult);
 
@@ -55,7 +52,6 @@ export class TestResultExportServiceImpl implements TestResultExportService {
       testResultFile: {
         fileName: "log.json",
         data: serializedTestResult,
-        mediaType: testResult.mediaType,
       },
       fileData,
     });

@@ -162,69 +162,56 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       importFileData.testResultFile.data
     );
 
-    const screenshotFilePathToEntity =
-      testResult.mediaType === "image"
-        ? new Map(
-            await Promise.all(
-              importFileData.fileData.map<Promise<[string, ScreenshotEntity]>>(
-                async (screenshot) => {
-                  const screenshotEntity = await getRepository(
-                    ScreenshotEntity
-                  ).save(new ScreenshotEntity());
-                  const substrings = screenshot.filePath.split(".");
-                  const fileExt =
-                    substrings.length >= 2 ? `.${substrings.pop()}` : "";
-                  const fileName = `${screenshotEntity.id}${fileExt}`;
-                  await this.service.screenshotFileRepository.outputFile(
-                    fileName,
-                    screenshot.data
-                  );
-                  const imageFileUrl =
-                    this.service.screenshotFileRepository.getFileUrl(fileName);
-                  screenshotEntity.fileUrl = imageFileUrl;
+    const videoFilePathToEntity = new Map<string, VideoEntity>();
+    const screenshotFilePathToEntity = new Map<string, ScreenshotEntity>();
 
-                  return [screenshot.filePath, screenshotEntity];
-                }
-              )
-            )
-          )
-        : undefined;
+    await Promise.all(
+      importFileData.fileData.map(async (videoOrScreenshot) => {
+        if (videoOrScreenshot.filePath.split(".")[1] === "webm") {
+          const videoFileName = path.basename(videoOrScreenshot.filePath);
+          const videoInfo = testResult.videos?.find((item) =>
+            item.url.match(videoFileName)
+          );
+          const videoEntity = await getRepository(VideoEntity).save(
+            new VideoEntity({
+              startTimestamp: videoInfo ? videoInfo.startTimestamp : 0,
+            })
+          );
 
-    const videoFilePathToEntity =
-      testResult.mediaType === "video"
-        ? new Map(
-            await Promise.all(
-              importFileData.fileData.map<Promise<[string, VideoEntity]>>(
-                async (video) => {
-                  const videoFileName = path.basename(video.filePath);
-                  const videoInfo = testResult.videos?.find((item) =>
-                    item.url.match(videoFileName)
-                  );
-                  const videoEntity = await getRepository(VideoEntity).save(
-                    new VideoEntity({
-                      startTimestamp: videoInfo ? videoInfo.startTimestamp : 0,
-                    })
-                  );
+          const substrings = videoOrScreenshot.filePath.split(".");
+          const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
 
-                  const substrings = video.filePath.split(".");
-                  const fileExt =
-                    substrings.length >= 2 ? `.${substrings.pop()}` : "";
-
-                  const fileName = `${videoEntity.id}${fileExt}`;
-                  await this.service.videoFileRepository.outputFile(
-                    fileName,
-                    video.data
-                  );
-                  const videoFileUrl =
-                    this.service.videoFileRepository.getFileUrl(fileName);
-                  videoEntity.fileUrl = videoFileUrl;
-
-                  return [video.filePath, videoEntity];
-                }
-              )
-            )
-          )
-        : undefined;
+          const fileName = `${videoEntity.id}${fileExt}`;
+          await this.service.videoFileRepository.outputFile(
+            fileName,
+            videoOrScreenshot.data
+          );
+          const videoFileUrl =
+            this.service.videoFileRepository.getFileUrl(fileName);
+          videoEntity.fileUrl = videoFileUrl;
+          videoFilePathToEntity.set(videoOrScreenshot.filePath, videoEntity);
+          return [videoOrScreenshot.filePath, videoEntity];
+        } else {
+          const screenshotEntity = await getRepository(ScreenshotEntity).save(
+            new ScreenshotEntity()
+          );
+          const substrings = videoOrScreenshot.filePath.split(".");
+          const fileExt = substrings.length >= 2 ? `.${substrings.pop()}` : "";
+          const fileName = `${screenshotEntity.id}${fileExt}`;
+          await this.service.screenshotFileRepository.outputFile(
+            fileName,
+            videoOrScreenshot.data
+          );
+          const imageFileUrl =
+            this.service.screenshotFileRepository.getFileUrl(fileName);
+          screenshotEntity.fileUrl = imageFileUrl;
+          screenshotFilePathToEntity.set(
+            videoOrScreenshot.filePath,
+            screenshotEntity
+          );
+        }
+      })
+    );
 
     const tagNameToEntity = new Map(
       (await getRepository(TagEntity).find()).map<[string, TagEntity]>(
@@ -291,7 +278,6 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       lastUpdateTimestamp: testResult.lastUpdateTimeStamp,
       initialUrl: testResult.initialUrl ?? "",
       testingTime: testResult.testingTime,
-      mediaType: testResult.mediaType,
       screenshots: screenshotFilePathToEntity
         ? Array.from(screenshotFilePathToEntity.values())
         : undefined,

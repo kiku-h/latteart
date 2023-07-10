@@ -92,6 +92,7 @@
                 <capture-media-config
                   :captureMediaSetting="captureMediaSetting"
                   :opened="captureMediaSettingOpened"
+                  :isCapturing="isCapturing"
                   @save-config="saveConfig"
                 >
                 </capture-media-config>
@@ -259,6 +260,10 @@ export default class ConfigView extends Vue {
 
   private get locale() {
     return this.$store.getters.getLocale();
+  }
+
+  private get isCapturing() {
+    return this.$store.state.captureControl.isCapturing;
   }
 
   private get captureMediaSetting(): CaptureMediaSetting {

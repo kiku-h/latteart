@@ -485,7 +485,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       id: string;
       name: string;
       parentTestResultId: string;
-      mediaType: "image" | "video";
     }
   ) {
     state.testResultInfo = {
@@ -493,7 +492,6 @@ const mutations: MutationTree<OperationHistoryState> = {
       id: payload.id,
       name: payload.name,
       parentTestResultId: payload.parentTestResultId,
-      mediaType: payload.mediaType,
     };
   },
 
@@ -509,15 +507,6 @@ const mutations: MutationTree<OperationHistoryState> = {
     }
   ) {
     state.storingTestResultInfos = [...payload.testResultInfos];
-  },
-
-  /**
-   * Set test result video info to the State.
-   * @param state State.
-   * @param payload.mediaType Media type.
-   */
-  setTestResultVideoInfo(state, payload: { mediaType: "image" | "video" }) {
-    state.testResultInfo.mediaType = payload.mediaType;
   },
 
   /**

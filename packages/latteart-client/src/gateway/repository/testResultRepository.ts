@@ -95,7 +95,6 @@ export class TestResultRepository {
       initialUrl?: string;
       name?: string;
       parentTestResultId?: string;
-      mediaType?: "image" | "video";
     } = {}
   ): Promise<RepositoryAccessResult<TestResultSummaryForRepository>> {
     try {

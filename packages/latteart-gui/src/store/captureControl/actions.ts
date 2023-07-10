@@ -590,7 +590,8 @@ const actions: ActionTree<CaptureControlState, RootState> = {
         );
 
       const videoRecorder =
-        operationHistoryState.testResultInfo.mediaType === "video"
+        context.rootState.projectSettings.config.captureMediaSetting
+          .mediaType === "video"
           ? createVideoRecorder(testResult)
           : undefined;
 

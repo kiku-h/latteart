@@ -26,7 +26,6 @@ export interface CreateTestResultDto {
   initialUrl?: string;
   name?: string;
   parentTestResultId?: string;
-  mediaType?: "image" | "video";
 }
 
 /**
@@ -43,7 +42,6 @@ export type PatchTestResultDto = {
  */
 export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
   parentTestResultId?: string;
-  mediaType: "image" | "video";
   videos?: VideoInfo[];
 };
 
@@ -53,7 +51,6 @@ export type ListTestResultResponse = Pick<TestResult, "id" | "name"> & {
 export interface CreateTestResultResponse {
   id: string;
   name: string;
-  mediaType: "image" | "video";
 }
 
 /**

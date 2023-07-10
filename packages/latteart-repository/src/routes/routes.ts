@@ -1731,14 +1731,6 @@ const models: TsoaRoute.Models = {
               dataType: "array",
               array: { dataType: "refAlias", ref: "VideoInfo" },
             },
-            mediaType: {
-              dataType: "union",
-              subSchemas: [
-                { dataType: "enum", enums: ["image"] },
-                { dataType: "enum", enums: ["video"] },
-              ],
-              required: true,
-            },
             parentTestResultId: { dataType: "string" },
           },
         },
@@ -1793,14 +1785,6 @@ const models: TsoaRoute.Models = {
         lastUpdateTimeStamp: { dataType: "double", required: true },
         initialUrl: { dataType: "string", required: true },
         testingTime: { dataType: "double", required: true },
-        mediaType: {
-          dataType: "union",
-          subSchemas: [
-            { dataType: "enum", enums: ["image"] },
-            { dataType: "enum", enums: ["video"] },
-          ],
-          required: true,
-        },
         coverageSources: {
           dataType: "array",
           array: {
@@ -2012,14 +1996,6 @@ const models: TsoaRoute.Models = {
     properties: {
       id: { dataType: "string", required: true },
       name: { dataType: "string", required: true },
-      mediaType: {
-        dataType: "union",
-        subSchemas: [
-          { dataType: "enum", enums: ["image"] },
-          { dataType: "enum", enums: ["video"] },
-        ],
-        required: true,
-      },
     },
     additionalProperties: false,
   },
@@ -2057,13 +2033,6 @@ const models: TsoaRoute.Models = {
       initialUrl: { dataType: "string" },
       name: { dataType: "string" },
       parentTestResultId: { dataType: "string" },
-      mediaType: {
-        dataType: "union",
-        subSchemas: [
-          { dataType: "enum", enums: ["image"] },
-          { dataType: "enum", enums: ["video"] },
-        ],
-      },
     },
     additionalProperties: false,
   },

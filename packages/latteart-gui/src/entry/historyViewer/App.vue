@@ -62,8 +62,7 @@ export default class App extends Vue {
 
       this.i18n = createI18n(this.settings.locale);
 
-      const { history, mediaType } = this.testResult;
-
+      const { history } = this.testResult;
       this.$store.commit("operationHistory/resetHistory", {
         historyItems: history,
       });
@@ -74,9 +73,6 @@ export default class App extends Vue {
         },
         { root: true }
       );
-      this.$store.commit("operationHistory/setTestResultVideoInfo", {
-        mediaType,
-      });
 
       await this.$store.dispatch(
         "operationHistory/updateModelsFromSequenceView",
@@ -99,18 +95,14 @@ export default class App extends Vue {
 
   private get testResult(): {
     history: OperationWithNotes[];
-    mediaType: "image" | "video";
   } {
-    const testResultInfo: {
-      mediaType: "image" | "video";
-      videos?: { id: string; url: string; startTimestamp: number }[];
-    } = (this as any).$historyLog.testResultInfo;
+    const videos: { id: string; url: string; startTimestamp: number }[] = (
+      this as any
+    ).$historyLog.videos;
     return {
       history: ((this as any).$historyLog.history as any[]).map((item) => {
         const video = item.operation.videoId
-          ? testResultInfo.videos?.find(
-              (video) => video.id === item.operation.videoId
-            )
+          ? videos?.find((video) => video.id === item.operation.videoId)
           : undefined;
         const videoFrame = video
           ? {
@@ -157,6 +149,15 @@ export default class App extends Vue {
                 other: notice,
                 overrideParams: {
                   imageFilePath: notice.imageFileUrl,
+                  videoFrame: video
+                    ? {
+                        url: video.url,
+                        time:
+                          (parseInt(notice.timestamp, 10) -
+                            video?.startTimestamp) /
+                          1000,
+                      }
+                    : undefined,
                 },
               })
             ) ?? [],
@@ -165,7 +166,6 @@ export default class App extends Vue {
             : null,
         };
       }),
-      mediaType: testResultInfo.mediaType,
     };
   }
 

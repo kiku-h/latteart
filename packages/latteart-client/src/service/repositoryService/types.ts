@@ -44,10 +44,7 @@ export type RepositoryService = {
     initialUrl?: string;
     name?: string;
     parentTestResultId?: string;
-    mediaType?: "video" | "image";
-  }): Promise<
-    ServiceResult<{ id: string; name: string; mediaType: "video" | "image" }>
-  >;
+  }): Promise<ServiceResult<{ id: string; name: string }>>;
 
   /**
    * create an interface to access a Test Result

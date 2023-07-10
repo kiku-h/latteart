@@ -21,6 +21,7 @@
         <h4>{{ $store.getters.message("config-view.media-type") }}</h4>
         <v-radio-group
           :value="tempConfig.mediaType"
+          :disabled="isCapturing"
           @change="changeCaptureMediaType"
           class="py-0 my-0"
           row
@@ -81,6 +82,8 @@ export default class CaptureMediaConfig extends Vue {
   public readonly opened!: boolean;
   @Prop({ type: Object, default: null })
   public readonly captureMediaSetting!: CaptureMediaSetting;
+  @Prop({ type: Boolean, default: true })
+  public readonly isCapturing!: boolean;
 
   private tempConfig: {
     mediaType: "image" | "video";

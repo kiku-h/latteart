@@ -331,7 +331,6 @@ const deserializeTestResultV3 = (formattedData: TestResultExportDataV3) => {
     testingTime: formattedData.testingTime,
     testSteps,
     coverageSources: formattedData.coverageSources,
-    mediaType: formattedData.mediaType,
     videos,
   };
   return testResult;

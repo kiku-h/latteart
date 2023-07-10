@@ -38,7 +38,6 @@ describe("testResultExportHelper", () => {
           { id: "id2", operation, intention: null, bugs: [], notices: [] },
         ],
         coverageSources: [],
-        mediaType: "image",
       };
 
       const testStep = {
@@ -69,7 +68,6 @@ describe("testResultExportHelper", () => {
         lastUpdateTimeStamp: 0,
         initialUrl: "",
         testingTime: 0,
-        mediaType: "image",
         history: {
           "1": {
             testStep,

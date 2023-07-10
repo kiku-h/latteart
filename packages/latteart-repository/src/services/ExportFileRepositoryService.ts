@@ -37,7 +37,6 @@ interface exportTestResultData {
   testResultFile: {
     fileName: string;
     data: string;
-    mediaType: "image" | "video";
   };
   fileData: { id: string; fileUrl: string }[];
 }
@@ -52,7 +51,6 @@ export interface ExportFileRepositoryService {
     testResultFile: {
       fileName: string;
       data: string;
-      mediaType: "image" | "video";
     };
     fileData: { id: string; fileUrl: string }[];
   }): Promise<string>;
@@ -174,34 +172,27 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    if (testResult.testResultFile.mediaType === "video") {
-      await Promise.all(
-        testResult.fileData.map(async (video) => {
-          const fileName = video.fileUrl.split("/").slice(-1)[0];
-
+    await Promise.all(
+      testResult.fileData.map(async (videoOrScreenshot) => {
+        const fileName = videoOrScreenshot.fileUrl.split("/").slice(-1)[0];
+        if (fileName.split(".")[1] === "webm") {
           return await this.service.workingFileRepository.copyFile(
             fileName,
             path.join(testResultPath, "video", fileName),
             "video"
           );
-        })
-      );
-    } else {
-      await Promise.all(
-        testResult.fileData.map(async (screenshot) => {
-          const fileName = screenshot.fileUrl.split("/").slice(-1)[0];
-
+        } else {
           return await this.service.workingFileRepository.copyFile(
             fileName,
             path.join(testResultPath, "screenshot", fileName),
             "screenshot"
           );
-        })
-      ).catch((e) => {
-        console.log(e);
-        throw e;
-      });
-    }
+        }
+      })
+    ).catch((e) => {
+      console.log(e);
+      throw e;
+    });
   }
 
   public async exportTestResult(testResult: {
@@ -209,7 +200,6 @@ export class ExportFileRepositoryServiceImpl
     testResultFile: {
       fileName: string;
       data: string;
-      mediaType: "image" | "video";
     };
     fileData: { id: string; fileUrl: string }[];
   }): Promise<string> {
@@ -237,7 +227,6 @@ export class ExportFileRepositoryServiceImpl
     testResultFile: {
       fileName: string;
       data: string;
-      mediaType: "image" | "video";
     };
     fileData: { id: string; fileUrl: string }[];
   }) {
@@ -247,35 +236,29 @@ export class ExportFileRepositoryServiceImpl
       testResult.testResultFile.data
     );
 
-    if (testResult.testResultFile.mediaType === "video") {
-      const videoFileNames = testResult.fileData.map(({ fileUrl }) => {
+    const videoOrScreenshotFileNames = testResult.fileData.map(
+      ({ fileUrl }) => {
         return fileUrl.split("/").slice(-1)[0];
-      });
+      }
+    );
 
-      await Promise.all(
-        videoFileNames.map((fileName) => {
+    await Promise.all(
+      videoOrScreenshotFileNames.map((fileName) => {
+        if (fileName.split(".")[1] === "webm") {
           return this.service.workingFileRepository.copyFile(
             fileName,
             path.join(outputDirName, path.basename(fileName)),
             "video"
           );
-        })
-      );
-    } else {
-      const screenshotFileNames = testResult.fileData.map(({ fileUrl }) => {
-        return fileUrl.split("/").slice(-1)[0];
-      });
-
-      await Promise.all(
-        screenshotFileNames.map((fileName) => {
+        } else {
           return this.service.workingFileRepository.copyFile(
             fileName,
             path.join(outputDirName, path.basename(fileName)),
             "screenshot"
           );
-        })
-      );
-    }
+        }
+      })
+    );
 
     return outputDirName;
   }

@@ -133,7 +133,6 @@ export class TestResultServiceImpl implements TestResultService {
         id: testResult.id,
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId,
-        mediaType: testResult.mediaType === "" ? "image" : testResult.mediaType,
         videos:
           testResult.videos?.map(({ id, fileUrl, startTimestamp }) => {
             return { id, url: fileUrl, startTimestamp };
@@ -185,7 +184,6 @@ export class TestResultServiceImpl implements TestResultService {
     const startTimestamp = body.initialUrl
       ? this.service?.timestamp.epochMilliseconds()
       : 0;
-    const mediaType = body.mediaType ?? "image";
 
     const lastUpdateTimestamp = -1;
 
@@ -207,13 +205,11 @@ export class TestResultServiceImpl implements TestResultService {
       notes: [],
       screenshots: [],
       parentTestResultId: body.parentTestResultId,
-      mediaType,
     });
 
     return {
       id: newTestResult.id,
       name: newTestResult.name,
-      mediaType: newTestResult.mediaType,
     };
   }
 
@@ -784,10 +780,6 @@ export class TestResultServiceImpl implements TestResultService {
       lastUpdateTimeStamp: testResultEntity.lastUpdateTimestamp,
       initialUrl: testResultEntity.initialUrl,
       testingTime: testResultEntity.testingTime,
-      mediaType:
-        testResultEntity.mediaType === ""
-          ? "image"
-          : testResultEntity.mediaType,
       testSteps,
       coverageSources,
       parentTestResultId: testResultEntity.parentTestResultId,

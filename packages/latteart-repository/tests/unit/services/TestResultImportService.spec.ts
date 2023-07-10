@@ -906,7 +906,6 @@ describe("TestResultImportService", () => {
         lastUpdateTimeStamp: -1,
         initialUrl: "initialUrl",
         testingTime: 0,
-        mediaType: "image",
         history: { "1": historyItem1 },
         notes: [testPurpose1, note1],
         coverageSources: [
@@ -1025,9 +1024,6 @@ describe("TestResultImportService", () => {
         testResultExportData.initialUrl
       );
       expect(testResultEntity.testingTime).toEqual(0);
-      expect(testResultEntity.mediaType).toEqual(
-        testResultExportData.mediaType
-      );
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.screenshotIds).toContain(
@@ -1164,7 +1160,6 @@ describe("TestResultImportService", () => {
         lastUpdateTimeStamp: -1,
         initialUrl: "initialUrl",
         testingTime: 0,
-        mediaType: "video",
         history: { "1": historyItem1 },
         notes: [testPurpose1, note1],
         coverageSources: [
@@ -1307,9 +1302,6 @@ describe("TestResultImportService", () => {
         testResultExportData.initialUrl
       );
       expect(testResultEntity.testingTime).toEqual(0);
-      expect(testResultEntity.mediaType).toEqual(
-        testResultExportData.mediaType
-      );
 
       expect(testResultEntity.noteIds).toContain(noteEntity.id);
       expect(testResultEntity.testPurposeIds).toContain(testPurposeEntity?.id);

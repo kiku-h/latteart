@@ -158,6 +158,7 @@ import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import ScreencastDisplay from "./ScreencastDisplay.vue";
+import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -271,7 +272,8 @@ export default class HistoryDisplay extends Vue {
   }
 
   private get mediaType(): "image" | "video" {
-    return this.$store.state.operationHistory.testResultInfo.mediaType;
+    return (this.$store.state as RootState).projectSettings.config
+      .captureMediaSetting.mediaType;
   }
 
   @Watch("diagramType")

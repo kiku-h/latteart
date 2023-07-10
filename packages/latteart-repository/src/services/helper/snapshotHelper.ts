@@ -48,20 +48,37 @@ export function createTestResultFiles(
 export function createNotes(
   storyId: string,
   sessionIdAlias: string,
-  notes: Session["notes"]
+  notes: Session["notes"],
+  videos: {
+    url: string;
+    id: string;
+    startTimestamp: number;
+  }[]
 ): Session["notes"] {
   return notes.map((note) => {
+    const video = videos.find((video) => video.id === note.videoId);
     return {
       id: note.id,
       type: note.type,
       value: note.value,
       details: note.details,
-      imageFileUrl: `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
-        note.imageFileUrl ?? ""
-      )}`,
+      imageFileUrl: video
+        ? ""
+        : `data/${storyId}/${sessionIdAlias}/testResult/${path.basename(
+            note.imageFileUrl ?? ""
+          )}`,
       tags: note.tags,
       timestamp: note.timestamp,
       videoId: note.videoId,
+      videoFrame: video
+        ? {
+            url: video.url,
+            time:
+              (parseInt(note.timestamp.toString(), 10) -
+                video?.startTimestamp) /
+              1000,
+          }
+        : undefined,
     };
   });
 }

@@ -444,7 +444,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
         repositoryUrl: context.rootState.repositoryService.serviceUrl,
         id: result.data.testResultInfo.id,
         name: result.data.testResultInfo.name,
-        mediaType: result.data.testResultInfo.mediaType ?? "image",
         parentTestResultId: result.data.testResultInfo.parentTestResultId ?? "",
       });
       context.commit(
@@ -1127,7 +1126,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       initialUrl: string;
       name: string;
       parentTestResultId?: string;
-      mediaType: "image" | "video";
     }
   ) {
     const initialUrl = payload.initialUrl ? payload.initialUrl : undefined;
@@ -1135,13 +1133,11 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
     const parentTestResultId = payload.parentTestResultId
       ? payload.parentTestResultId
       : undefined;
-    const mediaType = payload.mediaType;
     const result =
       await context.rootState.repositoryService.createEmptyTestResult({
         initialUrl,
         name,
         parentTestResultId,
-        mediaType,
       });
 
     if (result.isFailure()) {
@@ -1159,7 +1155,6 @@ const actions: ActionTree<OperationHistoryState, RootState> = {
       id: testResultInfo.id,
       name: testResultInfo.name,
       parentTestResultId: payload.parentTestResultId ?? "",
-      mediaType: testResultInfo.mediaType,
     });
     context.commit("setStoringTestResultInfos", {
       testResultInfos: [{ id: testResultInfo.id, name: testResultInfo.name }],

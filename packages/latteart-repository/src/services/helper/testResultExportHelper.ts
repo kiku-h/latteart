@@ -95,7 +95,6 @@ export function serializeTestResult(testResult: GetTestResultResponse): string {
     lastUpdateTimeStamp: testResult.lastUpdateTimeStamp,
     initialUrl: testResult.initialUrl,
     testingTime: testResult.testingTime,
-    mediaType: testResult.mediaType,
     history,
     notes,
     coverageSources: testResult.coverageSources.map((coverageSource) => {

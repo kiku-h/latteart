@@ -189,7 +189,6 @@ export type TestResultExportDataV3 = Omit<
   "history" | "notes"
 > & {
   history: { [k: string]: HistoryItemExportDataV3 };
-  mediaType: "image" | "video";
   videos?: VideoInfo[];
   notes: {
     id: string;

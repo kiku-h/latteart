@@ -121,7 +121,6 @@ describe("TestResultService", () => {
       const body: CreateTestResultDto = {
         initialUrl: "initialUrl",
         name: "session_name",
-        mediaType: "image",
       };
 
       const result = await service.createTestResult(body);
@@ -129,7 +128,6 @@ describe("TestResultService", () => {
       expect(result).toEqual({
         id: expect.any(String),
         name: body.name,
-        mediaType: body.mediaType,
       });
     });
   });

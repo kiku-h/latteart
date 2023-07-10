@@ -85,10 +85,7 @@ export function createRepositoryService(
       initialUrl?: string;
       name?: string;
       parentTestResultId?: string;
-      mediaType?: "video" | "image";
-    }): Promise<
-      ServiceResult<{ id: string; name: string; mediaType: "video" | "image" }>
-    > {
+    }): Promise<ServiceResult<{ id: string; name: string }>> {
       const result =
         await repositories.testResultRepository.postEmptyTestResult(option);
 
