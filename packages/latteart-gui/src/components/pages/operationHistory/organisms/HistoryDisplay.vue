@@ -271,11 +271,6 @@ export default class HistoryDisplay extends Vue {
     return `${sequence}.${ext}`;
   }
 
-  private get mediaType(): "image" | "video" {
-    return (this.$store.state as RootState).projectSettings.config
-      .captureMediaSetting.mediaType;
-  }
-
   @Watch("diagramType")
   private onChangeDialogType() {
     this.updateWindowTitle();

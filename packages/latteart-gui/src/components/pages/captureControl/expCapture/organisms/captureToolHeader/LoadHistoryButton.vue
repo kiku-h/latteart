@@ -67,7 +67,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import ErrorMessageDialog from "@/components/pages/common/ErrorMessageDialog.vue";
 import { TestResultSummary } from "@/lib/operationHistory/types";
-import { RootState } from "@/store";
 
 @Component({
   components: {
@@ -116,12 +115,9 @@ export default class LoadHistoryButton extends Vue {
       this.testResults.splice(0, this.testResults.length, ...newTestResults);
 
       if (this.testResults.length === 0) {
-        const mediaType = (this.$store.state as RootState).projectSettings
-          .config.captureMediaSetting.mediaType;
         this.testResults.push({
           id: "",
           name: "EMPTY",
-          mediaType,
         });
       }
 
