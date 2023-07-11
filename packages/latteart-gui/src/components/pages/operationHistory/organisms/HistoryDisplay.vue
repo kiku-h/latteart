@@ -158,7 +158,6 @@ import DecisionTable from "./DecisionTable.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "../../common/ErrorMessageDialog.vue";
 import ScreencastDisplay from "./ScreencastDisplay.vue";
-import { RootState } from "@/store";
 
 @Component({
   components: {
