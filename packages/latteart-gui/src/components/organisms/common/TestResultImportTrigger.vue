@@ -16,10 +16,7 @@
 
 <template>
   <div style="display: inline">
-    <slot
-      name="activator"
-      v-bind="{ on: openTestResultImportDialog, isDisabled }"
-    />
+    <slot name="activator" v-bind="{ on: openTestResultImportDialog, isDisabled }" />
 
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -54,7 +51,7 @@ export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "information-message-dialog": InformationMessageDialog,
-    "test-result-import-dialog": TestResultImportDialog,
+    "test-result-import-dialog": TestResultImportDialog
   },
   setup(_, context) {
     const store = useStore();
@@ -72,47 +69,36 @@ export default defineComponent({
 
     const isDisabled = computed((): boolean => {
       return (
-        isCapturing.value ||
-        isReplaying.value ||
-        isResuming.value ||
-        isImportingTestResults.value
+        isCapturing.value || isReplaying.value || isResuming.value || isImportingTestResults.value
       );
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const openTestResultImportDialog = () => {
       testResultImportDialogOpened.value = true;
     };
 
-    const importData = (testResultImportFile: {
-      data: string;
-      name: string;
-    }) => {
+    const importData = (testResultImportFile: { data: string; name: string }) => {
       isImportingTestResults.value = true;
 
       setTimeout(async () => {
         try {
           store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "import-export-dialog.importing-data"
-            ),
+            message: store.getters.message("import-export-dialog.importing-data")
           });
           await store.dispatch("operationHistory/importData", {
-            source: { testResultFile: testResultImportFile },
+            source: { testResultFile: testResultImportFile }
           });
           store.dispatch("closeProgressDialog");
 
@@ -123,7 +109,7 @@ export default defineComponent({
           informationMessage.value = store.getters.message(
             "import-export-dialog.import-data-succeeded",
             {
-              returnName: testResultImportFile.name,
+              returnName: testResultImportFile.name
             }
           );
 
@@ -151,8 +137,8 @@ export default defineComponent({
       informationMessage,
       isDisabled,
       openTestResultImportDialog,
-      importData,
+      importData
     };
-  },
+  }
 });
 </script>

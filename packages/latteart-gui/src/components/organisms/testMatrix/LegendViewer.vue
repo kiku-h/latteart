@@ -16,17 +16,9 @@
 
 <template>
   <v-row class="d-flex justify-center">
-    <div
-      v-for="(legend, index) in legendInfos"
-      v-bind:key="index"
-      class="manage-show-legend"
-    >
+    <div v-for="(legend, index) in legendInfos" v-bind:key="index" class="manage-show-legend">
       <v-card class="pt-0 my-3">
-        <v-card-title
-          primary-title
-          class="py-2 my-0"
-          v-bind:class="legend.class"
-        >
+        <v-card-title primary-title class="py-2 my-0" v-bind:class="legend.class">
           <p class="card-center">{{ legend.status }}</p>
         </v-card-title>
       </v-card>
@@ -59,39 +51,37 @@ export default defineComponent({
           {
             status: store.getters.message("test-matrix-page.status-ok"),
             text: store.getters.message("test-matrix-page.text-ok"),
-            class: "status-fine",
+            class: "status-fine"
           },
           {
-            status: store.getters.message(
-              "test-matrix-page.status-out-of-scope"
-            ),
+            status: store.getters.message("test-matrix-page.status-out-of-scope"),
             text: store.getters.message("test-matrix-page.text-out-of-scope"),
-            class: "status-fine",
+            class: "status-fine"
           },
           {
             status: store.getters.message("test-matrix-page.status-ng"),
             text: store.getters.message("test-matrix-page.text-ng"),
-            class: "status-ng",
+            class: "status-ng"
           },
           {
             status: store.getters.message("test-matrix-page.status-ongoing"),
             text: store.getters.message("test-matrix-page.text-ongoing"),
-            class: "status-warn",
+            class: "status-warn"
           },
           {
             status: store.getters.message("test-matrix-page.status-pending"),
             text: store.getters.message("test-matrix-page.text-pending"),
-            class: "status-warn",
-          },
+            class: "status-warn"
+          }
         ];
       }
     );
 
     return {
       store,
-      legendInfos,
+      legendInfos
     };
-  },
+  }
 });
 </script>
 

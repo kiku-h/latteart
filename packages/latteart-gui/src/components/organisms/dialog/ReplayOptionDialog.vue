@@ -17,9 +17,7 @@
 <template>
   <div>
     <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        store.getters.message("replay-option.start-replay")
-      }}</template>
+      <template v-slot:title>{{ store.getters.message("replay-option.start-replay") }}</template>
       <template v-slot:content>
         <v-checkbox
           :label="store.getters.message('replay-option.replay-capture')"
@@ -38,10 +36,7 @@
           </v-card-text>
         </v-card>
 
-        <p
-          v-if="savingReplayResultsWarningMessage !== ''"
-          class="alert-message"
-        >
+        <p v-if="savingReplayResultsWarningMessage !== ''" class="alert-message">
           {{ savingReplayResultsWarningMessage }}
         </p>
 
@@ -49,7 +44,7 @@
           :disabled="!isResultSavingEnabled"
           :label="
             store.getters.message('replay-option.replay-compare', {
-              sourceTestResultName,
+              sourceTestResultName
             })
           "
           v-model="isComparisonEnabled"
@@ -97,11 +92,11 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "scrollable-dialog": ScrollableDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -121,17 +116,13 @@ export default defineComponent({
     });
 
     const savingReplayResultsWarningMessage = computed((): string => {
-      return store.state.projectSettings.config.captureMediaSetting
-        .mediaType === "video"
-        ? store.getters.message(
-            "replay-option.saving-replay-results-warning-message"
-          )
+      return store.state.projectSettings.config.captureMediaSetting.mediaType === "video"
+        ? store.getters.message("replay-option.saving-replay-results-warning-message")
         : "";
     });
 
     const hasIgnoredOperations = computed((): boolean => {
-      const operations: OperationForGUI[] =
-        store.getters["operationHistory/getOperations"]();
+      const operations: OperationForGUI[] = store.getters["operationHistory/getOperations"]();
 
       return operations.some(({ type }, index) => {
         if (index > 0 && type === "start_capturing") {
@@ -147,8 +138,7 @@ export default defineComponent({
     });
 
     const sourceTestResultName = computed(() => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.name;
+      return ((store.state as any).operationHistory as OperationHistoryState).testResultInfo.name;
     });
 
     const initialize = () => {
@@ -168,14 +158,10 @@ export default defineComponent({
       try {
         store.commit("captureControl/setReplayOption", {
           replayOption: {
-            testResultName: isResultSavingEnabled.value
-              ? testResultName.value
-              : "",
+            testResultName: isResultSavingEnabled.value ? testResultName.value : "",
             resultSavingEnabled: isResultSavingEnabled.value,
-            comparisonEnabled: isResultSavingEnabled.value
-              ? isComparisonEnabled.value
-              : false,
-          },
+            comparisonEnabled: isResultSavingEnabled.value ? isComparisonEnabled.value : false
+          }
         });
 
         context.emit("ok");
@@ -213,9 +199,9 @@ export default defineComponent({
       sourceTestResultName,
       ok,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

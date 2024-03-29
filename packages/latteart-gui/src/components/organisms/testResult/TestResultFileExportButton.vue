@@ -48,7 +48,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "download-link-dialog": DownloadLinkDialog,
+    "download-link-dialog": DownloadLinkDialog
   },
   setup() {
     const store = useStore();
@@ -75,24 +75,19 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const sequence = computed(() => {
-      const history = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history;
+      const history = ((store.state as any).operationHistory as OperationHistoryState).history;
 
       return history.at(-1)?.operation.sequence ?? 0;
     });
@@ -100,15 +95,12 @@ export default defineComponent({
     const exportData = () => {
       (async () => {
         isExportingData.value = true;
-        const testResultId = (
-          (store.state as any).operationHistory as OperationHistoryState
-        ).testResultInfo.id;
+        const testResultId = ((store.state as any).operationHistory as OperationHistoryState)
+          .testResultInfo.id;
 
         try {
           store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "import-export-dialog.creating-export-data"
-            ),
+            message: store.getters.message("import-export-dialog.creating-export-data")
           });
           const exportDataPath = await store
             .dispatch("operationHistory/exportData", { testResultId })
@@ -116,8 +108,7 @@ export default defineComponent({
               console.error(error);
             });
           store.dispatch("closeProgressDialog");
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
+          downloadLinkDialogTitle.value = store.getters.message("common.confirm");
           downloadLinkDialogMessage.value = store.getters.message(
             "import-export-dialog.create-export-data-succeeded"
           );
@@ -152,8 +143,8 @@ export default defineComponent({
       downloadLinkDialogAlertMessage,
       downloadLinkDialogLinkUrl,
       isDisabled,
-      exportData,
+      exportData
     };
-  },
+  }
 });
 </script>

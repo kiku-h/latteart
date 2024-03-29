@@ -32,7 +32,7 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "alert-dialog": AlertDialog,
+    "alert-dialog": AlertDialog
   },
   setup() {
     const store = useStore();
@@ -71,8 +71,8 @@ export default defineComponent({
       opened,
       title,
       message,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

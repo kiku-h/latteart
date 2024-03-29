@@ -31,7 +31,7 @@
       :maxWidth="800"
     >
       <template>
-        <h3 class="title mb-0">
+        <h3 class="text-h6 mb-0">
           {{ store.getters.message("note-edit.note-for-current-purpose") }}
         </h3>
 
@@ -62,19 +62,17 @@
                 v-model="newTags"
                 :hide-no-data="!search"
                 :items="tagsItem"
-                :search-input.sync="search"
+                v-model:search-input="search"
                 multiple
                 small-chips
                 hide-selected
               >
                 <template v-slot:no-data>
                   <v-list-item>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        No results matching "<strong>{{ search }}</strong
-                        >". Press <kbd>enter</kbd> to create a new one
-                      </v-list-item-title>
-                    </v-list-item-content>
+                    <v-list-item-title>
+                      No results matching "<strong>{{ search }}</strong
+                      >". Press <kbd>enter</kbd> to create a new one
+                    </v-list-item-title>
                   </v-list-item>
                 </template>
                 <template v-slot:selection="{ attrs, item, parent, selected }">
@@ -82,20 +80,18 @@
                     v-if="item === Object(item)"
                     v-bind="attrs"
                     :color="item.color"
-                    :input-value="selected"
-                    small
+                    :model-value="selected"
+                    size="small"
                   >
                     <span class="pr-2">{{ item.text }} </span>
-                    <v-icon small @click="parent.selectItem(item)"
-                      >$delete</v-icon
-                    >
+                    <v-icon size="small" @click="parent.selectItem(item)">$delete</v-icon>
                   </v-chip>
                 </template>
               </v-combobox>
               <h4>{{ store.getters.message("note-edit.take-screenshot") }}</h4>
               <v-radio-group
                 v-model="shouldTakeScreenshot"
-                row
+                inline
                 hide-details
                 class="mt-2"
                 :disabled="!screenshot && !video"
@@ -111,21 +107,13 @@
               </v-radio-group>
 
               <div v-if="!shouldTakeScreenshot">
-                <v-btn
-                  class="mx-2 my-3"
-                  :disabled="!screenshot"
-                  @click="showStillImage"
-                  >{{
-                    store.getters.message("note-edit.check-still-Image")
-                  }}</v-btn
-                >
+                <v-btn class="mx-2 my-3" :disabled="!screenshot" @click="showStillImage">{{
+                  store.getters.message("note-edit.check-still-Image")
+                }}</v-btn>
 
-                <v-btn
-                  class="mx-2 my-3"
-                  :disabled="!video"
-                  @click="showVideo"
-                  >{{ store.getters.message("note-edit.check-video") }}</v-btn
-                >
+                <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
+                  store.getters.message("note-edit.check-video")
+                }}</v-btn>
 
                 <popup-image v-if="isImageVisible" :imageFileUrl="screenshot" />
 
@@ -135,7 +123,7 @@
           </v-card-text>
         </v-card>
 
-        <h3 class="title mb-0">
+        <h3 class="text-h6 mb-0">
           {{ store.getters.message("note-edit.next-purpose") }}
         </h3>
 
@@ -172,10 +160,7 @@
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import {
-  NoteTagItem,
-  noteTagPreset,
-} from "@/lib/operationHistory/NoteTagPreset";
+import { NoteTagItem, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { OperationHistoryState } from "@/store/operationHistory";
 import VideoDisplay from "@/components/molecules/VideoDisplay.vue";
@@ -185,14 +170,14 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
     "video-display": VideoDisplay,
-    "popup-image": PopupImage,
+    "popup-image": PopupImage
   },
   setup(props, context) {
     const store = useStore();
@@ -224,12 +209,10 @@ export default defineComponent({
         return;
       }
 
-      const sequence = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).selectedOperationNote.sequence as number;
-      const targetOperation = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history[sequence - 1].operation;
+      const sequence = ((store.state as any).operationHistory as OperationHistoryState)
+        .selectedOperationNote.sequence as number;
+      const targetOperation = ((store.state as any).operationHistory as OperationHistoryState)
+        .history[sequence - 1].operation;
 
       newNote.value = "";
       newNoteDetails.value = "";
@@ -254,7 +237,7 @@ export default defineComponent({
       isVideoVisible.value = false;
 
       store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence: null, index: null },
+        selectedOperationNote: { sequence: null, index: null }
       });
     };
 
@@ -265,7 +248,7 @@ export default defineComponent({
         if (typeof v === "string") {
           v = {
             text: v,
-            color: "#E0E0E0",
+            color: "#E0E0E0"
           };
 
           newTags.value.push(v);
@@ -284,7 +267,7 @@ export default defineComponent({
             note: newNote.value,
             noteDetails: newNoteDetails.value,
             tags: newTags.value.map((tag) => tag.text),
-            shouldTakeScreenshot: shouldTakeScreenshot.value,
+            shouldTakeScreenshot: shouldTakeScreenshot.value
           } as NoteEditInfo;
 
           const intentionInfo = {
@@ -293,18 +276,18 @@ export default defineComponent({
             note: newTestPurpose.value,
             noteDetails: newTestPurposeDetails.value,
             tags: [],
-            shouldTakeScreenshot: false,
+            shouldTakeScreenshot: false
           } as NoteEditInfo;
 
           if (shouldRecordAsIssue.value) {
             await store.dispatch("captureControl/takeNote", {
-              noteEditInfo: noteInfo,
+              noteEditInfo: noteInfo
             });
           }
 
           if (!shouldContinueSameTestPurpose.value) {
             await store.dispatch("captureControl/setNextTestPurpose", {
-              noteEditInfo: intentionInfo,
+              noteEditInfo: intentionInfo
             });
           }
         } catch (error) {
@@ -399,8 +382,8 @@ export default defineComponent({
       close,
       canSave,
       showStillImage,
-      showVideo,
+      showVideo
     };
-  },
+  }
 });
 </script>

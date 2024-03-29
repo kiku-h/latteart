@@ -17,14 +17,14 @@
 <template>
   <div>
     <v-menu offset-y>
-      <template v-slot:activator="{ on }">
+      <template v-slot:activator="{ props }">
         <v-btn
           v-if="!isViewerMode"
           id="optionMenuButton"
-          text
-          v-on="on"
+          variant="text"
+          v-bind="props"
           icon
-          large
+          size="large"
           class="mx-2"
           >...</v-btn
         >
@@ -34,10 +34,7 @@
         <generate-test-script-button />
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
-          <v-list-item
-            @click="slotProps.obj.execute"
-            :disabled="slotProps.obj.isDisabled"
-          >
+          <v-list-item @click="slotProps.obj.execute" :disabled="slotProps.obj.isDisabled">
             <v-list-item-title>{{
               store.getters.message("test-result-page.export-screenshots")
             }}</v-list-item-title>
@@ -67,7 +64,7 @@ export default defineComponent({
     "generate-test-script-button": GenerateTestScriptButton,
     "screenshots-download-button": ScreenshotsDownloadButton,
     "delete-test-result-button": DeleteTestResultButton,
-    "compare-history-button": CompareHistoryButton,
+    "compare-history-button": CompareHistoryButton
   },
   setup() {
     const store = useStore();
@@ -78,8 +75,8 @@ export default defineComponent({
 
     return {
       store,
-      isViewerMode,
+      isViewerMode
     };
-  },
+  }
 });
 </script>

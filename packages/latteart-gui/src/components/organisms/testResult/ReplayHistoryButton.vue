@@ -39,10 +39,7 @@
 
 <script lang="ts">
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import {
-  TestResultComparisonResult,
-  TestResultSummary,
-} from "@/lib/operationHistory/types";
+import { TestResultComparisonResult, TestResultSummary } from "@/lib/operationHistory/types";
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
@@ -56,7 +53,7 @@ export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "replay-option-dialog": ReplayOptionDialog,
-    "comparison-result-dialog": ComparisonResultDialog,
+    "comparison-result-dialog": ComparisonResultDialog
   },
   setup() {
     const store = useStore();
@@ -80,18 +77,15 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const operations = computed((): OperationForGUI[] => {
@@ -110,8 +104,7 @@ export default defineComponent({
         resultSavingEnabled: boolean;
         comparisonEnabled: boolean;
       } => {
-        return ((store.state as any).captureControl as CaptureControlState)
-          .replayOption;
+        return ((store.state as any).captureControl as CaptureControlState).replayOption;
       }
     );
 
@@ -129,22 +122,18 @@ export default defineComponent({
 
     const replayOperations = async () => {
       goToHistoryView();
-
       (async () => {
         try {
           await store.dispatch("captureControl/replayOperations", {
-            initialUrl: operations.value[0].url,
+            initialUrl: operations.value[0].url
           });
 
-          if (
-            replayOption.value.resultSavingEnabled &&
-            replayOption.value.comparisonEnabled
-          ) {
+          if (replayOption.value.resultSavingEnabled && replayOption.value.comparisonEnabled) {
             await compareHistory();
           } else {
             store.commit("captureControl/setCompletionDialog", {
               title: store.getters.message("replay.done-title"),
-              message: store.getters.message("replay.done-run-operations"),
+              message: store.getters.message("replay.done-run-operations")
             });
           }
         } catch (error) {
@@ -160,9 +149,7 @@ export default defineComponent({
 
     const compareHistory = async () => {
       store.dispatch("openProgressDialog", {
-        message: store.getters.message(
-          "test-result-page.comparing-test-result"
-        ),
+        message: store.getters.message("test-result-page.comparing-test-result")
       });
 
       try {
@@ -171,28 +158,19 @@ export default defineComponent({
         );
 
         if (testResults.length === 0) {
-          throw new Error(
-            store.getters.message(
-              "test-result-page.compare-test-result-not-exist"
-            )
-          );
+          throw new Error(store.getters.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        const { actualTestResultId, expectedTestResultId } =
-          findCompareTargets(testResults);
+        const { actualTestResultId, expectedTestResultId } = findCompareTargets(testResults);
 
         if (!expectedTestResultId) {
-          throw new Error(
-            store.getters.message(
-              "test-result-page.compare-test-result-not-exist"
-            )
-          );
+          throw new Error(store.getters.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        comparisonResult.value = await store.dispatch(
-          "operationHistory/compareTestResults",
-          { actualTestResultId, expectedTestResultId }
-        );
+        comparisonResult.value = await store.dispatch("operationHistory/compareTestResults", {
+          actualTestResultId,
+          expectedTestResultId
+        });
 
         resultDialogOpened.value = true;
       } catch (error) {
@@ -208,9 +186,8 @@ export default defineComponent({
     };
 
     const findCompareTargets = (testResults: TestResultSummary[]) => {
-      const actualTestResultId = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).testResultInfo.id;
+      const actualTestResultId = ((store.state as any).operationHistory as OperationHistoryState)
+        .testResultInfo.id;
 
       const actualTestResult = testResults.find((testResult) => {
         return testResult.id === actualTestResultId;
@@ -221,7 +198,7 @@ export default defineComponent({
 
       return {
         actualTestResultId,
-        expectedTestResultId: expectedTestResult?.id ?? undefined,
+        expectedTestResultId: expectedTestResult?.id ?? undefined
       };
     };
 
@@ -249,8 +226,8 @@ export default defineComponent({
       isDisabled,
       title,
       execute,
-      startReplay,
+      startReplay
     };
-  },
+  }
 });
 </script>

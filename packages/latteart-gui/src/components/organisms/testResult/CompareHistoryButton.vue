@@ -24,12 +24,8 @@
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="
-        store.getters.message('test-result-page.compare-test-result-title')
-      "
-      :message="
-        store.getters.message('test-result-page.compare-test-result-message')
-      "
+      :title="store.getters.message('test-result-page.compare-test-result-title')"
+      :message="store.getters.message('test-result-page.compare-test-result-message')"
       :onAccept="compareHistory"
       @close="confirmDialogOpened = false"
     />
@@ -52,10 +48,7 @@
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import {
-  TestResultComparisonResult,
-  TestResultSummary,
-} from "@/lib/operationHistory/types";
+import { TestResultComparisonResult, TestResultSummary } from "@/lib/operationHistory/types";
 import { CaptureControlState } from "@/store/captureControl";
 import { OperationHistoryState } from "@/store/operationHistory";
 import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
@@ -66,7 +59,7 @@ export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "confirm-dialog": ConfirmDialog,
-    "comparison-result-dialog": ComparisonResultDialog,
+    "comparison-result-dialog": ComparisonResultDialog
   },
   setup() {
     const store = useStore();
@@ -88,28 +81,24 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const testResultId = computed((): string => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.id;
+      return ((store.state as any).operationHistory as OperationHistoryState).testResultInfo.id;
     });
 
     const parentTestResultId = computed((): string => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.parentTestResultId;
+      return ((store.state as any).operationHistory as OperationHistoryState).testResultInfo
+        .parentTestResultId;
     });
 
     const operations = computed((): OperationForGUI[] => {
@@ -122,9 +111,7 @@ export default defineComponent({
 
     const compareHistory = async (): Promise<void> => {
       await store.dispatch("openProgressDialog", {
-        message: store.getters.message(
-          "test-result-page.comparing-test-result"
-        ),
+        message: store.getters.message("test-result-page.comparing-test-result")
       });
 
       try {
@@ -132,28 +119,19 @@ export default defineComponent({
           "operationHistory/getTestResults"
         );
         if (testResults.length === 0) {
-          throw new Error(
-            store.getters.message(
-              "test-result-page.compare-test-result-not-exist"
-            )
-          );
+          throw new Error(store.getters.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        const { actualTestResultId, expectedTestResultId } =
-          findCompareTargets(testResults);
+        const { actualTestResultId, expectedTestResultId } = findCompareTargets(testResults);
 
         if (!expectedTestResultId) {
-          throw new Error(
-            store.getters.message(
-              "test-result-page.compare-test-result-not-exist"
-            )
-          );
+          throw new Error(store.getters.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        comparisonResult.value = await store.dispatch(
-          "operationHistory/compareTestResults",
-          { actualTestResultId, expectedTestResultId }
-        );
+        comparisonResult.value = await store.dispatch("operationHistory/compareTestResults", {
+          actualTestResultId,
+          expectedTestResultId
+        });
         resultDialogOpened.value = true;
       } catch (error) {
         if (error instanceof Error) {
@@ -178,7 +156,7 @@ export default defineComponent({
 
       return {
         actualTestResultId: testResultId.value,
-        expectedTestResultId: expectedTestResult?.id ?? undefined,
+        expectedTestResultId: expectedTestResult?.id ?? undefined
       };
     };
 
@@ -191,8 +169,8 @@ export default defineComponent({
       comparisonResult,
       isDisabled,
       openConfirmDialog,
-      compareHistory,
+      compareHistory
     };
-  },
+  }
 });
 </script>

@@ -22,7 +22,7 @@
       :dark="!isDisabled"
       @click="autoOperationSelectDialogOpened = true"
       fab
-      small
+      size="small"
       :title="store.getters.message('app.auto-operation')"
       class="mx-2"
     >
@@ -55,7 +55,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   components: {
     "auto-operation-select-dialog": AutoOperationSelectDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup() {
     const store = useStore();
@@ -74,32 +74,32 @@ export default defineComponent({
 
     const isDisabled = computed((): boolean => {
       return (
-        !((store.state as any).captureControl as CaptureControlState)
-          .isCapturing || autoOperationConditionGroups.value.length < 1
+        !((store.state as any).captureControl as CaptureControlState).isCapturing ||
+        autoOperationConditionGroups.value.length < 1
       );
     });
 
     const runAutoOperations = async (index: number) => {
       try {
-        const tempOperations = autoOperationConditionGroups.value[
-          index
-        ].autoOperations.map((operation) => {
-          return {
-            input: operation.input,
-            type: operation.type,
-            elementInfo: operation.elementInfo,
-            title: operation.title,
-            url: operation.url,
-            timestamp: operation.timestamp,
-          };
-        });
+        const tempOperations = autoOperationConditionGroups.value[index].autoOperations.map(
+          (operation) => {
+            return {
+              input: operation.input,
+              type: operation.type,
+              elementInfo: operation.elementInfo,
+              title: operation.title,
+              url: operation.url,
+              timestamp: operation.timestamp
+            };
+          }
+        );
 
         await store.dispatch("captureControl/runAutoOperations", {
-          operations: tempOperations,
+          operations: tempOperations
         });
         store.commit("captureControl/setCompletionDialog", {
           title: store.getters.message("auto-operation.done-title"),
-          message: store.getters.message("auto-operation.done-auto-operations"),
+          message: store.getters.message("auto-operation.done-auto-operations")
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -120,8 +120,8 @@ export default defineComponent({
       errorDialogMessage,
       autoOperationConditionGroups,
       isDisabled,
-      runAutoOperations,
+      runAutoOperations
     };
-  },
+  }
 });
 </script>

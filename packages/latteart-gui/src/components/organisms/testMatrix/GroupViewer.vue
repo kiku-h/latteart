@@ -19,8 +19,8 @@
     <fixed-data-table
       :items="items"
       :headers="headers"
-      :options.sync="options"
-      class="text-xs-center pb-3"
+      v-model:options="options"
+      class="text-center pb-3"
       hide-actions
       hide-default-header
     >
@@ -38,25 +38,18 @@
       <template #item="props">
         <tr class="business-info-row">
           <td class="py-0 px-2 my-0 business-info-title">
-            <div
-              :title="getNameText(props.item)"
-              class="mx-auto ellipsis_short"
-            >
+            <div :title="getNameText(props.item)" class="mx-auto ellipsis_short">
               {{ getNameText(props.item) }}
             </div>
             <div>{{ getDoneAndPlan(props.item) }}</div>
           </td>
-          <td
-            v-for="(val, index) in viewPoints"
-            :key="index"
-            class="py-0 px-2 my-0"
-          >
+          <td v-for="(val, index) in viewPoints" :key="index" class="py-0 px-2 my-0">
             <sessions-status
               :id="
                 findStoryId({
                   testMatrixId,
                   testTargetId: props.item.id,
-                  viewPointId: val.id,
+                  viewPointId: val.id
                 })
               "
               :plan="props.item[val.id]"
@@ -71,14 +64,7 @@
 
 <script lang="ts">
 import SessionsStatus from "./SessionsStatus.vue";
-import {
-  Group,
-  ViewPoint,
-  TestTarget,
-  Plan,
-  Session,
-  Story,
-} from "@/lib/testManagement/types";
+import { Group, ViewPoint, TestTarget, Plan, Session, Story } from "@/lib/testManagement/types";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
 import { computed, defineComponent, ref } from "vue";
@@ -91,18 +77,18 @@ export default defineComponent({
     viewPoints: {
       type: Array as PropType<ViewPoint[]>,
       default: [],
-      required: true,
+      required: true
     },
     testMatrixId: { type: String, default: "", required: true },
     displayedStories: {
       type: Array as PropType<string[] | null>,
-      default: null,
-    },
+      default: null
+    }
   },
   components: {
     "sessions-status": SessionsStatus,
     "fixed-data-table": FixedDataTable,
-    "label-with-tooltip": LabelWithTooltip,
+    "label-with-tooltip": LabelWithTooltip
   },
   setup(props) {
     const store = useStore();
@@ -116,7 +102,7 @@ export default defineComponent({
         sortable: false,
         text: store.getters.message("group-info.target"),
         align: "center",
-        width: "200",
+        width: "200"
       });
       props.viewPoints.forEach((viewPoint: ViewPoint) => {
         headers.push({
@@ -126,7 +112,7 @@ export default defineComponent({
           sortable: false,
           align: "center",
           width: "150",
-          class: "ellipsis_short",
+          class: "ellipsis_short"
         });
       });
       return headers;
@@ -137,7 +123,7 @@ export default defineComponent({
       props.group.testTargets.forEach((testTarget: TestTarget) => {
         const item: any = {
           name: testTarget.name,
-          id: testTarget.id,
+          id: testTarget.id
         };
         testTarget.plans.forEach((plan: Plan) => {
           item[plan.viewPointId] = Number(plan.value);
@@ -148,17 +134,15 @@ export default defineComponent({
     });
 
     const getTestTarget = (item: any): TestTarget => {
-      const targetTestTarget = props.group.testTargets.find(
-        (testTarget: TestTarget) => {
-          return item.id === testTarget.id;
-        }
-      );
+      const targetTestTarget = props.group.testTargets.find((testTarget: TestTarget) => {
+        return item.id === testTarget.id;
+      });
       if (!targetTestTarget) {
         return {
           id: "",
           name: "",
           index: 0,
-          plans: [],
+          plans: []
         };
       }
       return targetTestTarget;
@@ -181,7 +165,7 @@ export default defineComponent({
         const targetStory = findStory({
           testMatrixId: props.testMatrixId,
           testTargetId: targetTestTarget.id,
-          viewPointId: plan.viewPointId,
+          viewPointId: plan.viewPointId
         });
 
         if (!targetStory) {
@@ -202,9 +186,11 @@ export default defineComponent({
       testTargetId: string;
       viewPointId: string;
     }): Story | undefined => {
-      return store.getters[
-        "testManagement/findStoryByTestTargetAndViewPointId"
-      ](key.testTargetId, key.viewPointId, key.testMatrixId);
+      return store.getters["testManagement/findStoryByTestTargetAndViewPointId"](
+        key.testTargetId,
+        key.viewPointId,
+        key.testMatrixId
+      );
     };
 
     const findStoryId = (key: {
@@ -222,9 +208,9 @@ export default defineComponent({
       items,
       getNameText,
       getDoneAndPlan,
-      findStoryId,
+      findStoryId
     };
-  },
+  }
 });
 </script>
 

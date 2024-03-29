@@ -30,13 +30,12 @@ export default defineComponent({
     const store = useStore();
 
     const currentTime = computed((): string => {
-      return ((store.state as any).captureControl as CaptureControlState).timer
-        .now;
+      return ((store.state as any).captureControl as CaptureControlState).timer.now;
     });
 
     return {
-      currentTime,
+      currentTime
     };
-  },
+  }
 });
 </script>

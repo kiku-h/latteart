@@ -15,10 +15,7 @@
 -->
 
 <template>
-  <v-list-item
-    @click="scriptGenerationOptionDialogIsOpened = true"
-    :disabled="isDisabled"
-  >
+  <v-list-item @click="scriptGenerationOptionDialogIsOpened = true" :disabled="isDisabled">
     <v-list-item-title>{{
       store.getters.message("test-result-page.generate-testscript")
     }}</v-list-item-title>
@@ -59,7 +56,7 @@ export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
     "script-generation-option-dialog": ScriptGenerationOptionDialog,
-    "download-link-dialog": DownloadLinkDialog,
+    "download-link-dialog": DownloadLinkDialog
   },
   setup() {
     const store = useStore();
@@ -87,24 +84,19 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const sequence = computed(() => {
-      const history = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history;
+      const history = ((store.state as any).operationHistory as OperationHistoryState).history;
 
       return history.at(-1)?.operation.sequence ?? 0;
     });
@@ -132,19 +124,13 @@ export default defineComponent({
 
         try {
           store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "manage-header.generating-test-script"
-            ),
+            message: store.getters.message("manage-header.generating-test-script")
           });
-          const testScriptInfo = await store.dispatch(
-            "operationHistory/generateTestScripts",
-            {
-              option,
-            }
-          );
+          const testScriptInfo = await store.dispatch("operationHistory/generateTestScripts", {
+            option
+          });
           store.dispatch("closeProgressDialog");
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
+          downloadLinkDialogTitle.value = store.getters.message("common.confirm");
           downloadLinkDialogMessage.value = store.getters.message(
             "test-result-page.generate-testscript-succeeded"
           );
@@ -185,8 +171,8 @@ export default defineComponent({
       downloadLinkDialogAlertMessage,
       downloadLinkDialogLinkUrl,
       isDisabled,
-      generateTestScript,
+      generateTestScript
     };
-  },
+  }
 });
 </script>

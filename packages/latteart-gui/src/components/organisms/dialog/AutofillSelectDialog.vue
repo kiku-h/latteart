@@ -31,9 +31,9 @@
       <v-select
         :label="store.getters.message('autofill-select-dialog.form-label')"
         :items="selectList"
-        item-text="settingName"
+        item-title="settingName"
         item-value="index"
-        @change="selectGroup"
+        @update:model-value="selectGroup"
       ></v-select>
     </template>
   </execute-dialog>
@@ -48,7 +48,7 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup() {
     const store = useStore();
@@ -61,13 +61,12 @@ export default defineComponent({
         autofillConditionGroups: AutofillConditionGroup[];
         message: string;
       } | null => {
-        const data = (
-          (store.state as any).captureControl as CaptureControlState
-        )?.autofillSelectDialogData;
+        const data = ((store.state as any).captureControl as CaptureControlState)
+          ?.autofillSelectDialogData;
         opened.value = !!data?.autofillConditionGroups;
         return (
-          ((store.state as any).captureControl as CaptureControlState)
-            ?.autofillSelectDialogData ?? null
+          ((store.state as any).captureControl as CaptureControlState)?.autofillSelectDialogData ??
+          null
         );
       }
     );
@@ -80,16 +79,14 @@ export default defineComponent({
       return dialogData.value?.message ?? "";
     });
 
-    const selectList = computed(
-      (): { settingName: string; index: number }[] => {
-        return (autofillConditionGroups.value ?? []).map((group, index) => {
-          return {
-            settingName: group.settingName,
-            index,
-          };
-        });
-      }
-    );
+    const selectList = computed((): { settingName: string; index: number }[] => {
+      return (autofillConditionGroups.value ?? []).map((group, index) => {
+        return {
+          settingName: group.settingName,
+          index
+        };
+      });
+    });
 
     const selectGroup = (index: number) => {
       selectedIndex.value = index;
@@ -100,8 +97,7 @@ export default defineComponent({
         return;
       }
       await store.dispatch("captureControl/autofill", {
-        autofillConditionGroup:
-          autofillConditionGroups.value[selectedIndex.value],
+        autofillConditionGroup: autofillConditionGroups.value[selectedIndex.value]
       });
       await close();
     };
@@ -110,7 +106,7 @@ export default defineComponent({
       opened.value = false;
       await new Promise((s) => setTimeout(s, 300));
       store.commit("captureControl/setAutofillSelectDialog", {
-        autofillConditionGroups: null,
+        autofillConditionGroups: null
       });
     };
 
@@ -121,8 +117,8 @@ export default defineComponent({
       selectList,
       selectGroup,
       accept,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

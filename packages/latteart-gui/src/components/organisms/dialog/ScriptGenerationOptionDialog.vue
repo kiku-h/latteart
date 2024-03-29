@@ -24,10 +24,7 @@
     @cancel="close()"
   >
     <template>
-      <script-generation-option
-        v-if="isOptionDisplayed"
-        @update="updateOption"
-      />
+      <script-generation-option v-if="isOptionDisplayed" @update="updateOption" />
     </template>
   </execute-dialog>
 </template>
@@ -40,11 +37,11 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false },
+    opened: { type: Boolean, default: false }
   },
   components: {
     "execute-dialog": ExecuteDialog,
-    "script-generation-option": ScriptGenerationOption,
+    "script-generation-option": ScriptGenerationOption
   },
   setup(props, context) {
     const store = useStore();
@@ -61,7 +58,7 @@ export default defineComponent({
     }>({
       testScript: { isSimple: false, useMultiLocator: false },
       testData: { useDataDriven: false, maxGeneration: 0 },
-      buttonDefinitions: [],
+      buttonDefinitions: []
     });
 
     const updateOption = (updateOption: {
@@ -100,8 +97,8 @@ export default defineComponent({
       isOptionDisplayed,
       updateOption,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

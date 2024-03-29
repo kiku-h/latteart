@@ -22,7 +22,7 @@
       :dark="isCapturing"
       @click="open"
       fab
-      small
+      size="small"
       :title="store.getters.message('app.record-note')"
       class="mx-2"
     >
@@ -33,10 +33,7 @@
       :opened="takeNoteWithPurposeDialogOpened"
       @close="takeNoteWithPurposeDialogOpened = false"
     />
-    <take-note-dialog
-      :opened="takeNoteDialogOpened"
-      @close="takeNoteDialogOpened = false"
-    />
+    <take-note-dialog :opened="takeNoteDialogOpened" @close="takeNoteDialogOpened = false" />
   </div>
 </template>
 
@@ -51,7 +48,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   components: {
     "take-not-with-purpose-dialog": TakeNoteWithPurposeDialog,
-    "take-note-dialog": TakeNoteDialog,
+    "take-note-dialog": TakeNoteDialog
   },
   setup() {
     const store = useStore();
@@ -60,17 +57,15 @@ export default defineComponent({
     const takeNoteDialogOpened = ref(false);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const open = () => {
-      const sequence = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history.length;
+      const sequence = ((store.state as any).operationHistory as OperationHistoryState).history
+        .length;
       store.dispatch("operationHistory/selectOperation", { sequence });
       store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence, index: null },
+        selectedOperationNote: { sequence, index: null }
       });
       if (
         ((store.state as any).captureControl as CaptureControlState).testOption
@@ -87,8 +82,8 @@ export default defineComponent({
       takeNoteWithPurposeDialogOpened,
       takeNoteDialogOpened,
       isCapturing,
-      open,
+      open
     };
-  },
+  }
 });
 </script>

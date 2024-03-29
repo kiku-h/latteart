@@ -42,11 +42,11 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "note-common-dialog": NoteCommonDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -62,19 +62,17 @@ export default defineComponent({
       imageFilePath: "",
       sequence: 1,
       maxSequence: 1,
-      videoFilePath: "",
+      videoFilePath: ""
     });
 
     const initialize = () => {
       if (!props.opened) {
         return;
       }
-      const sequence = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).selectedOperationNote.sequence as number;
-      const targetOperation = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history[sequence - 1].operation;
+      const sequence = ((store.state as any).operationHistory as OperationHistoryState)
+        .selectedOperationNote.sequence as number;
+      const targetOperation = ((store.state as any).operationHistory as OperationHistoryState)
+        .history[sequence - 1].operation;
 
       const time = targetOperation.videoFrame?.time ?? 0;
       const videoUrl = targetOperation.videoFrame?.url
@@ -88,10 +86,9 @@ export default defineComponent({
         tags: [],
         imageFilePath: targetOperation.imageFilePath ?? "",
         sequence: sequence,
-        maxSequence: (
-          (store.state as any).operationHistory as OperationHistoryState
-        ).history.length,
-        videoFilePath: videoUrl,
+        maxSequence: ((store.state as any).operationHistory as OperationHistoryState).history
+          .length,
+        videoFilePath: videoUrl
       };
     };
 
@@ -100,7 +97,7 @@ export default defineComponent({
         close();
         try {
           await store.dispatch("captureControl/takeNote", {
-            noteEditInfo,
+            noteEditInfo
           });
         } catch (error) {
           if (error instanceof Error) {
@@ -125,8 +122,8 @@ export default defineComponent({
       errorMessage,
       noteInfo,
       takeNote,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

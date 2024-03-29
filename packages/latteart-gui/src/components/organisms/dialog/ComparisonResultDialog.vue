@@ -20,12 +20,9 @@
       <span>{{ store.getters.message("common.confirm") }}</span>
     </template>
     <template v-slot:content>
-      <span
-        class="pre-wrap break-word"
-        v-for="(message, index) in dialogMessages"
-        :key="index"
-        >{{ message }}</span
-      >
+      <span class="pre-wrap break-word" v-for="(message, index) in dialogMessages" :key="index">{{
+        message
+      }}</span>
       <br />
       <span class="pre-wrap break-word">{{
         store.getters.message("test-result-page.compare-test-result-download")
@@ -82,11 +79,11 @@ export default defineComponent({
       type: Object as PropType<TestResultComparisonResult | null>,
       default: () => {
         /* Do nothing */
-      },
-    },
+      }
+    }
   },
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
   },
   setup(props) {
     const store = useStore();
@@ -94,26 +91,20 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          text: `${store.getters.message(
-            "test-result-page.compare-diffs-sequence"
-          )}`,
+          text: `${store.getters.message("test-result-page.compare-diffs-sequence")}`,
           value: "sequence",
-          sortable: false,
+          sortable: false
         },
         {
-          text: `${store.getters.message(
-            "test-result-page.compare-diffs-items"
-          )}`,
+          text: `${store.getters.message("test-result-page.compare-diffs-items")}`,
           value: "ngItemNames",
-          sortable: false,
+          sortable: false
         },
         {
-          text: `${store.getters.message(
-            "test-result-page.compare-diffs-remarks"
-          )}`,
+          text: `${store.getters.message("test-result-page.compare-diffs-remarks")}`,
           value: "remarks",
-          sortable: false,
-        },
+          sortable: false
+        }
       ];
     });
 
@@ -123,9 +114,7 @@ export default defineComponent({
       }
 
       const isSame = props.comparisonResult.summary.isOk;
-      const diffCount = props.comparisonResult.summary.steps.filter(
-        ({ isOk }) => !isOk
-      ).length;
+      const diffCount = props.comparisonResult.summary.steps.filter(({ isOk }) => !isOk).length;
 
       return [
         store.getters.message(
@@ -133,13 +122,10 @@ export default defineComponent({
           props.comparisonResult.targetNames
         ),
         isSame
-          ? store.getters.message(
-              "test-result-page.compare-test-result-is-same"
-            )
-          : store.getters.message(
-              "test-result-page.compare-test-result-is-different",
-              { diffCount }
-            ),
+          ? store.getters.message("test-result-page.compare-test-result-is-same")
+          : store.getters.message("test-result-page.compare-test-result-is-different", {
+              diffCount
+            })
       ];
     });
 
@@ -155,67 +141,45 @@ export default defineComponent({
         return [];
       }
 
-      const sequenceAndSteps = props.comparisonResult.summary.steps.map(
-        (step, index) => {
-          const ngItemNames = Object.entries(step.items)
-            .filter(([_, value]) => !value.isOk)
-            .flatMap(([name]) => {
-              if (name === "title") {
-                return [
-                  store.getters.message("test-result-comparison-items.title"),
-                ];
-              }
-              if (name === "url") {
-                return [
-                  store.getters.message("test-result-comparison-items.url"),
-                ];
-              }
-              if (name === "elementTexts") {
-                return [
-                  store.getters.message(
-                    "test-result-comparison-items.elementTexts"
-                  ),
-                ];
-              }
-              if (name === "screenshot") {
-                return [
-                  store.getters.message(
-                    "test-result-comparison-items.screenshot"
-                  ),
-                ];
-              }
-              return [];
-            })
-            .join(", ");
+      const sequenceAndSteps = props.comparisonResult.summary.steps.map((step, index) => {
+        const ngItemNames = Object.entries(step.items)
+          .filter(([_, value]) => !value.isOk)
+          .flatMap(([name]) => {
+            if (name === "title") {
+              return [store.getters.message("test-result-comparison-items.title")];
+            }
+            if (name === "url") {
+              return [store.getters.message("test-result-comparison-items.url")];
+            }
+            if (name === "elementTexts") {
+              return [store.getters.message("test-result-comparison-items.elementTexts")];
+            }
+            if (name === "screenshot") {
+              return [store.getters.message("test-result-comparison-items.screenshot")];
+            }
+            return [];
+          })
+          .join(", ");
 
-          const remarks = (
-            step.errors?.flatMap((error) => {
-              if (error === "invalid_screenshot") {
-                return [
-                  store.getters.message(
-                    "test-result-page.compare-remarks-invalid-screenshot"
-                  ),
-                ];
-              }
-              if (error === "image_sizes_do_not_match") {
-                return [
-                  store.getters.message(
-                    "test-result-page.compare-remarks-image-sizes-do-not-match"
-                  ),
-                ];
-              }
+        const remarks = (
+          step.errors?.flatMap((error) => {
+            if (error === "invalid_screenshot") {
+              return [store.getters.message("test-result-page.compare-remarks-invalid-screenshot")];
+            }
+            if (error === "image_sizes_do_not_match") {
+              return [
+                store.getters.message("test-result-page.compare-remarks-image-sizes-do-not-match")
+              ];
+            }
 
-              return [];
-            }) ?? []
-          ).join("\n");
+            return [];
+          }) ?? []
+        ).join("\n");
 
-          return { sequence: index + 1, isOk: step.isOk, ngItemNames, remarks };
-        }
-      );
+        return { sequence: index + 1, isOk: step.isOk, ngItemNames, remarks };
+      });
 
-      return sequenceAndSteps.filter(
-        ({ isOk, ngItemNames }) => !isOk && ngItemNames !== ""
-      );
+      return sequenceAndSteps.filter(({ isOk, ngItemNames }) => !isOk && ngItemNames !== "");
     });
 
     const currentRepositoryUrl = computed((): string => {
@@ -227,9 +191,9 @@ export default defineComponent({
       headers,
       dialogMessages,
       downloadLinkUrl,
-      diffs,
+      diffs
     };
-  },
+  }
 });
 </script>
 

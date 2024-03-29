@@ -18,7 +18,7 @@
   <div>
     <v-btn
       fab
-      small
+      size="small"
       @click="browserForward"
       :disabled="isDisabled"
       :title="store.getters.message('navigate.forward')"
@@ -43,14 +43,13 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const canDoBrowserForward = computed(() => {
       return (
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.canNavigateForward ?? false
+        ((store.state as any).captureControl as CaptureControlState).captureSession
+          ?.canNavigateForward ?? false
       );
     });
 
@@ -61,8 +60,8 @@ export default defineComponent({
     return {
       store,
       isDisabled,
-      browserForward,
+      browserForward
     };
-  },
+  }
 });
 </script>

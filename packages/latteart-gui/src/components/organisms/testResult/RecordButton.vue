@@ -21,9 +21,9 @@
         <v-btn
           :disabled="isDisabled"
           icon
-          text
-          large
-          color="grey darken-3"
+          variant="text"
+          size="large"
+          color="grey-darken-3"
           @click="openOptionDialog"
           :title="store.getters.message('app.start')"
           id="startButton"
@@ -43,8 +43,8 @@
     <v-btn
       v-else
       icon
-      text
-      large
+      variant="text"
+      size="large"
       color="red"
       @click="endCapture"
       :title="store.getters.message('app.finish')"
@@ -66,7 +66,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   components: {
     "first-test-purpose-option-dialog": FirstTestPurposeOptionDialog,
-    "record-start-trigger": RecordStartTrigger,
+    "record-start-trigger": RecordStartTrigger
   },
   setup() {
     const store = useStore();
@@ -74,8 +74,7 @@ export default defineComponent({
     const optionDialogOpened = ref(false);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const openOptionDialog = () => {
@@ -91,8 +90,8 @@ export default defineComponent({
       optionDialogOpened,
       isCapturing,
       openOptionDialog,
-      endCapture,
+      endCapture
     };
-  },
+  }
 });
 </script>

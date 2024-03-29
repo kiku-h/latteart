@@ -45,11 +45,11 @@ import { useStore } from "@/store";
 export default defineComponent({
   props: {
     opened: { type: Boolean, default: false, required: true },
-    oldTestResultName: { type: String, default: "", required: true },
+    oldTestResultName: { type: String, default: "", required: true }
   },
   components: {
     "number-field": NumberField,
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -89,8 +89,8 @@ export default defineComponent({
       okButtonIsDisabled,
       execute,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

@@ -50,19 +50,17 @@
           v-model="newTags"
           :hide-no-data="!search"
           :items="tagsItem"
-          :search-input.sync="search"
+          v-model:search-input="search"
           hide-selected
           multiple
           small-chips
         >
           <template v-slot:no-data>
             <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>
-                  No results matching "<strong>{{ search }}</strong
-                  >". Press <kbd>enter</kbd> to create a new one
-                </v-list-item-title>
-              </v-list-item-content>
+              <v-list-item-title>
+                No results matching "<strong>{{ search }}</strong
+                >". Press <kbd>enter</kbd> to create a new one
+              </v-list-item-title>
             </v-list-item>
           </template>
           <template v-slot:selection="{ attrs, item, parent, selected }">
@@ -70,11 +68,11 @@
               v-if="item === Object(item)"
               v-bind="attrs"
               :color="item.color"
-              :input-value="selected"
-              small
+              :model-value="selected"
+              size="small"
             >
               <span class="pr-2">{{ item.text }} </span>
-              <v-icon small @click="parent.selectItem(item)">$delete</v-icon>
+              <v-icon size="small" @click="parent.selectItem(item)">$delete</v-icon>
             </v-chip>
           </template>
         </v-combobox>
@@ -84,7 +82,7 @@
         <v-radio-group
           v-if="isCapturing && oldIndex === null"
           v-model="shouldTakeScreenshot"
-          row
+          inline
           hide-details
           class="mt-2"
           :disabled="isAlertVisible || (!screenshot && !video)"
@@ -101,12 +99,9 @@
         </v-radio-group>
 
         <div v-if="!shouldTakeScreenshot">
-          <v-btn
-            class="mx-2 my-3"
-            :disabled="!screenshot"
-            @click="showStillImage"
-            >{{ store.getters.message("note-edit.check-still-Image") }}</v-btn
-          >
+          <v-btn class="mx-2 my-3" :disabled="!screenshot" @click="showStillImage">{{
+            store.getters.message("note-edit.check-still-Image")
+          }}</v-btn>
 
           <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
             store.getters.message("note-edit.check-video")
@@ -124,10 +119,7 @@
 <script lang="ts">
 import { NoteEditInfo } from "@/lib/captureControl/types";
 import NumberField from "@/components/molecules/NumberField.vue";
-import {
-  NoteTagItem,
-  noteTagPreset,
-} from "@/lib/operationHistory/NoteTagPreset";
+import { NoteTagItem, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { CaptureControlState } from "@/store/captureControl";
 import { NoteDialogInfo } from "@/lib/operationHistory/types";
@@ -144,14 +136,14 @@ export default defineComponent({
     noteInfo: {
       type: Object as PropType<NoteDialogInfo>,
       default: undefined,
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
     "video-display": VideoDisplay,
-    "popup-image": PopupImage,
+    "popup-image": PopupImage
   },
   setup(props, context) {
     const store = useStore();
@@ -184,8 +176,8 @@ export default defineComponent({
       }
 
       isAlertVisible.value =
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.isAlertVisible ?? false;
+        ((store.state as any).captureControl as CaptureControlState).captureSession
+          ?.isAlertVisible ?? false;
 
       oldNote.value = props.noteInfo.value;
       oldNoteDetails.value = props.noteInfo.details;
@@ -203,7 +195,7 @@ export default defineComponent({
 
         return {
           text: tag,
-          color: "#E0E0E0",
+          color: "#E0E0E0"
         };
       });
       oldSequence.value = props.noteInfo.sequence;
@@ -214,7 +206,7 @@ export default defineComponent({
       isVideoVisible.value = false;
 
       store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence: null, index: null },
+        selectedOperationNote: { sequence: null, index: null }
       });
     };
 
@@ -225,7 +217,7 @@ export default defineComponent({
         if (typeof v === "string") {
           v = {
             text: v,
-            color: "#E0E0E0",
+            color: "#E0E0E0"
           };
 
           newTags.value.push(v);
@@ -246,13 +238,11 @@ export default defineComponent({
         oldSequence: oldSequence.value,
         oldIndex: oldIndex.value,
         newSequence:
-          oldSequence.value !== newTargetSequence.value
-            ? newTargetSequence.value
-            : undefined,
+          oldSequence.value !== newTargetSequence.value ? newTargetSequence.value : undefined,
         note: newNote.value,
         noteDetails: newNoteDetails.value,
         shouldTakeScreenshot: shouldTakeScreenshot.value,
-        tags: newTags.value.map((tag) => tag.text),
+        tags: newTags.value.map((tag) => tag.text)
       } as NoteEditInfo;
       context.emit("execute", noteEditInfo);
     };
@@ -265,10 +255,7 @@ export default defineComponent({
       context.emit("close");
     };
 
-    const updateNewTargetSequence = (data: {
-      id: string;
-      value: number;
-    }): void => {
+    const updateNewTargetSequence = (data: { id: string; value: number }): void => {
       newTargetSequence.value = data.value;
     };
 
@@ -342,8 +329,8 @@ export default defineComponent({
       updateNewTargetSequence,
       canSave,
       showStillImage,
-      showVideo,
+      showVideo
     };
-  },
+  }
 });
 </script>

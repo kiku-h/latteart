@@ -59,7 +59,7 @@ export default defineComponent({
     "note-register-button": NoteRegisterButton,
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
-    "run-auto-operation-button": RunAutoOperationButton,
-  },
+    "run-auto-operation-button": RunAutoOperationButton
+  }
 });
 </script>

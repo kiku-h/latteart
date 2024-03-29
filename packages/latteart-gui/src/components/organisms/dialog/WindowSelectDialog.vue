@@ -41,10 +41,10 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -54,19 +54,15 @@ export default defineComponent({
       windows: WindowInfo[];
     }>({
       currentWindowHandle: "",
-      windows: [],
+      windows: []
     });
 
     const openWindowSelector = (): void => {
-      const captureControlState = (store.state as any)
-        .captureControl as CaptureControlState;
-      const operationHistoryState = (store.state as any)
-        .operationHistory as OperationHistoryState;
+      const captureControlState = (store.state as any).captureControl as CaptureControlState;
+      const operationHistoryState = (store.state as any).operationHistory as OperationHistoryState;
 
       const windows = operationHistoryState.windows.filter((window) => {
-        return captureControlState.captureSession?.windowHandles.includes(
-          window.value
-        );
+        return captureControlState.captureSession?.windowHandles.includes(window.value);
       });
 
       if (props.opened && captureControlState.captureSession) {
@@ -83,7 +79,7 @@ export default defineComponent({
     const onAcceptWindowSelector = (): void => {
       (async () => {
         await store.dispatch("captureControl/switchCapturingWindow", {
-          to: capturingWindowInfo.value.currentWindowHandle,
+          to: capturingWindowInfo.value.currentWindowHandle
         });
 
         context.emit("close");
@@ -107,8 +103,8 @@ export default defineComponent({
       store,
       capturingWindowInfo,
       onAcceptWindowSelector,
-      onCancelWindowSelector,
+      onCancelWindowSelector
     };
-  },
+  }
 });
 </script>

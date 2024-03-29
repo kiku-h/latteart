@@ -16,40 +16,30 @@
 <template>
   <v-card flat class="pa-0">
     <v-checkbox
-      :label="
-        store.getters.message('test-result-page.generate-simple-testscript')
-      "
+      :label="store.getters.message('test-result-page.generate-simple-testscript')"
       v-model="testGenerationOption.testScript.isSimple"
     >
     </v-checkbox>
-    <v-checkbox
-      v-model="testGenerationOption.testScript.useMultiLocator"
-      class="mt-0"
-    >
+    <v-checkbox v-model="testGenerationOption.testScript.useMultiLocator" class="mt-0">
       <template v-slot:label>
         <div>
           {{ store.getters.message("test-result-page.use-multi-locator1") }}
-          <a
-            href="https://github.com/latteart-org/multi-locator"
-            target="_blank"
-            @click.stop
+          <a href="https://github.com/latteart-org/multi-locator" target="_blank" @click.stop
             >multi-locator</a
           >{{ store.getters.message("test-result-page.use-multi-locator2") }}
         </div>
       </template>
     </v-checkbox>
-    <v-container fluid pa-1 fill-height id="simple-test-script-generation">
+    <v-container fluid class="pa-1" fill-height id="simple-test-script-generation">
       <v-row>
         <v-col cols="12" class="pb-2">
           <p
             :class="{
               'mb-0': true,
-              'text--disabled': testGenerationOption.testScript.isSimple,
+              'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{
-              store.getters.message("test-result-page.custom-button-definition")
-            }}
+            {{ store.getters.message("test-result-page.custom-button-definition") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
@@ -58,15 +48,15 @@
               caption: true,
               'theme--light': true,
               'v-label': true,
-              'text--disabled': testGenerationOption.testScript.isSimple,
+              'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
             {{ store.getters.message("test-result-page.custom-button-tags") }}
-            <v-tooltip top>
-              <template v-slot:activator="{ on }">
+            <v-tooltip location="top">
+              <template v-slot:activator="{ props }">
                 <v-icon
                   size="15"
-                  v-on="on"
+                  v-bind="props"
                   class="icon-info"
                   :disabled="testGenerationOption.testScript.isSimple"
                   >info</v-icon
@@ -74,7 +64,7 @@
               </template>
               <span>{{
                 store.getters.message("test-result-page.default-button-tags", {
-                  value: standardButtontags.join(", "),
+                  value: standardButtontags.join(", ")
                 })
               }}</span>
             </v-tooltip>
@@ -82,39 +72,37 @@
 
           <v-combobox
             :items="customButtonCandidateTags"
-            :search-input.sync="search"
+            v-model:search-input="search"
             v-model="testGenerationOption.customButtonTags"
             :class="{ 'pt-0': true, 'mt-0': true }"
             multiple
             small-chips
             hide-selected
-            deletable-chips
-            append-outer-icon="refresh"
-            @click:append-outer="resetCustomButtonTags"
+            closable-chips
+            append-icon="refresh"
+            @click:append="resetCustomButtonTags"
             @change="clearSearchText"
             :disabled="testGenerationOption.testScript.isSimple"
           >
             <template v-slot:no-data>
               <v-list-item v-if="search">
-                <v-list-item-content>
-                  <v-list-item-title>
-                    No results matching "<strong>{{ search }}</strong
-                    >". Press <kbd>enter</kbd> to create a new one
-                  </v-list-item-title>
-                </v-list-item-content>
+                <v-list-item-title>
+                  No results matching "<strong>{{ search }}</strong
+                  >". Press <kbd>enter</kbd> to create a new one
+                </v-list-item-title>
               </v-list-item>
             </template>
           </v-combobox>
         </v-col>
       </v-row>
     </v-container>
-    <v-container fluid pa-1 fill-height id="max-test-data-generation">
+    <v-container fluid class="pa-1" fill-height id="max-test-data-generation">
       <v-row>
         <v-col cols="12" class="pb-2">
           <p
             :class="{
               'mb-0': true,
-              'text--disabled': testGenerationOption.testScript.isSimple,
+              'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
             {{ store.getters.message("test-result-page.testdata") }}
@@ -122,9 +110,7 @@
         </v-col>
         <v-col cols="12" class="pl-2">
           <v-checkbox
-            :label="
-              store.getters.message('test-result-page.method-data-driven')
-            "
+            :label="store.getters.message('test-result-page.method-data-driven')"
             :disabled="testGenerationOption.testScript.isSimple"
             v-model="testGenerationOption.testData.useDataDriven"
           >
@@ -148,11 +134,9 @@
             :class="{
               'text--disabled':
                 !testGenerationOption.testData.useDataDriven ||
-                testGenerationOption.testScript.isSimple,
+                testGenerationOption.testScript.isSimple
             }"
-            >{{
-              store.getters.message("test-result-page.generate-only-template")
-            }}</span
+            >{{ store.getters.message("test-result-page.generate-only-template") }}</span
           >
         </v-col>
       </v-row>
@@ -173,7 +157,7 @@ type ButtonDefinition = {
 
 export default defineComponent({
   components: {
-    "number-field": NumberField,
+    "number-field": NumberField
   },
   setup(_, context) {
     const store = useStore();
@@ -204,7 +188,7 @@ export default defineComponent({
         "INPUT:type=radio",
         "INPUT:type=file",
         "INPUT:type=image",
-        "INPUT:type=reset",
+        "INPUT:type=reset"
       ];
 
       return tags.sort();
@@ -222,13 +206,13 @@ export default defineComponent({
       return {
         testScript: {
           isSimple: false,
-          useMultiLocator: false,
+          useMultiLocator: false
         },
         testData: {
           useDataDriven: false,
-          maxGeneration: 0,
+          maxGeneration: 0
         },
-        customButtonTags: defaultCustomButtonTags.value,
+        customButtonTags: defaultCustomButtonTags.value
       };
     };
 
@@ -239,8 +223,7 @@ export default defineComponent({
     };
 
     const resetCustomButtonTags = () => {
-      testGenerationOption.value.customButtonTags =
-        defaultCustomButtonTags.value;
+      testGenerationOption.value.customButtonTags = defaultCustomButtonTags.value;
     };
 
     const updateMaxGeneration = (data: { value: number }) => {
@@ -248,9 +231,7 @@ export default defineComponent({
     };
 
     const customButtonTagsDefinition = computed(() => {
-      return testGenerationOption.value.customButtonTags.map(
-        convertTagToButtonDefinition
-      );
+      return testGenerationOption.value.customButtonTags.map(convertTagToButtonDefinition);
     });
 
     const update = (): void => {
@@ -260,10 +241,7 @@ export default defineComponent({
       const option = {
         testScript: { ...testGenerationOption.value.testScript },
         testData: testGenerationOption.value.testData,
-        buttonDefinitions: [
-          ...customButtonTagsDefinition.value,
-          ...standardButtongTagsDefinition,
-        ],
+        buttonDefinitions: [...customButtonTagsDefinition.value, ...standardButtongTagsDefinition]
       };
 
       context.emit("update", option);
@@ -271,13 +249,11 @@ export default defineComponent({
 
     const saveCustomButtontagsDefinition = () => {
       store.dispatch("writeTestScriptOption", {
-        option: { buttonDefinitions: customButtonTagsDefinition.value },
+        option: { buttonDefinitions: customButtonTagsDefinition.value }
       });
     };
 
-    const convertButtonDefinitionToTag = (
-      buttonDefinition: ButtonDefinition
-    ): string => {
+    const convertButtonDefinitionToTag = (buttonDefinition: ButtonDefinition): string => {
       const attributeText = buttonDefinition.attribute
         ? `${buttonDefinition.attribute.name}=${buttonDefinition.attribute.value}`
         : "";
@@ -305,28 +281,23 @@ export default defineComponent({
     };
 
     const errorCaptured = (error: Error) => {
-      if (
-        error.message ===
-        "Cannot read properties of undefined (reading 'click')"
-      ) {
+      if (error.message === "Cannot read properties of undefined (reading 'click')") {
         console.warn(error);
         return false;
       }
     };
 
     watch(testGenerationOption, update, { deep: true });
-    watch(
-      () => testGenerationOption.value.customButtonTags,
-      saveCustomButtontagsDefinition,
-      { deep: true }
-    );
-
+    watch(() => testGenerationOption.value.customButtonTags, saveCustomButtontagsDefinition, {
+      deep: true
+    });
     (async () => {
       const option: Pick<TestScriptOption, "buttonDefinitions"> =
         await store.dispatch("readTestScriptOption");
       if (option.buttonDefinitions) {
-        testGenerationOption.value.customButtonTags =
-          option.buttonDefinitions.map(convertButtonDefinitionToTag);
+        testGenerationOption.value.customButtonTags = option.buttonDefinitions.map(
+          convertButtonDefinitionToTag
+        );
       }
     })();
 
@@ -338,9 +309,9 @@ export default defineComponent({
       testGenerationOption,
       clearSearchText,
       resetCustomButtonTags,
-      updateMaxGeneration,
+      updateMaxGeneration
     };
-  },
+  }
 });
 </script>
 

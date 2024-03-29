@@ -19,7 +19,7 @@
     <v-btn
       :disabled="!windowSelectorIsEnabled"
       fab
-      small
+      size="small"
       @click="isWindowSelectorDialogOpened = true"
       :title="store.getters.message('app.target-tab-window')"
       id="openWindowSelectorButton"
@@ -45,7 +45,7 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "window-select-dialog": WindowSelectDialog,
+    "window-select-dialog": WindowSelectDialog
   },
   setup() {
     const store = useStore();
@@ -80,17 +80,17 @@ export default defineComponent({
       get: () => captureControlState.value.isWindowSelectorDialogOpened,
       set: (isOpened: boolean) => {
         store.commit("captureControl/setWindowSelectorDialogOpened", {
-          isOpened,
+          isOpened
         });
-      },
+      }
     });
 
     return {
       store,
       isReplaying,
       windowSelectorIsEnabled,
-      isWindowSelectorDialogOpened,
+      isWindowSelectorDialogOpened
     };
-  },
+  }
 });
 </script>

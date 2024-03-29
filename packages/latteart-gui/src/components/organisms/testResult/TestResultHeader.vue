@@ -49,7 +49,7 @@ export default defineComponent({
     "record-button": RecordButton,
     "pause-button": PauseButton,
     "generate-test-script-button": GenerateTestScriptButton,
-    "menu-button": MenuButton,
+    "menu-button": MenuButton
   },
   setup() {
     const cancelKeydown = (event: Event) => {
@@ -57,8 +57,8 @@ export default defineComponent({
     };
 
     return {
-      cancelKeydown,
+      cancelKeydown
     };
-  },
+  }
 });
 </script>

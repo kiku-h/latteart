@@ -43,11 +43,11 @@ import { useStore } from "@/store";
 export default defineComponent({
   props: {
     testResultId: { type: String, default: "", required: true },
-    testResultName: { type: String, default: "", required: true },
+    testResultName: { type: String, default: "", required: true }
   },
   components: {
     "test-result-name-edit-dialog": TestResultNameEditDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -88,7 +88,7 @@ export default defineComponent({
       try {
         await store.dispatch("operationHistory/changeTestResultName", {
           testResultId: props.testResultId,
-          testResultName: newTestResultName,
+          testResultName: newTestResultName
         });
 
         context.emit("update", newTestResultName);
@@ -108,8 +108,8 @@ export default defineComponent({
       errorMessage,
       isDisabled,
       openEditDialog,
-      editTestResultName,
+      editTestResultName
     };
-  },
+  }
 });
 </script>

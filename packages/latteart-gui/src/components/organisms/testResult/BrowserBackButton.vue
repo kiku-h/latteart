@@ -18,7 +18,7 @@
   <div>
     <v-btn
       fab
-      small
+      size="small"
       @click="browserBack"
       :disabled="isDisabled"
       :title="store.getters.message('navigate.back')"
@@ -43,14 +43,13 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const canDoBrowserBack = computed(() => {
       return (
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.canNavigateBack ?? false
+        ((store.state as any).captureControl as CaptureControlState).captureSession
+          ?.canNavigateBack ?? false
       );
     });
 
@@ -61,8 +60,8 @@ export default defineComponent({
     return {
       store,
       isDisabled,
-      browserBack,
+      browserBack
     };
-  },
+  }
 });
 </script>

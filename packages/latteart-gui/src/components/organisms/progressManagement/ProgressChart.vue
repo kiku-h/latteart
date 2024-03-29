@@ -19,49 +19,39 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
 import LineChart from "@/components/molecules/LineChart.vue";
 import Chart from "chart.js";
+import { computed, defineComponent, ref } from "vue";
+import type { PropType } from "vue";
 
-@Component({
-  components: {
-    "line-chart": LineChart,
+export default defineComponent({
+  props: {
+    datas: {
+      type: Object as PropType<Chart.ChartData>,
+      default: () => {
+        /* Do nothing */
+      },
+      required: true
+    }
   },
-})
-export default class ProgressChart extends Vue {
-  @Prop({
-    type: Object,
-    default: () => {
-      /* Do nothing */
-    },
-  })
-  public readonly datas!: Chart.ChartData;
+  components: {
+    "line-chart": LineChart
+  },
+  setup(props) {
+    const chartOptions = ref<Chart.ChartOptions>({
+      maintainAspectRatio: false,
+      title: { display: false },
+      legend: { position: "right" },
+      scales: { yAxes: [{ ticks: { min: 0, stepSize: 5 } }] }
+    });
 
-  private chartOptions: Chart.ChartOptions = {
-    maintainAspectRatio: false,
-    title: {
-      display: false,
-    },
-    legend: {
-      position: "right",
-    },
-    scales: {
-      yAxes: [
-        {
-          ticks: {
-            min: 0,
-            stepSize: 5,
-          },
-        },
-      ],
-    },
-  };
+    const chartData = computed((): Chart.ChartData => {
+      return props.datas;
+    });
 
-  private get chartData(): Chart.ChartData {
-    return this.datas;
+    return { chartOptions, chartData };
   }
-}
+});
 </script>
 
 <style lang="sass" scoped>

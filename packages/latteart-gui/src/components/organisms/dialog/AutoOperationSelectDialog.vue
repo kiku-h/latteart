@@ -33,14 +33,14 @@
         :label="store.getters.message('auto-operation-select-dialog.name')"
         :items="selectList"
         v-model="selectedItem"
-        item-text="settingName"
+        item-title="settingName"
         item-value="value"
       ></v-select>
       <v-textarea
         :label="store.getters.message('auto-operation-select-dialog.details')"
         readonly
         no-resize
-        :value="selectedItem ? selectedItem.details : ''"
+        :model-value="selectedItem ? selectedItem.details : ''"
       ></v-textarea>
     </template>
   </execute-dialog>
@@ -59,11 +59,11 @@ export default defineComponent({
     autoOperationConditionGroups: {
       type: Array as PropType<AutoOperationConditionGroup[]>,
       default: [],
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -78,7 +78,7 @@ export default defineComponent({
       return props.autoOperationConditionGroups.map((group, index) => {
         return {
           settingName: group.settingName,
-          value: { index, details: group.details },
+          value: { index, details: group.details }
         };
       });
     });
@@ -111,8 +111,8 @@ export default defineComponent({
       selectList,
       okButtonIsDisabled,
       ok,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

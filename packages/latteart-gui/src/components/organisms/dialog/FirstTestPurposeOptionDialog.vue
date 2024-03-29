@@ -41,7 +41,7 @@
               :class="{
                 title: true,
                 'mb-0': true,
-                'text--disabled': !shouldRecordTestPurpose,
+                'text--disabled': !shouldRecordTestPurpose
               }"
             >
               {{ store.getters.message("test-option.first-test-purpose") }}
@@ -78,12 +78,12 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
     const store = useStore();
@@ -113,14 +113,12 @@ export default defineComponent({
       try {
         store.commit("captureControl/setTestOption", {
           testOption: {
-            firstTestPurpose: shouldRecordTestPurpose.value
-              ? firstTestPurpose.value
-              : "",
+            firstTestPurpose: shouldRecordTestPurpose.value ? firstTestPurpose.value : "",
             firstTestPurposeDetails: shouldRecordTestPurpose.value
               ? firstTestPurposeDetails.value
               : "",
-            shouldRecordTestPurpose: shouldRecordTestPurpose.value,
-          },
+            shouldRecordTestPurpose: shouldRecordTestPurpose.value
+          }
         });
 
         context.emit("ok");
@@ -155,8 +153,8 @@ export default defineComponent({
       okButtonIsDisabled,
       ok,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

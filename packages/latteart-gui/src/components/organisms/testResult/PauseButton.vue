@@ -20,8 +20,8 @@
       :disabled="!isCapturing"
       @click="pushPauseButton"
       icon
-      text
-      large
+      variant="text"
+      size="large"
       :title="pauseButtonTooltip"
       :color="pauseButtonColor"
       class="mx-2"
@@ -41,22 +41,18 @@ export default defineComponent({
     const store = useStore();
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isPaused = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isPaused;
+      return ((store.state as any).captureControl as CaptureControlState).isPaused;
     });
 
     const pauseButtonTooltip = computed((): string => {
       if (!isCapturing.value) {
         return "";
       }
-      return store.getters.message(
-        isPaused.value ? "app.resume-capturing" : "app.pause-capturing"
-      );
+      return store.getters.message(isPaused.value ? "app.resume-capturing" : "app.pause-capturing");
     });
 
     const pauseButtonColor = computed(() => {
@@ -75,8 +71,8 @@ export default defineComponent({
       isCapturing,
       pauseButtonTooltip,
       pauseButtonColor,
-      pushPauseButton,
+      pushPauseButton
     };
-  },
+  }
 });
 </script>

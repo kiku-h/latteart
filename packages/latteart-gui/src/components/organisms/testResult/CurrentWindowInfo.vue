@@ -31,10 +31,8 @@ export default defineComponent({
     const store = useStore();
 
     const currentWindowName = computed((): string => {
-      const captureControlState = (store.state as any)
-        .captureControl as CaptureControlState;
-      const operationHistoryState = (store.state as any)
-        .operationHistory as OperationHistoryState;
+      const captureControlState = (store.state as any).captureControl as CaptureControlState;
+      const operationHistoryState = (store.state as any).operationHistory as OperationHistoryState;
 
       const session = captureControlState.captureSession;
 
@@ -50,8 +48,8 @@ export default defineComponent({
     });
 
     return {
-      currentWindowName,
+      currentWindowName
     };
-  },
+  }
 });
 </script>

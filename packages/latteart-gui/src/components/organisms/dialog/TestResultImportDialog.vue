@@ -16,9 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="
-      store.getters.message('import-export-dialog.test-result-import-title')
-    "
+    :title="store.getters.message('import-export-dialog.test-result-import-title')"
     @accept="
       execute();
       close();
@@ -30,11 +28,7 @@
       <v-container id="import-option-dialog">
         <v-row>
           <v-col cols="12">
-            {{
-              store.getters.message(
-                "import-export-dialog.select-test-result-file-label"
-              )
-            }}
+            {{ store.getters.message("import-export-dialog.select-test-result-file-label") }}
           </v-col>
 
           <v-col cols="12" class="pl-2 pr-2 pt-2">
@@ -43,11 +37,7 @@
               :details-message="targetFile ? targetFile.name : ''"
               @select="selectImportFile"
             >
-              {{
-                store.getters.message(
-                  "import-export-dialog.select-test-result-file-button"
-                )
-              }}
+              {{ store.getters.message("import-export-dialog.select-test-result-file-button") }}
             </select-file-button>
           </v-col>
         </v-row>
@@ -65,11 +55,11 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
-    opened: { type: Boolean, default: false, required: true },
+    opened: { type: Boolean, default: false, required: true }
   },
   components: {
     "execute-dialog": ExecuteDialog,
-    "select-file-button": SelectFileButton,
+    "select-file-button": SelectFileButton
   },
   setup(props, context) {
     const store = useStore();
@@ -117,9 +107,9 @@ export default defineComponent({
       okButtonIsDisabled,
       selectImportFile,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

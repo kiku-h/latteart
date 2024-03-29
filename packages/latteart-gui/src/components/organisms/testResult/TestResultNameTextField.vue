@@ -36,7 +36,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   props: {
     singleLine: { type: Boolean, default: false, required: true },
-    hideDetails: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true }
   },
   setup() {
     const store = useStore();
@@ -46,28 +46,25 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const testResultName = computed({
       get: () =>
-        ((store.state as any).operationHistory as OperationHistoryState)
-          .testResultInfo.name,
+        ((store.state as any).operationHistory as OperationHistoryState).testResultInfo.name,
       set: (name: string) => {
         store.commit("operationHistory/setTestResultName", { name });
-      },
+      }
     });
 
     const changeCurrentTestResultName = () => {
       store.dispatch("operationHistory/changeCurrentTestResult", {
         startTime: null,
-        initialUrl: "",
+        initialUrl: ""
       });
     };
 
@@ -75,8 +72,8 @@ export default defineComponent({
       store,
       isDisabled,
       testResultName,
-      changeCurrentTestResultName,
+      changeCurrentTestResultName
     };
-  },
+  }
 });
 </script>

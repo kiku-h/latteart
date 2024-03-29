@@ -42,8 +42,8 @@ export default defineComponent({
     id: { type: String, default: "", required: true },
     displayedStories: {
       type: Array as PropType<string[] | null>,
-      default: null,
-    },
+      default: null
+    }
   },
   setup(props) {
     const store = useStore();
@@ -53,21 +53,19 @@ export default defineComponent({
       return store.getters["testManagement/findStory"](props.id);
     });
 
-    const cardStyle = computed(
-      (): "" | "status-fine" | "status-ng" | "status-warn" => {
-        switch (status.value) {
-          case CHARTER_STATUS.OUT_OF_SCOPE.id:
-          case CHARTER_STATUS.OK.id:
-            return "status-fine";
-          case CHARTER_STATUS.NG.id:
-            return "status-ng";
-          case CHARTER_STATUS.ONGOING.id:
-          case CHARTER_STATUS.PENDING.id:
-            return "status-warn";
-        }
-        return "";
+    const cardStyle = computed((): "" | "status-fine" | "status-ng" | "status-warn" => {
+      switch (status.value) {
+        case CHARTER_STATUS.OUT_OF_SCOPE.id:
+        case CHARTER_STATUS.OK.id:
+          return "status-fine";
+        case CHARTER_STATUS.NG.id:
+          return "status-ng";
+        case CHARTER_STATUS.ONGOING.id:
+        case CHARTER_STATUS.PENDING.id:
+          return "status-warn";
       }
-    );
+      return "";
+    });
 
     const status = computed(() => {
       if (story.value) {
@@ -93,7 +91,7 @@ export default defineComponent({
     const toStory = (): void => {
       router.push({
         name: "storyPage",
-        params: { id: props.id },
+        params: { id: props.id }
       });
     };
 
@@ -109,9 +107,9 @@ export default defineComponent({
       cardStyle,
       status,
       done,
-      toStory,
+      toStory
     };
-  },
+  }
 });
 </script>
 

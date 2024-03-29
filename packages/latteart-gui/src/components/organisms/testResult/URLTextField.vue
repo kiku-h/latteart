@@ -34,7 +34,7 @@ import { useStore } from "@/store";
 export default defineComponent({
   props: {
     singleLine: { type: Boolean, default: false, required: true },
-    hideDetails: { type: Boolean, default: false, required: true },
+    hideDetails: { type: Boolean, default: false, required: true }
   },
   setup() {
     const store = useStore();
@@ -44,32 +44,28 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const url = computed({
-      get: (): string =>
-        ((store.state as any).captureControl as CaptureControlState).url,
+      get: (): string => ((store.state as any).captureControl as CaptureControlState).url,
       set: (value: string) => {
         store.commit("captureControl/setUrl", { url: value });
-      },
+      }
     });
 
     return {
       isDisabled,
-      url,
+      url
     };
-  },
+  }
 });
 </script>

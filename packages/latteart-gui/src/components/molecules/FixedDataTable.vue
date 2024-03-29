@@ -19,105 +19,102 @@
     :items="items"
     :headers="addedPaddingCellheaders"
     :header-props="{
-      'sort-icon': sortIcon,
+      'sort-icon': sortIcon
     }"
     :hide-default-header="hideDefaultHeader"
     :hide-default-footer="hideActions"
-    :options.sync="optionsSync"
+    v-model:options="optionsSync"
   >
-    <template v-for="(slot, name) of $scopedSlots" #[name]="props">
+    <template v-for="(slot, name) of $slots" #[name]="props">
       <slot :name="name" v-bind="props"></slot>
     </template>
   </v-data-table>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { computed, defineComponent } from "vue";
+import type { PropType } from "vue";
 
-@Component
-export default class FixedDataTable extends Vue {
-  @Prop({ type: Number, default: undefined })
-  public readonly headersLength!: number;
+export default defineComponent({
+  props: {
+    headersLength: { type: Number, default: undefined },
+    items: { type: Array, default: [] },
+    headers: {
+      type: Array as PropType<
+        {
+          value?: string;
+          align?: string;
+          sortable?: boolean;
+          class?: string[];
+          text?: string;
+          width?: string;
+        }[]
+      >,
+      default: []
+    },
+    sortIcon: { type: String, default: undefined },
+    hideActions: { type: Boolean, default: false },
+    options: {
+      type: Object as PropType<{
+        page: number;
+        itemsPerPage: number;
+        sortBy: string[];
+        sortDesc: boolean[];
+        groupBy: string[];
+        groupDesc: boolean[];
+        multiSort: boolean;
+        mustSort: boolean;
+      }>,
+      default: undefined
+    },
+    gridColumnNumber: { type: Number, default: 7 },
+    hideDefaultHeader: { type: Boolean, default: false }
+  },
+  setup(props, context) {
+    const optionsSync = computed({
+      get: (): {
+        page: number;
+        itemsPerPage: number;
+        sortBy: string[];
+        sortDesc: boolean[];
+        groupBy: string[];
+        groupDesc: boolean[];
+        multiSort: boolean;
+        mustSort: boolean;
+      } => props.options,
+      set: (value: {
+        page: number;
+        itemsPerPage: number;
+        sortBy: string[];
+        sortDesc: boolean[];
+        groupBy: string[];
+        groupDesc: boolean[];
+        multiSort: boolean;
+        mustSort: boolean;
+      }) => {
+        context.emit("update:options", value);
+      }
+    });
 
-  @Prop({ type: Array, default: [] })
-  public readonly items!: [];
+    const addedPaddingCellheaders = computed(
+      (): {
+        value?: string;
+        align?: string;
+        sortable?: boolean;
+        class?: string[];
+        text?: string;
+        width?: string;
+      }[] => {
+        const result = props.headers.map((header) => header);
+        if (result.length < props.gridColumnNumber) {
+          result.push({ sortable: false });
+        }
 
-  @Prop({ type: Array, default: [] })
-  public readonly headers!: {
-    value?: string;
-    align?: string;
-    sortable?: boolean;
-    class?: string[];
-    text?: string;
-    width?: string;
-  }[];
+        return result;
+      }
+    );
 
-  @Prop({ type: String, default: undefined })
-  public readonly sortIcon!: undefined;
-
-  @Prop({ type: Boolean, default: false })
-  public readonly hideActions!: boolean;
-
-  @Prop({ type: Object, default: undefined })
-  public readonly options!: {
-    page: number;
-    itemsPerPage: number;
-    sortBy: string[];
-    sortDesc: boolean[];
-    groupBy: string[];
-    groupDesc: boolean[];
-    multiSort: boolean;
-    mustSort: boolean;
-  };
-
-  @Prop({ type: Number, default: 7 })
-  public readonly gridColumnNumber!: number;
-
-  @Prop({ type: Boolean, default: false })
-  public readonly hideDefaultHeader!: boolean;
-
-  get optionsSync(): {
-    page: number;
-    itemsPerPage: number;
-    sortBy: string[];
-    sortDesc: boolean[];
-    groupBy: string[];
-    groupDesc: boolean[];
-    multiSort: boolean;
-    mustSort: boolean;
-  } {
-    return this.options;
+    return { optionsSync, addedPaddingCellheaders };
   }
-
-  set optionsSync(value: {
-    page: number;
-    itemsPerPage: number;
-    sortBy: string[];
-    sortDesc: boolean[];
-    groupBy: string[];
-    groupDesc: boolean[];
-    multiSort: boolean;
-    mustSort: boolean;
-  }) {
-    this.$emit("update:options", value);
-  }
-
-  get addedPaddingCellheaders(): {
-    value?: string;
-    align?: string;
-    sortable?: boolean;
-    class?: string[];
-    text?: string;
-    width?: string;
-  }[] {
-    const result = this.headers.map((header) => header);
-    if (result.length < this.gridColumnNumber) {
-      result.push({
-        sortable: false,
-      });
-    }
-
-    return result;
-  }
-}
+});
 </script>

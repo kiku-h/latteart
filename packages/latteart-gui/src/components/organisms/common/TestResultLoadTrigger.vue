@@ -38,11 +38,11 @@ export default defineComponent({
     testResultIds: {
       type: Array as PropType<string[]>,
       default: () => [],
-      required: true,
-    },
+      required: true
+    }
   },
   components: {
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup(props) {
     const store = useStore();
@@ -55,32 +55,29 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const loadTestResults = async (...testResultIds: string[]) => {
       try {
         await store.dispatch("operationHistory/loadTestResultSummaries", {
-          testResultIds,
+          testResultIds
         });
 
         await store.dispatch("operationHistory/loadTestResult", {
-          testResultId: testResultIds[0],
+          testResultId: testResultIds[0]
         });
 
         store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false,
+          setCanUpdateModels: false
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -100,9 +97,7 @@ export default defineComponent({
 
       try {
         store.dispatch("openProgressDialog", {
-          message: store.getters.message(
-            "test-result-page.loading-test-results"
-          ),
+          message: store.getters.message("test-result-page.loading-test-results")
         });
 
         await loadTestResults(...props.testResultIds);
@@ -122,8 +117,8 @@ export default defineComponent({
       errorMessageDialogOpened,
       errorMessage,
       isDisabled,
-      loadHistory,
+      loadHistory
     };
-  },
+  }
 });
 </script>

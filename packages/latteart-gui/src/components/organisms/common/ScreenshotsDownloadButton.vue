@@ -37,7 +37,7 @@ import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "download-link-dialog": DownloadLinkDialog,
+    "download-link-dialog": DownloadLinkDialog
   },
   setup() {
     const store = useStore();
@@ -50,7 +50,7 @@ export default defineComponent({
       return {
         isDisabled: isDisabled.value,
         processing: processing.value,
-        execute: execute,
+        execute: execute
       };
     });
 
@@ -65,18 +65,15 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return ((store.state as any).captureControl as CaptureControlState).isResuming;
     });
 
     const operationHistoryState = computed(() => {
@@ -98,10 +95,10 @@ export default defineComponent({
       processing.value = true;
       try {
         store.dispatch("openProgressDialog", {
-          message: store.getters.message("test-result-page.export-screenshots"),
+          message: store.getters.message("test-result-page.export-screenshots")
         });
         const url = await store.dispatch("operationHistory/getScreenshots", {
-          testResultId: testResultId.value,
+          testResultId: testResultId.value
         });
         store.dispatch("closeProgressDialog");
         linkUrl.value = `${store.state.repositoryService.serviceUrl}/${url}`;
@@ -118,8 +115,8 @@ export default defineComponent({
       store,
       dialogOpened,
       linkUrl,
-      obj,
+      obj
     };
-  },
+  }
 });
 </script>

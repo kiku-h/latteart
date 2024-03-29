@@ -28,17 +28,17 @@
             class="py-0"
             :id="`groupShowArea${index}`"
           >
-            <v-expansion-panel-header>
-              <div :title="group.name" class="ellipsis">{{ group.name }}</div>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
+            <v-expansion-panel-title>
+              <div :title="group.name" class="text-truncate">{{ group.name }}</div>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
               <group-viewer
                 :testMatrixId="testMatrixId"
                 :viewPoints="testMatrix.viewPoints"
                 :displayedStories="displayedStories"
                 :group="group"
               ></group-viewer>
-            </v-expansion-panel-content>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
@@ -56,10 +56,10 @@ export default defineComponent({
   props: {
     testMatrixId: { type: String, default: "", required: true },
     search: { type: String, default: "", required: false },
-    completionFilter: { type: Boolean, default: false, required: true },
+    completionFilter: { type: Boolean, default: false, required: true }
   },
   components: {
-    "group-viewer": GroupViewer,
+    "group-viewer": GroupViewer
   },
   setup(props) {
     const store = useStore();
@@ -76,11 +76,8 @@ export default defineComponent({
     });
 
     const stories = computed((): Story[] => {
-      const targetStories: Story[] =
-        store.getters["testManagement/getStories"]();
-      return targetStories.filter(
-        ({ testMatrixId }) => testMatrixId === props.testMatrixId
-      );
+      const targetStories: Story[] = store.getters["testManagement/getStories"]();
+      return targetStories.filter(({ testMatrixId }) => testMatrixId === props.testMatrixId);
     });
 
     const testMatrix = ref<TestMatrix | undefined>(targetTestMatrix.value);
@@ -138,28 +135,20 @@ export default defineComponent({
       const filteredStories = filterStories();
       displayedStories.value = filteredStories.map((story) => story.id);
 
-      const testTargetIds = new Set(
-        filteredStories.map(({ testTargetId }) => testTargetId)
-      );
+      const testTargetIds = new Set(filteredStories.map(({ testTargetId }) => testTargetId));
 
       const groups = targetTestMatrix.value.groups.map((group) => {
-        const testTargets = group.testTargets.filter(({ id }) =>
-          testTargetIds.has(id)
-        );
+        const testTargets = group.testTargets.filter(({ id }) => testTargetIds.has(id));
         return { ...group, testTargets };
       });
 
-      const viewPointIds = new Set(
-        filteredStories.map(({ viewPointId }) => viewPointId)
-      );
-      const viewPoints = targetTestMatrix.value.viewPoints.filter(({ id }) =>
-        viewPointIds.has(id)
-      );
+      const viewPointIds = new Set(filteredStories.map(({ viewPointId }) => viewPointId));
+      const viewPoints = targetTestMatrix.value.viewPoints.filter(({ id }) => viewPointIds.has(id));
 
       testMatrix.value = {
         ...targetTestMatrix.value,
         groups,
-        viewPoints,
+        viewPoints
       };
     };
 
@@ -227,9 +216,9 @@ export default defineComponent({
       store,
       expandedPanelIndex,
       testMatrix,
-      displayedStories,
+      displayedStories
     };
-  },
+  }
 });
 </script>
 
