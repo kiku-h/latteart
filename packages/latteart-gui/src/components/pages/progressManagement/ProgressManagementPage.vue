@@ -18,70 +18,66 @@
   <v-container class="align-self-start">
     <v-row class="mt-2">
       <v-col cols="12">
-        {{
-          store.getters.message("progress-management.display-settings-section")
-        }}
+        {{ $t("progress-management.display-settings-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col align-self="center" cols="1" class="pt-0 ml-4">
-        {{ store.getters.message("progress-management.period") }}
+        {{ $t("progress-management.period") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
           v-model="startDateMenu"
           :close-on-content-click="false"
-          :nudge-right="40"
+          :offset="40"
           transition="scale-transition"
-          offset-y
           full-width
           min-width="290px"
         >
-          <template v-slot:activator="{ on }">
+          <template #activator="{ props }">
             <v-text-field
-              :value="startDate"
-              @change="(value) => updatePeriod({ start: value })"
+              :model-value="startDate"
               single-line
               prepend-icon="event"
               readonly
-              v-on="on"
+              v-bind="props"
               class="mx-3"
+              @change="(value: string) => updatePeriod({ start: value })"
             ></v-text-field>
           </template>
           <v-date-picker
             :value="startDate"
-            @change="(value) => updatePeriod({ start: value })"
+            @change="(value: string) => updatePeriod({ start: value })"
             @input="startDateMenu = false"
           ></v-date-picker>
         </v-menu>
       </v-col>
       <v-col align-self="center" cols="1" class="pt-0">
-        {{ store.getters.message("progress-management.period-symbol") }}
+        {{ $t("progress-management.period-symbol") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
           v-model="endDateMenu"
           :close-on-content-click="false"
-          :nudge-right="40"
+          :offset="40"
           transition="scale-transition"
-          offset-y
           full-width
           min-width="290px"
         >
-          <template v-slot:activator="{ on }">
+          <template #activator="{ props }">
             <v-text-field
-              :value="endDate"
-              @change="(value) => updatePeriod({ end: value })"
+              :model-value="endDate"
               single-line
               prepend-icon="event"
               readonly
-              v-on="on"
+              v-bind="props"
               class="mx-3"
+              @change="(value: string) => updatePeriod({ end: value })"
             ></v-text-field>
           </template>
           <v-date-picker
             :value="endDate"
-            @change="(value) => updatePeriod({ end: value })"
+            @change="(value: string) => updatePeriod({ end: value })"
             @input="endDateMenu = false"
           ></v-date-picker>
         </v-menu>
@@ -90,7 +86,7 @@
 
     <v-row>
       <v-col cols="12">
-        {{ store.getters.message("progress-management.filter-section") }}
+        {{ $t("progress-management.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -98,10 +94,10 @@
         <v-select
           v-model="selectedTestMatrixId"
           :items="testMatrices"
-          item-text="name"
+          item-title="name"
           item-value="id"
-          class="mx-3 ellipsis"
-          :label="store.getters.message('progress-management.test-matrix')"
+          class="mx-3 text-truncate"
+          :label="$t('progress-management.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -109,10 +105,10 @@
         <v-select
           v-model="selectedGroupId"
           :items="groups"
-          item-text="name"
+          item-title="name"
           item-value="id"
-          class="mx-3 ellipsis"
-          :label="store.getters.message('progress-management.group')"
+          class="mx-3 text-truncate"
+          :label="$t('progress-management.group')"
         ></v-select>
       </v-col>
 
@@ -120,17 +116,17 @@
         <v-select
           v-model="selectedTestTargetId"
           :items="testTargets"
-          item-text="name"
+          item-title="name"
           item-value="id"
-          class="mx-3 ellipsis"
-          :label="store.getters.message('progress-management.test-target')"
+          class="mx-3 text-truncate"
+          :label="$t('progress-management.test-target')"
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        <progress-chart v-if="rerender" :datas="chartData"></progress-chart>
+        <progress-chart :progress-data="filteredProgressDatas"></progress-chart>
       </v-col>
     </v-row>
   </v-container>
@@ -138,23 +134,22 @@
 
 <script lang="ts">
 import ProgressChart from "@/components/organisms/progressManagement/ProgressChart.vue";
-import Chart from "chart.js";
 import { TimestampImpl } from "@/lib/common/Timestamp";
-import { DailyTestProgress } from "@/lib/testManagement/types";
-import { TestManagementState } from "@/store/testManagement";
-import { computed, defineComponent, ref, nextTick } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { type DailyTestProgress } from "@/lib/testManagement/types";
+import { computed, defineComponent, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
-    "progress-chart": ProgressChart,
+    "progress-chart": ProgressChart
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const route = useRoute();
 
-    const rerender = ref(true);
     const startDateMenu = ref(false);
     const endDateMenu = ref(false);
 
@@ -167,53 +162,50 @@ export default defineComponent({
 
     const progressDatas = ref<DailyTestProgress[]>([]);
 
-    const testMatrices = computed(() => {
-      const testManagementState = (store.state as any)
-        .testManagement as TestManagementState;
+    const unselectedItem = computed((): { id: string; name: string } => {
+      return {
+        id: "all",
+        name: rootStore.message("progress-management.all")
+      };
+    });
 
+    const testMatrices = computed(() => {
       const all = {
         ...unselectedItem.value,
-        groups: testManagementState.testMatrices.flatMap(
-          (testMatrix) => testMatrix.groups
-        ),
+        groups: testManagementStore.testMatrices.flatMap((testMatrix) => testMatrix.groups)
       };
-      return [all, ...testManagementState.testMatrices];
+      return [all, ...testManagementStore.testMatrices];
     });
 
     const groups = computed(() => {
       const groups =
-        testMatrices.value.find(
-          (testMatrix) => testMatrix.id === selectedTestMatrixId.value
-        )?.groups ?? [];
-
-      if (!groups.find(({ id }) => id === selectedGroupId.value)) {
-        selectedGroupId.value = unselectedItem.value.id;
-      }
+        testMatrices.value.find((testMatrix) => testMatrix.id === selectedTestMatrixId.value)
+          ?.groups ?? [];
 
       const all = {
         ...unselectedItem.value,
-        testTargets: groups.flatMap((group) => group.testTargets),
+        testTargets: groups.flatMap((group) => group.testTargets)
       };
       return [all, ...groups];
     });
 
     const testTargets = computed(() => {
       const testTargets =
-        groups.value.find((group) => group.id === selectedGroupId.value)
-          ?.testTargets ?? [];
-
-      if (!testTargets.find(({ id }) => id === selectedTestTargetId.value)) {
-        selectedTestTargetId.value = unselectedItem.value.id;
-      }
+        groups.value.find((group) => group.id === selectedGroupId.value)?.testTargets ?? [];
 
       return [unselectedItem.value, ...testTargets];
     });
 
-    const unselectedItem = computed((): { id: string; name: string } => {
-      return {
-        id: "all",
-        name: store.getters.message("progress-management.all"),
-      };
+    watch(groups, (newGroups) => {
+      if (!newGroups.find(({ id }) => id === selectedGroupId.value)) {
+        selectedGroupId.value = unselectedItem.value.id;
+      }
+    });
+
+    watch(testTargets, (newTestTargets) => {
+      if (!newTestTargets.find(({ id }) => id === selectedTestTargetId.value)) {
+        selectedTestTargetId.value = unselectedItem.value.id;
+      }
     });
 
     const filteredProgressDatas = computed(() => {
@@ -240,20 +232,13 @@ export default defineComponent({
 
         return {
           date: dailyProgress.date,
-          storyProgresses,
+          storyProgresses
         };
       });
 
       return filteredDatas.map((dailyProgress) => {
         return dailyProgress.storyProgresses.reduce(
-          (
-            acc,
-            {
-              plannedSessionNumber,
-              completedSessionNumber,
-              incompletedSessionNumber,
-            }
-          ) => {
+          (acc, { plannedSessionNumber, completedSessionNumber, incompletedSessionNumber }) => {
             acc.planNumber += plannedSessionNumber;
             acc.completedNumber += completedSessionNumber;
             acc.incompletedNumber += incompletedSessionNumber;
@@ -263,61 +248,10 @@ export default defineComponent({
             date: new TimestampImpl(dailyProgress.date).format("YYYY-MM-DD"),
             planNumber: 0,
             completedNumber: 0,
-            incompletedNumber: 0,
+            incompletedNumber: 0
           }
         );
       });
-    });
-
-    const chartData = computed((): Chart.ChartData => {
-      rerender.value = false;
-
-      nextTick(() => {
-        rerender.value = true;
-      });
-
-      return {
-        labels: filteredProgressDatas.value.map(
-          (progressData) => progressData.date
-        ),
-        datasets: filteredProgressDatas.value.reduce(
-          (acc, current) => {
-            acc[0].data.push(current.planNumber);
-            acc[1].data.push(current.completedNumber);
-            acc[2].data.push(current.incompletedNumber);
-            return acc;
-          },
-          [
-            {
-              label: store.getters.message(
-                "progress-management.planned-sessions"
-              ),
-              borderColor: "#0077ff",
-              data: [] as number[],
-              fill: false,
-              lineTension: 0,
-            },
-            {
-              label: store.getters.message(
-                "progress-management.completed-sessions"
-              ),
-              borderColor: "#00ff77",
-              data: [] as number[],
-              fill: false,
-              lineTension: 0,
-            },
-            {
-              label: store.getters.message(
-                "progress-management.incompleted-sessions"
-              ),
-              borderColor: "#ff5555",
-              data: [] as number[],
-              fill: false,
-              lineTension: 0,
-            },
-          ]
-        ),
-      };
     });
 
     const updatePeriod = (value: { start?: string; end?: string }) => {
@@ -340,37 +274,32 @@ export default defineComponent({
           startDate.value && endDate.value
             ? {
                 since: new TimestampImpl(startDate.value),
-                until: new TimestampImpl(endDate.value),
+                until: new TimestampImpl(endDate.value)
               }
-            : undefined,
+            : undefined
       };
 
-      return store.dispatch("testManagement/collectProgressDatas", filter);
+      return testManagementStore.collectProgressDatas(filter);
     };
 
     (async () => {
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
 
-      await store.dispatch("testManagement/readProject");
+      await testManagementStore.readProject();
 
       progressDatas.value = await collectProgressDatas();
 
       const dates = progressDatas.value.map((data) => {
         return new TimestampImpl(data.date).unix();
       });
-      startDate.value = new TimestampImpl(Math.min(...dates)).format(
-        "YYYY-MM-DD"
-      );
-      endDate.value = new TimestampImpl(Math.max(...dates)).format(
-        "YYYY-MM-DD"
-      );
+      startDate.value = new TimestampImpl(Math.min(...dates)).format("YYYY-MM-DD");
+      endDate.value = new TimestampImpl(Math.max(...dates)).format("YYYY-MM-DD");
     })();
 
     return {
-      store,
-      rerender,
+      t: rootStore.message,
       startDateMenu,
       endDateMenu,
       startDate,
@@ -381,10 +310,10 @@ export default defineComponent({
       testMatrices,
       groups,
       testTargets,
-      chartData,
-      updatePeriod,
+      filteredProgressDatas,
+      updatePeriod
     };
-  },
+  }
 });
 </script>
 

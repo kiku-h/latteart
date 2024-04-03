@@ -15,41 +15,72 @@
 -->
 
 <template>
-  <line-chart :data="chartData" :chartOptions="chartOptions"></line-chart>
+  <line-chart :data="chartData" :options="chartOptions"></line-chart>
 </template>
 
 <script lang="ts">
 import LineChart from "@/components/molecules/LineChart.vue";
-import Chart from "chart.js";
-import { computed, defineComponent, ref } from "vue";
-import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, ref, type PropType } from "vue";
 
 export default defineComponent({
   props: {
-    datas: {
-      type: Object as PropType<Chart.ChartData>,
-      default: () => {
-        /* Do nothing */
-      },
+    progressData: {
+      type: Object as PropType<
+        {
+          date: string;
+          planNumber: number;
+          completedNumber: number;
+          incompletedNumber: number;
+        }[]
+      >,
       required: true
     }
   },
-  components: {
-    "line-chart": LineChart
-  },
+  components: { LineChart },
   setup(props) {
-    const chartOptions = ref<Chart.ChartOptions>({
-      maintainAspectRatio: false,
-      title: { display: false },
-      legend: { position: "right" },
-      scales: { yAxes: [{ ticks: { min: 0, stepSize: 5 } }] }
+    const rootStore = useRootStore();
+
+    const chartOptions = ref({
+      legend: { position: "right" as const, labels: { boxWidth: 40 } },
+      scales: { y: { min: 0, ticks: { stepSize: 5 } } }
     });
 
-    const chartData = computed((): Chart.ChartData => {
-      return props.datas;
+    const chartData = computed(() => {
+      return {
+        labels: props.progressData.map(({ date }) => date),
+        datasets: props.progressData.reduce(
+          (acc, current) => {
+            acc[0].data.push(current.planNumber);
+            acc[1].data.push(current.completedNumber);
+            acc[2].data.push(current.incompletedNumber);
+            return acc;
+          },
+          [
+            {
+              label: rootStore.message("progress-management.planned-sessions"),
+              borderColor: "#0077ff",
+              backgroundColor: "#0077ff80",
+              data: [] as number[]
+            },
+            {
+              label: rootStore.message("progress-management.completed-sessions"),
+              borderColor: "#00ff77",
+              backgroundColor: "#00ff7780",
+              data: [] as number[]
+            },
+            {
+              label: rootStore.message("progress-management.incompleted-sessions"),
+              borderColor: "#ff5555",
+              backgroundColor: "#ff555580",
+              data: [] as number[]
+            }
+          ]
+        )
+      };
     });
 
-    return { chartOptions, chartData };
+    return { chartData, chartOptions };
   }
 });
 </script>
