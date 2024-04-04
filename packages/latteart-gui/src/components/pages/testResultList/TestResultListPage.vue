@@ -37,7 +37,7 @@
             item-value="id"
             v-model:page="page"
             v-model:items-per-page="itemsPerPage"
-            v-model:sort-by="syncSortBy as any"
+            v-model:sort-by="syncSortBy"
             :search="search"
             :custom-filter="filterItems"
           >
@@ -267,7 +267,7 @@ export default defineComponent({
             {
               key: operationHistoryStore.testResultListOption.sortBy,
               order: operationHistoryStore.testResultListOption.sortDesc ? "desc" : "asc"
-            }
+            } as const
           ]
     );
 
