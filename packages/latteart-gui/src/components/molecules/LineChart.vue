@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { Line } from "vue-chartjs";
-import { defineComponent, type PropType } from "vue";
+import { defineComponent, type PropType, computed } from "vue";
 import {
   Chart as ChartJS,
   Title,
@@ -32,7 +32,6 @@ import {
   PointElement,
   Colors
 } from "chart.js";
-import { computed } from "vue";
 
 ChartJS.register(
   Title,

@@ -102,7 +102,7 @@
     </v-row>
     <v-row>
       <v-col cols="12">
-        <v-data-table :headers="headers" :items="items" item-key="name" hide-default-footer>
+        <v-data-table :headers="headers" :items="items" item-key="name">
           <template v-slot:item="props">
             <tr>
               <td
@@ -264,7 +264,7 @@ export default defineComponent({
             align: "center" as const,
             sortable: false,
             value: "testMatrix",
-            class: "ellipsis_short"
+            headerProps: { class: "ellipsis_short" }
           };
         }
 
@@ -274,7 +274,7 @@ export default defineComponent({
             align: "center" as const,
             sortable: false,
             value: "group",
-            class: "ellipsis_short"
+            headerProps: { class: "ellipsis_short" }
           };
         }
 
@@ -284,7 +284,7 @@ export default defineComponent({
             align: "center" as const,
             sortable: false,
             value: "testTarget",
-            class: "ellipsis_short"
+            headerProps: { class: "ellipsis_short" }
           };
         }
 
@@ -302,7 +302,7 @@ export default defineComponent({
           align: "center" as const,
           sortable: false,
           value: colName,
-          class: "ellipsis_short"
+          headerProps: { class: "ellipsis_short" }
         };
       });
 
@@ -518,6 +518,9 @@ tr
   overflow: hidden !important
   text-overflow: ellipsis !important
   white-space: nowrap !important
+
+:deep(.ellipsis_short) span
+  @include ellipsis
 
 @media print
   .no-print
