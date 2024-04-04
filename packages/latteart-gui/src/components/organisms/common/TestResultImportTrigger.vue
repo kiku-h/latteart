@@ -43,9 +43,10 @@
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import TestResultImportDialog from "@/components/organisms/dialog/TestResultImportDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
@@ -54,7 +55,9 @@ export default defineComponent({
     "test-result-import-dialog": TestResultImportDialog
   },
   setup(_, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
 
     const isImportingTestResults = ref(false);
 
@@ -74,15 +77,15 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isResuming;
+      return captureControlStore.isResuming;
     });
 
     const openTestResultImportDialog = () => {
@@ -94,19 +97,19 @@ export default defineComponent({
 
       setTimeout(async () => {
         try {
-          store.dispatch("openProgressDialog", {
-            message: store.getters.message("import-export-dialog.importing-data")
+          rootStore.openProgressDialog({
+            message: rootStore.message("import-export-dialog.importing-data")
           });
-          await store.dispatch("operationHistory/importData", {
+          await operationHistoryStore.importData({
             source: { testResultFile: testResultImportFile }
           });
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
 
           informationMessageDialogOpened.value = true;
-          informationTitle.value = store.getters.message(
+          informationTitle.value = rootStore.message(
             "import-export-dialog.test-result-import-title"
           );
-          informationMessage.value = store.getters.message(
+          informationMessage.value = rootStore.message(
             "import-export-dialog.import-data-succeeded",
             {
               returnName: testResultImportFile.name
@@ -115,7 +118,7 @@ export default defineComponent({
 
           context.emit("update", testResultImportFile.name);
         } catch (error) {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
           if (error instanceof Error) {
             errorMessage.value = error.message;
             errorMessageDialogOpened.value = true;

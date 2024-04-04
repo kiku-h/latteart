@@ -35,10 +35,10 @@
 
 <script lang="ts">
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
 import TestResultNameEditDialog from "../dialog/TestResultNameEditDialog.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   props: {
@@ -50,7 +50,8 @@ export default defineComponent({
     "error-message-dialog": ErrorMessageDialog
   },
   setup(props, context) {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
 
     const editDialogOpened = ref(false);
     const errorMessageDialogOpened = ref(false);
@@ -60,20 +61,16 @@ export default defineComponent({
       return isReplaying.value || isResuming.value || isCapturing.value;
     });
 
-    const captureControlState = computed(() => {
-      return (store.state as any).captureControl as CaptureControlState;
-    });
-
     const isCapturing = computed((): boolean => {
-      return captureControlState.value.isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return captureControlState.value.isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return captureControlState.value.isResuming;
+      return captureControlStore.isResuming;
     });
 
     const openEditDialog = () => {
@@ -86,7 +83,7 @@ export default defineComponent({
       }
 
       try {
-        await store.dispatch("operationHistory/changeTestResultName", {
+        await operationHistoryStore.changeTestResultName({
           testResultId: props.testResultId,
           testResultName: newTestResultName
         });

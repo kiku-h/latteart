@@ -15,7 +15,7 @@
 -->
 <template>
   <div>
-    <v-btn @click="$refs.fileInput.click()">
+    <v-btn @click="($refs.fileInput as unknown as any).click()">
       <slot />
     </v-btn>
     <input

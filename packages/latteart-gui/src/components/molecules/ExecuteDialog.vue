@@ -22,10 +22,14 @@
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
-      <v-btn :disabled="disabled" :color="strong ? 'red' : 'blue'" @click="accept()">{{
-        $t("common.ok")
-      }}</v-btn>
-      <v-btn color="white" @click="cancel()">{{ $t("common.cancel") }}</v-btn>
+      <v-btn
+        variant="elevated"
+        :disabled="disabled"
+        :color="strong ? 'red' : 'blue'"
+        @click="accept()"
+        >{{ $t("common.ok") }}</v-btn
+      >
+      <v-btn variant="elevated" color="white" @click="cancel()">{{ $t("common.cancel") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>

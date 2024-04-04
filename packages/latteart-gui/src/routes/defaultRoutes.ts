@@ -19,6 +19,7 @@ import RootPage from "@/components/pages/RootPage.vue";
 import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
 import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
+import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
 
 const defaultRoutes = [
   {
@@ -35,6 +36,11 @@ const defaultRoutes = [
             path: "start",
             component: StartCapturePage,
             meta: { title: "start-capture-page.title" }
+          },
+          {
+            path: "test-result-list",
+            component: TestResultListPage,
+            meta: { title: "test-result-navigation-drawer.title" }
           },
           {
             path: "progress-management",
