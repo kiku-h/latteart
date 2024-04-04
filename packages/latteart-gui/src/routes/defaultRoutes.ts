@@ -16,6 +16,8 @@
 
 import PageFrame from "@/components/pages/PageFrame.vue";
 import RootPage from "@/components/pages/RootPage.vue";
+import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
+import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
 
 const defaultRoutes = [
@@ -33,6 +35,18 @@ const defaultRoutes = [
             path: "start",
             component: StartCapturePage,
             meta: { title: "start-capture-page.title" }
+          },
+          {
+            path: "progress-management",
+            name: "progressManagementPage",
+            component: ProgressManagementPage,
+            meta: { title: "progress-management.title" }
+          },
+          {
+            path: "quality-management",
+            name: "qualityManagementPage",
+            component: QualityManagementPage,
+            meta: { title: "quality-management.title" }
           }
         ]
       }

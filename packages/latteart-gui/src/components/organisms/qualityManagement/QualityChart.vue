@@ -15,75 +15,63 @@
 -->
 
 <template>
-  <line-chart :data="chartData" :chartOptions="chartOptions"></line-chart>
+  <line-chart :data="chartData" :options="chartOptions"></line-chart>
 </template>
 
 <script lang="ts">
 import LineChart from "@/components/molecules/LineChart.vue";
 import { abbreviatedCharLength } from "@/lib/common/util";
-import "chartjs-plugin-colorschemes/src/plugins/plugin.colorschemes";
-import Chart from "chart.js";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
-const {
-  Aspect6
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-} = require("chartjs-plugin-colorschemes/src/colorschemes/colorschemes.office");
+import { useRootStore } from "@/stores/root";
+import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   props: {
-    qualityDatas: { type: Object as PropType<any>, required: true },
+    qualityData: {
+      type: Object as PropType<{ datasets: { label: string; data: number[] }[] }>,
+      required: true
+    },
     totalBugNum: { type: Number, required: true }
   },
-  components: {
-    "line-chart": LineChart
-  },
+  components: { LineChart },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const chartData = computed(() => {
       return {
         labels: getLabels(),
-        datasets: props.qualityDatas.datasets.map((data: any) => {
-          data.label = abbreviatedCharLength(data.label, 20);
-          return data;
+        datasets: props.qualityData.datasets.map((dataset) => {
+          dataset.label = abbreviatedCharLength(dataset.label, 20);
+          return dataset;
         })
       };
     });
 
-    const chartOptions = computed((): Chart.ChartOptions => {
+    const chartOptions = computed(() => {
       return {
-        maintainAspectRatio: false,
-        responsive: true,
-        title: { display: false },
-        legend: { position: "right", labels: { boxWidth: 30 } },
+        legend: { position: "right" as const, labels: { boxWidth: 30 } },
         scales: {
-          yAxes: [
-            {
-              ticks: { min: 0, stepSize: props.totalBugNum > 10 ? 5 : 1 },
-              scaleLabel: {
-                display: true,
-                labelString: store.getters.message("quality-chart.bug-report-number")
-              }
+          y: {
+            min: 0,
+            ticks: { stepSize: props.totalBugNum > 10 ? 5 : 1 },
+            title: {
+              display: true,
+              text: rootStore.message("quality-chart.bug-report-number")
             }
-          ],
-          xAxes: [
-            {
-              scaleLabel: {
-                display: true,
-                labelString: store.getters.message("quality-chart.number-session")
-              }
+          },
+          x: {
+            title: {
+              display: true,
+              text: rootStore.message("quality-chart.number-session")
             }
-          ]
+          }
         },
-        plugins: { colorschemes: { scheme: Aspect6 } }
+        plugins: { colors: { forceOverride: true } }
       };
     });
 
     const getLabels = () => {
       let maxLen = 0;
-      props.qualityDatas.datasets.forEach((dataset: any) => {
+      props.qualityData.datasets.forEach((dataset: any) => {
         if (maxLen < dataset.data.length) {
           maxLen = dataset.data.length;
         }
@@ -94,7 +82,7 @@ export default defineComponent({
       return [...Array(maxLen).keys()].map((i) => String(i++));
     };
 
-    return { store, chartData, chartOptions };
+    return { chartData, chartOptions };
   }
 });
 </script>

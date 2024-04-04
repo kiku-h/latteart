@@ -193,7 +193,8 @@ export const useTestManagementStore = defineStore("testManagement", {
      * @returns Found story.
      */
     findStoryByTestTargetAndViewPointId:
-      (state) => (testTargetId: string, viewPointId: string, testMatrixId: string) => {
+      (state) =>
+      (testTargetId: string, viewPointId: string, testMatrixId: string): Story => {
         const found = state.stories.find((story: Story) => {
           return (
             story.testMatrixId === testMatrixId &&
@@ -234,6 +235,69 @@ export const useTestManagementStore = defineStore("testManagement", {
     }
   },
   actions: {
+    selectStories(query?: {
+      testMatrixId?: string;
+      groupId?: string;
+      testTargetId?: string;
+    }): (Story & {
+      viewPointName: string;
+      testTargetName: string;
+      testMatrixName: string;
+      groupName: string;
+    })[] {
+      const testMatrices = this.testMatrices.filter((testMatrix) => {
+        return !query?.testMatrixId || query.testMatrixId === testMatrix.id;
+      });
+
+      const testTargets = testMatrices.flatMap((testMatrix) => {
+        return testMatrix.groups
+          .filter((group) => !query?.groupId || query.groupId === group.id)
+          .flatMap((group) => {
+            return group.testTargets
+              .filter(
+                (testTarget) =>
+                  !query?.testTargetId || query.testTargetId === `${group.id}_${testTarget.id}`
+              )
+              .map((testTarget) => {
+                return {
+                  ...testTarget,
+                  testMatrixId: testMatrix.id,
+                  testMatrixName: testMatrix.name,
+                  groupName: group.name,
+                  viewPoints: testTarget.plans.map(({ viewPointId }) => {
+                    return {
+                      id: viewPointId,
+                      name: testMatrix.viewPoints.find(({ id }) => id === viewPointId)?.name ?? ""
+                    };
+                  })
+                };
+              });
+          });
+      });
+
+      return testTargets.flatMap((testTarget) => {
+        const stories = testTarget.viewPoints
+          .map((viewPoint) => {
+            const story = this.findStoryByTestTargetAndViewPointId(
+              testTarget.id,
+              viewPoint.id,
+              testTarget.testMatrixId
+            );
+
+            return {
+              ...story,
+              viewPointName: viewPoint.name,
+              testTargetName: testTarget.name,
+              testMatrixName: testTarget.testMatrixName,
+              groupName: testTarget.groupName
+            };
+          })
+          .filter((story) => story?.sessions);
+
+        return stories;
+      });
+    },
+
     /**
      * Set project id to the State.
      * @param state State.

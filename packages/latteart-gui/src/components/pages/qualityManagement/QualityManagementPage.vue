@@ -18,13 +18,13 @@
   <v-container class="align-self-start">
     <v-row class="mt-2">
       <v-col cols="12">
-        {{ store.getters.message("quality-management.attention") }}
+        {{ $t("quality-management.attention") }}
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        {{ store.getters.message("quality-management.filter-section") }}
+        {{ $t("quality-management.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -32,10 +32,10 @@
         <v-select
           v-model="selectedTestMatrixId"
           :items="testMatrixSelectItems"
-          item-text="text"
+          item-title="text"
           item-value="id"
-          class="mx-3 ellipsis"
-          :label="store.getters.message('quality-management.test-matrix')"
+          class="mx-3 text-truncate"
+          :label="$t('quality-management.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -43,10 +43,10 @@
         <v-select
           v-model="selectedGroupId"
           :items="groups"
-          item-text="text"
+          item-title="text"
           item-value="id"
-          class="mx-3 ellipsis"
-          :label="store.getters.message('quality-management.group')"
+          class="mx-3 text-truncate"
+          :label="$t('quality-management.group')"
         ></v-select>
       </v-col>
 
@@ -54,44 +54,38 @@
         <v-select
           v-model="selectedTestTargetId"
           :items="testTargets"
-          item-text="text"
+          item-title="text"
           item-value="id"
-          class="mx-3 ellipsis"
-          :label="store.getters.message('quality-management.test-target')"
+          class="mx-3 text-truncate"
+          :label="$t('quality-management.test-target')"
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        {{ store.getters.message("quality-management.pb-curve") }}
+        {{ $t("quality-management.pb-curve") }}
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
-        <quality-chart
-          v-if="rerender"
-          :qualityDatas="qualityDatas"
-          :totalBugNum="totalBugNum"
-        ></quality-chart>
+        <quality-chart :qualityData="qualityDatas" :totalBugNum="totalBugNum"></quality-chart>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
-        {{ store.getters.message("quality-management.bug-report") }}
+        {{ $t("quality-management.bug-report") }}
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12" class="pt-0">
-        <v-radio-group v-model="displayMode" row>
+        <v-radio-group v-model="displayMode" inline>
           <v-radio
-            :label="store.getters.message('quality-management.total-number')"
+            :label="$t('quality-management.total-number')"
             :value="DISPLAYMODE_TOTAL"
           ></v-radio>
           <v-radio
-            :label="
-              store.getters.message('quality-management.times-per-session')
-            "
+            :label="$t('quality-management.times-per-session')"
             :value="DISPLAYMODE_TIMES_PER_SESSION"
           ></v-radio>
         </v-radio-group>
@@ -101,31 +95,27 @@
       <v-col cols="12">
         {{
           displayMode === DISPLAYMODE_TOTAL
-            ? store.getters.message("quality-management.unit-description-total")
-            : store.getters.message("quality-management.unit-description")
+            ? $t("quality-management.unit-description-total")
+            : $t("quality-management.unit-description")
         }}
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
-        <v-data-table
-          :headers="headers"
-          :items="items"
-          item-key="name"
-          hide-default-footer
-        >
+        <v-data-table :headers="headers" :items="items" item-key="name">
           <template v-slot:item="props">
             <tr>
               <td
                 v-for="(val, index) in headers"
                 :key="index"
                 class="py-0 my-0 center-column ellipsis_short"
-                :title="!!props.item[val.value] ? props.item[val.value] : '0'"
+                :title="!!props.item[val.value] ? displayValue(props.item[val.value]) : '0'"
               >
-                {{ !!props.item[val.value] ? props.item[val.value] : "0" }}
+                {{ !!props.item[val.value] ? displayValue(props.item[val.value]) : "0" }}
               </td>
             </tr>
           </template>
+          <template #bottom></template>
         </v-data-table>
       </v-col>
     </v-row>
@@ -134,247 +124,211 @@
 
 <script lang="ts">
 import QualityChart from "@/components/organisms/qualityManagement/QualityChart.vue";
-import { TestMatrix, Story } from "@/lib/testManagement/types";
-import { TestManagementState } from "@/store/testManagement";
-import { computed, defineComponent, ref, watch, nextTick } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { type TestMatrix, type Story } from "@/lib/testManagement/types";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { computed, defineComponent, ref, watch } from "vue";
+import { createQualityTableBuilder } from "@/lib/testManagement/qualityTable";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   components: {
-    "quality-chart": QualityChart,
+    "quality-chart": QualityChart
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const route = useRoute();
 
     const TOTAL = ref("TOTAL");
     const DISPLAYMODE_TOTAL = ref("displayModeTotal");
     const DISPLAYMODE_TIMES_PER_SESSION = ref("displayModeTimesPerSession");
 
-    const selectedTestMatrixId = ref("");
-    const selectedGroupId = ref("");
-    const selectedTestTargetId = ref("");
+    const selectedTestMatrixId = ref("all");
+    const selectedGroupId = ref("all");
+    const selectedTestTargetId = ref("all");
     const displayMode = ref(DISPLAYMODE_TOTAL.value);
-    const rerender = ref(true);
+
     const totalBugNum = ref(0);
 
     const testMatrices = ref<TestMatrix[]>([]);
 
     const testMatrixSelectItems = computed(() => {
-      const testMatrices = [
+      const _testMatrices = [
         {
-          text: store.getters.message("quality-management.all"),
-          id: "all",
-        },
+          text: rootStore.message("quality-management.all"),
+          id: "all"
+        }
       ];
-      const testManagementState = (store.state as any)
-        .testManagement as TestManagementState;
-      for (const testMatrix of testManagementState.testMatrices) {
-        testMatrices.push({
+      for (const testMatrix of testManagementStore.testMatrices) {
+        _testMatrices.push({
           text: testMatrix.name,
-          id: testMatrix.id,
+          id: testMatrix.id
         });
       }
-      if (selectedTestMatrixId.value === "") {
-        selectedTestMatrixId.value = "all";
-      }
-      return testMatrices;
+
+      return _testMatrices;
     });
 
     const groups = computed(() => {
-      const groups = [
+      const _groups = [
         {
-          text: store.getters.message("quality-management.all"),
-          id: "all",
-        },
+          text: rootStore.message("quality-management.all"),
+          id: "all"
+        }
       ];
 
       for (const testMatrix of testMatrices.value) {
         for (const group of testMatrix.groups) {
-          groups.push({
+          _groups.push({
             text: group.name,
-            id: group.id,
+            id: group.id
           });
         }
       }
 
-      if (selectedGroupId.value === "") {
-        selectedGroupId.value = "all";
-      }
-
-      return groups;
+      return _groups;
     });
 
     const testTargets = computed(() => {
-      const testTargets = [
+      const _testTargets = [
         {
-          text: store.getters.message("quality-management.all"),
-          id: "all",
-        },
+          text: rootStore.message("quality-management.all"),
+          id: "all"
+        }
       ];
 
       for (const testMatrix of testMatrices.value) {
         for (const group of testMatrix.groups) {
-          if (
-            selectedGroupId.value !== "all" &&
-            selectedGroupId.value !== group.id
-          ) {
+          if (selectedGroupId.value !== "all" && selectedGroupId.value !== group.id) {
             continue;
           }
           for (const testTarget of group.testTargets) {
-            testTargets.push({
+            _testTargets.push({
               text: testTarget.name,
-              id: `${group.id}_${testTarget.id}`,
+              id: `${group.id}_${testTarget.id}`
             });
           }
         }
       }
 
-      const enable = testTargets.find((testTarget) => {
+      return _testTargets;
+    });
+
+    watch(testMatrices, () => {
+      if (selectedTestMatrixId.value === "") {
+        selectedTestMatrixId.value = "all";
+      }
+    });
+
+    watch(groups, () => {
+      if (selectedGroupId.value === "") {
+        selectedGroupId.value = "all";
+      }
+    });
+
+    watch(testTargets, (newTestTargets) => {
+      const enable = newTestTargets.find((testTarget) => {
         return selectedTestTargetId.value === testTarget.id;
       });
       if (!enable) {
         selectedTestTargetId.value = "all";
       }
-      return testTargets;
+    });
+
+    const qualityTable = computed(() => {
+      const stories = testManagementStore.selectStories({
+        groupId: selectedGroupId.value === "all" ? undefined : selectedGroupId.value,
+        testTargetId: selectedTestTargetId.value === "all" ? undefined : selectedTestTargetId.value
+      });
+
+      return createQualityTableBuilder({
+        totalRowId: TOTAL.value,
+        totalRowName: rootStore.message("quality-management.total"),
+        informationColumnIds: {
+          testMatrix: "testMatrix",
+          group: "group",
+          testTarget: "testTarget",
+          total: TOTAL.value
+        }
+      }).buildQualityTable(stories);
     });
 
     const headers = computed(() => {
-      const headers: any = [
-        {
-          text: store.getters.message("quality-management.test-matrix"),
-          align: "center",
-          sortable: false,
-          value: "testMatrix",
-          class: "ellipsis_short",
-        },
-        {
-          text: store.getters.message("quality-management.group"),
-          align: "center",
-          sortable: false,
-          value: "group",
-          class: "ellipsis_short",
-        },
-        {
-          text: store.getters.message("quality-management.test-target"),
-          align: "center",
-          sortable: false,
-          value: "testTarget",
-          class: "ellipsis_short",
-        },
-      ];
+      const headerColumns = qualityTable.value.getHeaderColumns();
 
-      for (const testMatrix of testMatrices.value) {
-        for (const viewPoint of testMatrix.viewPoints) {
-          headers.push({
-            text: viewPoint.name,
-            align: "center",
+      const _headers = headerColumns.map(({ colName, text }) => {
+        if (colName === "testMatrix") {
+          return {
+            title: rootStore.message("quality-management.test-matrix"),
+            align: "center" as const,
             sortable: false,
-            value: viewPoint.id,
-            class: "ellipsis_short",
-          });
+            value: "testMatrix",
+            headerProps: { class: "ellipsis_short" }
+          };
         }
-      }
 
-      headers.push({
-        text: store.getters.message("quality-management.total"),
-        align: "center",
-        sortable: false,
-        value: TOTAL.value,
+        if (colName === "group") {
+          return {
+            title: rootStore.message("quality-management.group"),
+            align: "center" as const,
+            sortable: false,
+            value: "group",
+            headerProps: { class: "ellipsis_short" }
+          };
+        }
+
+        if (colName === "testTarget") {
+          return {
+            title: rootStore.message("quality-management.test-target"),
+            align: "center" as const,
+            sortable: false,
+            value: "testTarget",
+            headerProps: { class: "ellipsis_short" }
+          };
+        }
+
+        if (colName === TOTAL.value) {
+          return {
+            title: rootStore.message("quality-management.total"),
+            align: "center" as const,
+            sortable: false,
+            value: TOTAL.value
+          };
+        }
+
+        return {
+          title: text ?? "",
+          align: "center" as const,
+          sortable: false,
+          value: colName,
+          headerProps: { class: "ellipsis_short" }
+        };
       });
-      return headers;
+
+      return _headers;
     });
 
     const items = computed(() => {
-      const items: any = [];
-      const totalValuePerViewPointIdMap = new Map();
-
-      for (const testMatrix of testMatrices.value) {
-        for (const group of testMatrix.groups) {
-          if (
-            selectedGroupId.value !== "all" &&
-            selectedGroupId.value !== group.id
-          ) {
-            continue;
-          }
-          for (const testTarget of group.testTargets) {
-            if (
-              selectedTestTargetId.value !== "all" &&
-              selectedTestTargetId.value !== `${group.id}_${testTarget.id}`
-            ) {
-              continue;
-            }
-            const row: any = {
-              testMatrix: testMatrix.name,
-              group: group.name,
-              testTarget: testTarget.name,
-            };
-
-            let rowTotalBugNum = 0;
-            let rowTotalSessionNum = 0;
-            for (const plan of testTarget.plans) {
-              const story: Story = store.getters[
-                "testManagement/findStoryByTestTargetAndViewPointId"
-              ](testTarget.id, plan.viewPointId, testMatrix.id);
-              if (!story || !story.sessions) {
-                continue;
-              }
-              let bugNum = 0;
-              let sessionNum = 0;
-              for (const session of story.sessions) {
-                if (!session.isDone) {
-                  continue;
-                }
-                sessionNum++;
-                rowTotalSessionNum++;
-                bugNum += session.notes.filter((note) =>
-                  (note.tags ?? []).includes("bug")
-                ).length;
-              }
-
-              const targetCell = totalValuePerViewPointIdMap.get(
-                plan.viewPointId
-              );
-              if (targetCell) {
-                totalValuePerViewPointIdMap.set(plan.viewPointId, {
-                  bugNum: targetCell.bugNum + bugNum,
-                  sessionNum: targetCell.sessionNum + sessionNum,
-                });
-              } else {
-                totalValuePerViewPointIdMap.set(plan.viewPointId, {
-                  bugNum,
-                  sessionNum,
-                });
-              }
-              rowTotalBugNum += bugNum;
-              row[plan.viewPointId] = displayValue(bugNum, sessionNum);
-            }
-
-            row[TOTAL.value] = displayValue(rowTotalBugNum, rowTotalSessionNum);
-            items.push(row);
-          }
-        }
-      }
-
-      const totalRow: any = {
-        testMatrix: store.getters.message("quality-management.total"),
-        group: " ",
-        testTarget: " ",
+      const _items: {
+        [testTargetId: string]: {
+          [colName: string]: string | { doneSessionNum: number; bugNum: number };
+        };
+      } = {
+        ...qualityTable.value.collectTestTargetQualityRows(),
+        ...qualityTable.value.getTotalQualityRow()
       };
 
-      let tmpTotalBugNum = 0;
-      let totalSessionNum = 0;
-      for (const [key, value] of totalValuePerViewPointIdMap.entries()) {
-        totalRow[key] = displayValue(value.bugNum, value.sessionNum);
-        tmpTotalBugNum += value.bugNum;
-        totalSessionNum += value.sessionNum;
-      }
-      totalRow[TOTAL.value] = displayValue(tmpTotalBugNum, totalSessionNum);
-      totalBugNum.value = tmpTotalBugNum;
-      items.push(totalRow);
+      return Object.values(_items);
+    });
 
-      return items;
+    watch(items, (newItems) => {
+      const total = newItems[newItems.length - 1][TOTAL.value];
+      if (typeof total === "string") {
+        return;
+      }
+
+      totalBugNum.value = total.bugNum;
     });
 
     const qualityDatas = computed(() => {
@@ -389,10 +343,7 @@ export default defineComponent({
       }> = [];
       for (const testMatrix of testMatrices.value) {
         for (const group of testMatrix.groups) {
-          if (
-            selectedGroupId.value !== "all" &&
-            selectedGroupId.value !== group.id
-          ) {
+          if (selectedGroupId.value !== "all" && selectedGroupId.value !== group.id) {
             continue;
           }
           groupList.push({ name: group.name, id: group.id });
@@ -404,9 +355,11 @@ export default defineComponent({
               continue;
             }
             for (const plan of testTarget.plans) {
-              const story: Story = store.getters[
-                "testManagement/findStoryByTestTargetAndViewPointId"
-              ](testTarget.id, plan.viewPointId, testMatrix.id);
+              const story: Story = testManagementStore.findStoryByTestTargetAndViewPointId(
+                testTarget.id,
+                plan.viewPointId,
+                testMatrix.id
+              );
               if (!story || !story.sessions) {
                 continue;
               }
@@ -423,7 +376,7 @@ export default defineComponent({
                   testTargetName: testTarget.name,
                   testTargetId: `${group.id}_${testTarget.id}`,
                   doneDate: session.doneDate,
-                  foundBugCount,
+                  foundBugCount
                 });
               }
             }
@@ -444,10 +397,7 @@ export default defineComponent({
       for (const [index, value] of sessionsData.entries()) {
         let totalValue = 0;
         for (const group of groupList) {
-          if (
-            selectedGroupId.value !== "all" &&
-            selectedGroupId.value !== group.id
-          ) {
+          if (selectedGroupId.value !== "all" && selectedGroupId.value !== group.id) {
             continue;
           }
           if (
@@ -479,40 +429,27 @@ export default defineComponent({
       for (const [key, groupData] of groupDataMap.entries()) {
         datasets.push({
           label: groupList.find((group) => group.id === key)!.name,
-          data: groupData,
-          fill: false,
-          lineTension: 0,
+          data: groupData
         });
       }
-      if (
-        selectedGroupId.value === "all" &&
-        selectedTestTargetId.value === "all"
-      ) {
+      if (selectedGroupId.value === "all" && selectedTestTargetId.value === "all") {
         datasets.push({
-          label: store.getters.message("quality-management.total"),
-          data: totalLine,
-          fill: false,
-          lineTension: 0,
+          label: rootStore.message("quality-management.total"),
+          data: totalLine
         });
       }
       const qualityDatas = { datasets };
-      rerender.value = false;
-      nextTick(() => {
-        rerender.value = true;
-      });
 
       return qualityDatas;
     });
 
     const updateCurrentTestMatrix = () => {
       if (selectedTestMatrixId.value === "all") {
-        testMatrices.value = (store.state as any).testManagement.testMatrices;
+        testMatrices.value = testManagementStore.testMatrices;
         return;
       }
 
-      const targetTestMatrix = (
-        store.state as any
-      ).testManagement.testMatrices.find((testMatrix: TestMatrix) => {
+      const targetTestMatrix = testManagementStore.testMatrices.find((testMatrix: TestMatrix) => {
         return selectedTestMatrixId.value === testMatrix.id;
       });
 
@@ -521,13 +458,17 @@ export default defineComponent({
       }
     };
 
-    const displayValue = (bugNum: number, sessionNum: number): string => {
-      if (sessionNum === 0) {
+    const displayValue = (source: string | { doneSessionNum: number; bugNum: number }): string => {
+      if (typeof source === "string") {
+        return source;
+      }
+
+      if (source.doneSessionNum === 0) {
         return "0";
       } else if (displayMode.value === DISPLAYMODE_TOTAL.value) {
-        return `${bugNum}`;
+        return `${source.bugNum}`;
       } else if (displayMode.value === DISPLAYMODE_TIMES_PER_SESSION.value) {
-        return `${bugNum}/${sessionNum}`;
+        return `${source.bugNum}/${source.doneSessionNum}`;
       }
       return "";
     };
@@ -535,22 +476,23 @@ export default defineComponent({
     watch(selectedTestMatrixId, updateCurrentTestMatrix);
 
     (async () => {
-      await store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
 
-      await store.dispatch("testManagement/readProject");
+      await testManagementStore.readProject();
     })();
 
+    updateCurrentTestMatrix();
+
     return {
-      store,
+      t: rootStore.message,
       DISPLAYMODE_TOTAL,
       DISPLAYMODE_TIMES_PER_SESSION,
       selectedTestMatrixId,
       selectedGroupId,
       selectedTestTargetId,
       displayMode,
-      rerender,
       totalBugNum,
       testMatrixSelectItems,
       groups,
@@ -558,8 +500,9 @@ export default defineComponent({
       headers,
       items,
       qualityDatas,
+      displayValue
     };
-  },
+  }
 });
 </script>
 
@@ -575,6 +518,9 @@ tr
   overflow: hidden !important
   text-overflow: ellipsis !important
   white-space: nowrap !important
+
+:deep(.ellipsis_short) span
+  @include ellipsis
 
 @media print
   .no-print
