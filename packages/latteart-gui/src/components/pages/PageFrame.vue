@@ -17,7 +17,7 @@
 <template>
   <v-container fluid fill-height class="pa-0">
     <v-container fluid fill-height class="pa-0">
-      <v-app-bar color="latteart-main" theme="dark" absolute flat>
+      <v-app-bar color="#424242" theme="dark" absolute flat>
         <v-toolbar-title>{{ $t(title) }}</v-toolbar-title>
       </v-app-bar>
 
@@ -38,7 +38,7 @@
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { useRootStore } from "@/stores/root";
 import { useTestManagementStore } from "@/stores/testManagement";
-import { defineComponent, nextTick, ref } from "vue";
+import { defineComponent, nextTick, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 
 export default defineComponent({
@@ -58,6 +58,10 @@ export default defineComponent({
     const changeMatrixId = (testMatrixId: string): void => {
       selectedTestMatrixId.value = testMatrixId;
     };
+
+    const title = computed((): string => {
+      return route.meta.title ?? "";
+    });
 
     (async () => {
       try {
@@ -81,7 +85,7 @@ export default defineComponent({
 
     return {
       t: rootStore.message,
-      title: route.meta.title ?? "",
+      title,
       errorMessageDialogOpened,
       errorMessage,
       changeMatrixId

@@ -28,9 +28,7 @@
     "
     strong
   >
-    <template>
-      <span class="pre-wrap break-word">{{ message }}</span>
-    </template>
+    <span class="pre-wrap break-word">{{ message }}</span>
   </execute-dialog>
 </template>
 
