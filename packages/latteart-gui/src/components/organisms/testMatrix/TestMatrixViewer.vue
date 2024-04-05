@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid fill-height v-if="testMatrix">
+  <v-container fluid v-if="testMatrix">
     <v-row>
       <v-col class="ma-2">{{ testMatrix.name }}</v-col>
     </v-row>
@@ -27,6 +27,7 @@
             :key="group.id"
             class="py-0"
             :id="`groupShowArea${index}`"
+            :value="index"
           >
             <v-expansion-panel-title>
               <div :title="group.name" class="text-truncate">{{ group.name }}</div>
@@ -48,9 +49,9 @@
 
 <script lang="ts">
 import GroupViewer from "./GroupViewer.vue";
-import { Story, TestMatrix } from "@/lib/testManagement/types";
+import { type Story, type TestMatrix } from "@/lib/testManagement/types";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   props: {
@@ -62,7 +63,7 @@ export default defineComponent({
     "group-viewer": GroupViewer
   },
   setup(props) {
-    const store = useStore();
+    const testManagementStore = useTestManagementStore();
 
     const expandedPanelIndex = ref<number | undefined | null>(null);
     const displayedStories = ref<string[] | null>(null);
@@ -72,11 +73,11 @@ export default defineComponent({
     });
 
     const targetTestMatrix = computed((): TestMatrix | undefined => {
-      return store.getters["testManagement/findTestMatrix"](props.testMatrixId);
+      return testManagementStore.findTestMatrix(props.testMatrixId);
     });
 
     const stories = computed((): Story[] => {
-      const targetStories: Story[] = store.getters["testManagement/getStories"]();
+      const targetStories: Story[] = testManagementStore.getStories();
       return targetStories.filter(({ testMatrixId }) => testMatrixId === props.testMatrixId);
     });
 
@@ -213,7 +214,6 @@ export default defineComponent({
     initializePanels();
 
     return {
-      store,
       expandedPanelIndex,
       testMatrix,
       displayedStories

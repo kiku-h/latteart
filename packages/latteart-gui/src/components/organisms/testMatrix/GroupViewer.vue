@@ -19,20 +19,19 @@
     <fixed-data-table
       :items="items"
       :headers="headers"
-      v-model:options="options"
+      :item-per-page="-1"
       class="text-center pb-3"
       hide-actions
-      hide-default-header
     >
-      <template #header="props">
+      <template #headers="{ columns }">
         <tr>
           <th
-            v-for="(header, index) in props.props.headers"
+            v-for="(header, index) in columns"
             :width="header.width"
-            :class="header.class"
+            :class="header.headerProps?.class"
             :key="index"
           >
-            <label-with-tooltip :text="header.text" :tooltip="header.tooltip" />
+            <label-with-tooltip :title="header.title" :tooltip="header.headerProps?.tooltip" />
           </th></tr
       ></template>
       <template #item="props">
@@ -64,19 +63,30 @@
 
 <script lang="ts">
 import SessionsStatus from "./SessionsStatus.vue";
-import { Group, ViewPoint, TestTarget, Plan, Session, Story } from "@/lib/testManagement/types";
+import type {
+  Group,
+  ViewPoint,
+  TestTarget,
+  Plan,
+  Session,
+  Story
+} from "@/lib/testManagement/types";
 import FixedDataTable from "@/components/molecules/FixedDataTable.vue";
 import LabelWithTooltip from "@/components/molecules/LabelWithTooltip.vue";
-import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { computed, defineComponent, type PropType } from "vue";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
   props: {
-    group: { type: Object as PropType<Group>, default: {}, required: true },
+    group: {
+      type: Object as PropType<Group>,
+      default: () => {},
+      required: true
+    },
     viewPoints: {
       type: Array as PropType<ViewPoint[]>,
-      default: [],
+      default: () => [],
       required: true
     },
     testMatrixId: { type: String, default: "", required: true },
@@ -91,28 +101,26 @@ export default defineComponent({
     "label-with-tooltip": LabelWithTooltip
   },
   setup(props) {
-    const store = useStore();
-
-    const options = ref({ itemsPerPage: -1 });
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
 
     const headers = computed(() => {
       const headers = [];
       headers.push({
         value: "name",
         sortable: false,
-        text: store.getters.message("group-info.target"),
-        align: "center",
+        title: rootStore.message("group-info.target"),
+        align: "center" as const,
         width: "200"
       });
       props.viewPoints.forEach((viewPoint: ViewPoint) => {
         headers.push({
-          text: viewPoint.name,
-          tooltip: viewPoint.description,
+          title: viewPoint.name,
           value: viewPoint.id,
           sortable: false,
-          align: "center",
+          align: "center" as const,
           width: "150",
-          class: "ellipsis_short"
+          headerProps: { class: "ellipsis_short", tooltip: viewPoint.description }
         });
       });
       return headers;
@@ -186,7 +194,7 @@ export default defineComponent({
       testTargetId: string;
       viewPointId: string;
     }): Story | undefined => {
-      return store.getters["testManagement/findStoryByTestTargetAndViewPointId"](
+      return testManagementStore.findStoryByTestTargetAndViewPointId(
         key.testTargetId,
         key.viewPointId,
         key.testMatrixId
@@ -202,8 +210,6 @@ export default defineComponent({
     };
 
     return {
-      store,
-      options,
       headers,
       items,
       getNameText,

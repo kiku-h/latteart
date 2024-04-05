@@ -18,7 +18,7 @@
   <v-card v-if="displayed" class="py-0 my-3" @click="toStory">
     <v-card-title primary-title class="py-1 my-0" v-bind:class="cardStyle">
       <p class="card-center">
-        {{ store.getters.message(`test-matrix-page.status-${status}`) }}
+        {{ $t(`test-matrix-page.status-${status}`) }}
       </p>
     </v-card-title>
     <v-divider light></v-divider>
@@ -29,12 +29,12 @@
 </template>
 
 <script lang="ts">
-import { Story, Session } from "@/lib/testManagement/types";
+import { type Session } from "@/lib/testManagement/types";
 import { CHARTER_STATUS } from "@/lib/testManagement/Enum";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import { useRouter } from "vue-router/composables";
-import type { PropType } from "vue";
+import { computed, defineComponent, type PropType } from "vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -46,11 +46,12 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
     const router = useRouter();
 
-    const story = computed((): Story => {
-      return store.getters["testManagement/findStory"](props.id);
+    const story = computed(() => {
+      return testManagementStore.findStory(props.id);
     });
 
     const cardStyle = computed((): "" | "status-fine" | "status-ng" | "status-warn" => {
@@ -102,8 +103,8 @@ export default defineComponent({
     });
 
     return {
+      t: rootStore.message,
       displayed,
-      store,
       cardStyle,
       status,
       done,

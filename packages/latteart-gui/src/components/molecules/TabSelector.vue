@@ -15,8 +15,7 @@
 -->
 
 <template>
-  <v-tabs dark bg-color="latteart-main" show-arrows :model-value="selectedItemIndex">
-    <v-tabs-slider color="yellow"></v-tabs-slider>
+  <v-tabs bg-color="#424242" slider-color="yellow" show-arrows :model-value="selectedItemIndex">
     <v-tab dark v-for="item in items" :key="item.id" @click="select(item.id)">
       {{ wordOmitted(item.name, 10) }}
     </v-tab>
@@ -24,14 +23,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   props: {
     items: {
       type: Array as PropType<{ id: string; name: string }[]>,
-      default: []
+      default: () => []
     },
     selectedItemId: { type: String, default: "" }
   },

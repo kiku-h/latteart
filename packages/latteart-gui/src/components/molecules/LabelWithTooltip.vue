@@ -17,8 +17,8 @@
 <template>
   <div>
     <div class="container">
-      <p :title="text" class="label">{{ text }}</p>
-      <v-tooltip location="bottom" v-if="tooltip !== ''">
+      <p :title="title" class="label pt-0">{{ title }}</p>
+      <v-tooltip location="end" v-if="tooltip !== ''">
         <template v-slot:activator="{ props }">
           <v-icon size="16" v-bind="props" class="icon-info">info</v-icon>
         </template>
@@ -34,7 +34,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   props: {
     tooltip: { type: String, default: "", required: true },
-    text: { type: String, default: "", required: true }
+    title: { type: String, default: "", required: true }
   }
 });
 </script>
