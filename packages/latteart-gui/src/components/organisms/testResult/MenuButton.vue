@@ -16,7 +16,7 @@
 
 <template>
   <div>
-    <v-menu offset-y>
+    <v-menu :close-on-content-click="false">
       <template v-slot:activator="{ props }">
         <v-btn
           v-if="!isViewerMode"
@@ -35,9 +35,7 @@
         <replay-button />
         <screenshots-download-button v-slot:default="slotProps">
           <v-list-item @click="slotProps.obj.execute" :disabled="slotProps.obj.isDisabled">
-            <v-list-item-title>{{
-              store.getters.message("test-result-page.export-screenshots")
-            }}</v-list-item-title>
+            <v-list-item-title>{{ $t("test-result-page.export-screenshots") }}</v-list-item-title>
           </v-list-item>
         </screenshots-download-button>
         <compare-history-button />
@@ -55,7 +53,7 @@ import ScreenshotsDownloadButton from "@/components/organisms/common/Screenshots
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
 import { computed, defineComponent, inject } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   components: {
@@ -67,14 +65,14 @@ export default defineComponent({
     "compare-history-button": CompareHistoryButton
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const isViewerMode = computed((): boolean => {
       return inject("isViewerMode") ?? false;
     });
 
     return {
-      store,
+      t: rootStore.message,
       isViewerMode
     };
   }

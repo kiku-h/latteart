@@ -29,15 +29,15 @@
     </template>
     <template v-slot:footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" dark @click="close()">{{ store.getters.message("common.close") }}</v-btn>
+      <v-btn color="blue" variant="elevated" @click="close()">{{ $t("common.close") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
+import { useRootStore } from "@/stores/root";
 import { defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
@@ -57,7 +57,7 @@ export default defineComponent({
     "scrollable-dialog": ScrollableDialog
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const iconText = ref("");
     const iconColor = ref("");
@@ -71,7 +71,7 @@ export default defineComponent({
       if (props.downloadMessage) {
         downloadLinkMessage.value = props.downloadMessage;
       } else {
-        downloadLinkMessage.value = store.getters.message("common.download-link");
+        downloadLinkMessage.value = rootStore.message("common.download-link");
       }
 
       if (props.iconOpts) {
@@ -90,7 +90,7 @@ export default defineComponent({
     const { opened } = toRefs(props);
     watch(opened, initialize);
 
-    return { store, iconText, iconColor, downloadLinkMessage, close };
+    return { t: rootStore.message, iconText, iconColor, downloadLinkMessage, close };
   }
 });
 </script>

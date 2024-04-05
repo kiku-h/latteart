@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('auto-operation-select-dialog.title')"
+    :title="$t('auto-operation-select-dialog.title')"
     @accept="
       ok();
       close();
@@ -27,17 +27,17 @@
   >
     <template>
       <div class="pre-wrap break-word">
-        {{ store.getters.message("auto-operation-select-dialog.message") }}
+        {{ $t("auto-operation-select-dialog.message") }}
       </div>
       <v-select
-        :label="store.getters.message('auto-operation-select-dialog.name')"
+        :label="$t('auto-operation-select-dialog.name')"
         :items="selectList"
         v-model="selectedItem"
         item-title="settingName"
         item-value="value"
       ></v-select>
       <v-textarea
-        :label="store.getters.message('auto-operation-select-dialog.details')"
+        :label="$t('auto-operation-select-dialog.details')"
         readonly
         no-resize
         :model-value="selectedItem ? selectedItem.details : ''"
@@ -47,18 +47,18 @@
 </template>
 
 <script lang="ts">
-import { AutoOperationConditionGroup } from "@/lib/operationHistory/types";
+import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
     opened: { type: Boolean, default: false, required: true },
     autoOperationConditionGroups: {
       type: Array as PropType<AutoOperationConditionGroup[]>,
-      default: [],
+      default: () => [],
       required: true
     }
   },
@@ -66,7 +66,7 @@ export default defineComponent({
     "execute-dialog": ExecuteDialog
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const selectedItem = ref<{
       index: number;
@@ -106,7 +106,7 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
+      t: rootStore.message,
       selectedItem,
       selectList,
       okButtonIsDisabled,

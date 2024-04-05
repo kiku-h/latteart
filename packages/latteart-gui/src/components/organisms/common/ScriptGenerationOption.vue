@@ -16,17 +16,17 @@
 <template>
   <v-card flat class="pa-0">
     <v-checkbox
-      :label="store.getters.message('test-result-page.generate-simple-testscript')"
+      :label="$t('test-result-page.generate-simple-testscript')"
       v-model="testGenerationOption.testScript.isSimple"
     >
     </v-checkbox>
     <v-checkbox v-model="testGenerationOption.testScript.useMultiLocator" class="mt-0">
       <template v-slot:label>
         <div>
-          {{ store.getters.message("test-result-page.use-multi-locator1") }}
+          {{ $t("test-result-page.use-multi-locator1") }}
           <a href="https://github.com/latteart-org/multi-locator" target="_blank" @click.stop
             >multi-locator</a
-          >{{ store.getters.message("test-result-page.use-multi-locator2") }}
+          >{{ $t("test-result-page.use-multi-locator2") }}
         </div>
       </template>
     </v-checkbox>
@@ -39,7 +39,7 @@
               'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{ store.getters.message("test-result-page.custom-button-definition") }}
+            {{ $t("test-result-page.custom-button-definition") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
@@ -51,19 +51,13 @@
               'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{ store.getters.message("test-result-page.custom-button-tags") }}
+            {{ $t("test-result-page.custom-button-tags") }}
             <v-tooltip location="top">
               <template v-slot:activator="{ props }">
-                <v-icon
-                  size="15"
-                  v-bind="props"
-                  class="icon-info"
-                  :disabled="testGenerationOption.testScript.isSimple"
-                  >info</v-icon
-                >
+                <v-icon size="15" v-bind="props" class="icon-info">info</v-icon>
               </template>
               <span>{{
-                store.getters.message("test-result-page.default-button-tags", {
+                $t("test-result-page.default-button-tags", {
                   value: standardButtontags.join(", ")
                 })
               }}</span>
@@ -76,12 +70,11 @@
             v-model="testGenerationOption.customButtonTags"
             :class="{ 'pt-0': true, 'mt-0': true }"
             multiple
-            small-chips
             hide-selected
             closable-chips
             append-icon="refresh"
             @click:append="resetCustomButtonTags"
-            @change="clearSearchText"
+            @update:model-value="clearSearchText"
             :disabled="testGenerationOption.testScript.isSimple"
           >
             <template v-slot:no-data>
@@ -105,12 +98,12 @@
               'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{ store.getters.message("test-result-page.testdata") }}
+            {{ $t("test-result-page.testdata") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
           <v-checkbox
-            :label="store.getters.message('test-result-page.method-data-driven')"
+            :label="$t('test-result-page.method-data-driven')"
             :disabled="testGenerationOption.testScript.isSimple"
             v-model="testGenerationOption.testData.useDataDriven"
           >
@@ -120,7 +113,7 @@
           <number-field
             :value="testGenerationOption.testData.maxGeneration"
             @updateNumberFieldValue="updateMaxGeneration"
-            :label="store.getters.message('test-result-page.max-generation')"
+            :label="$t('test-result-page.max-generation')"
             :disabled="
               !testGenerationOption.testData.useDataDriven ||
               testGenerationOption.testScript.isSimple
@@ -136,7 +129,7 @@
                 !testGenerationOption.testData.useDataDriven ||
                 testGenerationOption.testScript.isSimple
             }"
-            >{{ store.getters.message("test-result-page.generate-only-template") }}</span
+            >{{ $t("test-result-page.generate-only-template") }}</span
           >
         </v-col>
       </v-row>
@@ -146,9 +139,9 @@
 
 <script lang="ts">
 import NumberField from "@/components/molecules/NumberField.vue";
-import { TestScriptOption } from "latteart-client";
+import { useRootStore } from "@/stores/root";
+import { type TestScriptOption } from "latteart-client";
 import { computed, defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
 
 type ButtonDefinition = {
   tagname: string;
@@ -160,13 +153,13 @@ export default defineComponent({
     "number-field": NumberField
   },
   setup(_, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const search = ref("");
 
     const customButtonCandidateTags = computed(() => {
       const tags = [
-        ...store.state.projectSettings.defaultTagList,
+        ...rootStore.projectSettings.defaultTagList,
         "INPUT:type=submit",
         "INPUT:type=button",
         "INPUT:type=text",
@@ -248,7 +241,7 @@ export default defineComponent({
     };
 
     const saveCustomButtontagsDefinition = () => {
-      store.dispatch("writeTestScriptOption", {
+      rootStore.writeTestScriptOption({
         option: { buttonDefinitions: customButtonTagsDefinition.value }
       });
     };
@@ -275,16 +268,9 @@ export default defineComponent({
         return { tagname };
       }
 
-      const [name, value] = attributeText?.split("=");
+      const [name, value] = attributeText.split("=");
 
       return { tagname, attribute: { name, value } };
-    };
-
-    const errorCaptured = (error: Error) => {
-      if (error.message === "Cannot read properties of undefined (reading 'click')") {
-        console.warn(error);
-        return false;
-      }
     };
 
     watch(testGenerationOption, update, { deep: true });
@@ -293,7 +279,7 @@ export default defineComponent({
     });
     (async () => {
       const option: Pick<TestScriptOption, "buttonDefinitions"> =
-        await store.dispatch("readTestScriptOption");
+        await rootStore.readTestScriptOption();
       if (option.buttonDefinitions) {
         testGenerationOption.value.customButtonTags = option.buttonDefinitions.map(
           convertButtonDefinitionToTag
@@ -302,7 +288,7 @@ export default defineComponent({
     })();
 
     return {
-      store,
+      t: rootStore.message,
       search,
       customButtonCandidateTags,
       standardButtontags,
