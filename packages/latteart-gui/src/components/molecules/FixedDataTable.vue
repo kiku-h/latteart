@@ -14,95 +14,45 @@
  limitations under the License.
 -->
 <template>
-  <v-data-table
-    :headers-length="headersLength"
-    :items="items"
-    :headers="addedPaddingCellheaders"
-    :header-props="{
-      'sort-icon': sortIcon
-    }"
-    :hide-default-header="hideDefaultHeader"
-    :hide-default-footer="hideActions"
-    v-model:options="optionsSync"
-  >
+  <v-data-table :items="items" :headers="addedPaddingCellheaders" :items-per-page="itemPerPage">
     <template v-for="(slot, name) of $slots" #[name]="props">
       <slot :name="name" v-bind="props"></slot>
     </template>
+    <template #bottom v-if="hideActions" />
   </v-data-table>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
-import type { PropType } from "vue";
+import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   props: {
-    headersLength: { type: Number, default: undefined },
-    items: { type: Array, default: [] },
+    items: { type: Array, default: () => [] },
     headers: {
       type: Array as PropType<
         {
           value?: string;
-          align?: string;
+          align?: "start" | "end" | "center" | undefined;
           sortable?: boolean;
-          class?: string[];
-          text?: string;
+          headerProps?: { [x: string]: string };
+          title?: string;
           width?: string;
         }[]
       >,
-      default: []
+      default: () => []
     },
-    sortIcon: { type: String, default: undefined },
     hideActions: { type: Boolean, default: false },
-    options: {
-      type: Object as PropType<{
-        page: number;
-        itemsPerPage: number;
-        sortBy: string[];
-        sortDesc: boolean[];
-        groupBy: string[];
-        groupDesc: boolean[];
-        multiSort: boolean;
-        mustSort: boolean;
-      }>,
-      default: undefined
-    },
-    gridColumnNumber: { type: Number, default: 7 },
-    hideDefaultHeader: { type: Boolean, default: false }
+    itemPerPage: { type: Number, default: -1 },
+    gridColumnNumber: { type: Number, default: 7 }
   },
-  setup(props, context) {
-    const optionsSync = computed({
-      get: (): {
-        page: number;
-        itemsPerPage: number;
-        sortBy: string[];
-        sortDesc: boolean[];
-        groupBy: string[];
-        groupDesc: boolean[];
-        multiSort: boolean;
-        mustSort: boolean;
-      } => props.options,
-      set: (value: {
-        page: number;
-        itemsPerPage: number;
-        sortBy: string[];
-        sortDesc: boolean[];
-        groupBy: string[];
-        groupDesc: boolean[];
-        multiSort: boolean;
-        mustSort: boolean;
-      }) => {
-        context.emit("update:options", value);
-      }
-    });
-
+  setup(props) {
     const addedPaddingCellheaders = computed(
       (): {
         value?: string;
-        align?: string;
+        align?: "start" | "end" | "center" | undefined;
         sortable?: boolean;
-        class?: string[];
-        text?: string;
+        headerProps?: { [x: string]: string };
+        title?: string;
         width?: string;
       }[] => {
         const result = props.headers.map((header) => header);
@@ -114,7 +64,7 @@ export default defineComponent({
       }
     );
 
-    return { optionsSync, addedPaddingCellheaders };
+    return { addedPaddingCellheaders };
   }
 });
 </script>

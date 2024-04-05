@@ -15,13 +15,13 @@
 -->
 
 <template>
-  <v-container fluid fill-height class="pa-0">
-    <v-container fluid fill-height class="pa-0">
+  <v-container fluid class="pa-0 fill-height">
+    <v-container fluid class="pa-0 fill-height">
       <v-app-bar color="#424242" theme="dark" absolute flat>
         <v-toolbar-title>{{ $t(title) }}</v-toolbar-title>
       </v-app-bar>
 
-      <v-container fluid fill-height class="pa-0">
+      <v-container fluid class="pa-0 fill-height">
         <router-view @selectTestMatrix="changeMatrixId"></router-view>
       </v-container>
     </v-container>
