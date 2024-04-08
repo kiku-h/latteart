@@ -26,3 +26,5 @@ export const noteTagPreset: NoteTagPreset = {
     { text: "reported", color: "#E0E0E0" }
   ]
 };
+
+export const defaultNoteTagColor = "#E0E0E0";

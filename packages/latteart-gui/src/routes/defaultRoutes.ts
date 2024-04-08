@@ -20,7 +20,10 @@ import ProgressManagementPage from "@/components/pages/progressManagement/Progre
 import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
 import TestMatrixPage from "@/components/pages/testMatrix/TestMatrixPage.vue";
+import TestResultPage from "@/components/pages/testResult/TestResultPage.vue";
 import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
+import { useTestManagementStore } from "@/stores/testManagement";
+import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 
 const defaultRoutes = [
   {
@@ -28,6 +31,24 @@ const defaultRoutes = [
     name: "root",
     component: RootPage,
     children: [
+      {
+        path: "test-result",
+        name: "testResultPage",
+        component: TestResultPage,
+        meta: { title: "test-result-page.window-title" },
+        beforeEnter: (
+          to: RouteLocationNormalized,
+          from: RouteLocationNormalized,
+          next: NavigationGuardNext
+        ) => {
+          const testManagementStore = useTestManagementStore();
+
+          testManagementStore.setRecentReviewQuery({
+            query: null
+          });
+          next();
+        }
+      },
       {
         path: "page",
         name: "pageFrame",

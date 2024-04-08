@@ -25,7 +25,7 @@
           size="large"
           color="grey-darken-3"
           @click="openOptionDialog"
-          :title="store.getters.message('app.start')"
+          :title="$t('app.start')"
           id="startButton"
           class="mx-1"
         >
@@ -47,7 +47,7 @@
       size="large"
       color="red"
       @click="endCapture"
-      :title="store.getters.message('app.finish')"
+      :title="$t('app.finish')"
       id="endButton"
       class="mx-2"
     >
@@ -59,9 +59,9 @@
 <script lang="ts">
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
 import FirstTestPurposeOptionDialog from "@/components/organisms/dialog/FirstTestPurposeOptionDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
@@ -69,12 +69,13 @@ export default defineComponent({
     "record-start-trigger": RecordStartTrigger
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const optionDialogOpened = ref(false);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const openOptionDialog = () => {
@@ -82,11 +83,11 @@ export default defineComponent({
     };
 
     const endCapture = (): void => {
-      store.dispatch("captureControl/endCapture");
+      captureControlStore.endCapture();
     };
 
     return {
-      store,
+      t: rootStore.message,
       optionDialogOpened,
       isCapturing,
       openOptionDialog,

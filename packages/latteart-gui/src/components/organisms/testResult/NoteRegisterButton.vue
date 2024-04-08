@@ -19,14 +19,12 @@
     <v-btn
       :disabled="!isCapturing"
       color="green"
-      :dark="isCapturing"
+      icon="add_comment"
       @click="open"
-      fab
       size="small"
-      :title="store.getters.message('app.record-note')"
+      :title="$t('app.record-note')"
       class="mx-2"
     >
-      <v-icon>add_comment</v-icon>
     </v-btn>
 
     <take-not-with-purpose-dialog
@@ -40,10 +38,10 @@
 <script lang="ts">
 import TakeNoteWithPurposeDialog from "@/components/organisms/dialog/TakeNoteWithPurposeDialog.vue";
 import TakeNoteDialog from "@/components/organisms/dialog/TakeNoteDialog.vue";
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
@@ -51,26 +49,22 @@ export default defineComponent({
     "take-note-dialog": TakeNoteDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const takeNoteWithPurposeDialogOpened = ref(false);
     const takeNoteDialogOpened = ref(false);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const open = () => {
-      const sequence = ((store.state as any).operationHistory as OperationHistoryState).history
-        .length;
-      store.dispatch("operationHistory/selectOperation", { sequence });
-      store.commit("operationHistory/selectOperationNote", {
-        selectedOperationNote: { sequence, index: null }
-      });
-      if (
-        ((store.state as any).captureControl as CaptureControlState).testOption
-          .shouldRecordTestPurpose
-      ) {
+      const sequence = operationHistoryStore.history.length;
+      operationHistoryStore.selectOperation({ sequence, doScroll: false });
+      operationHistoryStore.selectedOperationNote = { sequence, index: null };
+      if (captureControlStore.testOption.shouldRecordTestPurpose) {
         takeNoteWithPurposeDialogOpened.value = true;
       } else {
         takeNoteDialogOpened.value = true;
@@ -78,7 +72,7 @@ export default defineComponent({
     };
 
     return {
-      store,
+      t: rootStore.message,
       takeNoteWithPurposeDialogOpened,
       takeNoteDialogOpened,
       isCapturing,

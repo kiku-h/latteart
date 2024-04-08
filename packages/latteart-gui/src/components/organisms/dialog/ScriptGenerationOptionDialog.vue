@@ -16,16 +16,14 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('test-result-page.generate-testscript-title')"
+    :title="$t('test-result-page.generate-testscript-title')"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
   >
-    <template>
-      <script-generation-option v-if="isOptionDisplayed" @update="updateOption" />
-    </template>
+    <script-generation-option v-if="isOptionDisplayed" @update="updateOption" />
   </execute-dialog>
 </template>
 
@@ -33,7 +31,7 @@
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import ScriptGenerationOption from "../common/ScriptGenerationOption.vue";
 import { defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   props: {
@@ -44,7 +42,7 @@ export default defineComponent({
     "script-generation-option": ScriptGenerationOption
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const isOptionDisplayed = ref<boolean>(false);
 
@@ -93,7 +91,7 @@ export default defineComponent({
     watch(opened, rerenderOption);
 
     return {
-      store,
+      t: rootStore.message,
       isOptionDisplayed,
       updateOption,
       execute,

@@ -46,8 +46,10 @@
           :title.attr="currentTestResultName"
           exact
         >
-          <v-badge v-if="isCapturing" color="red" dot><v-icon>devices</v-icon></v-badge>
-          <v-icon v-else>devices</v-icon>
+          <template v-slot:prepend>
+            <v-badge v-if="isCapturing" color="red" dot><v-icon>devices</v-icon></v-badge>
+            <v-icon v-else>devices</v-icon>
+          </template>
 
           <v-list-item-title>{{ currentTestResultName }}</v-list-item-title>
         </v-list-item>
@@ -61,11 +63,9 @@
         >
           <v-list-item-title>{{ $t("test-result-navigation-drawer.title") }}</v-list-item-title>
         </v-list-item>
-      </v-list>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <v-list density="compact" nav>
         <v-list-subheader v-if="!mini">{{
           $t("navigation.group-label.management")
         }}</v-list-subheader>
@@ -129,49 +129,47 @@
         >
           <v-list-item-title>{{ $t("optional-features.title") }}</v-list-item-title>
         </v-list-item>
-      </v-list>
 
-      <v-divider v-if="recentStories.length > 0"></v-divider>
+        <v-divider v-if="recentStories.length > 0"></v-divider>
 
-      <v-list density="compact" nav v-if="recentStories.length > 0">
-        <v-list-subheader v-if="!mini">{{
-          $t("navigation.group-label.recent-stories")
-        }}</v-list-subheader>
+        <div v-if="recentStories.length > 0">
+          <v-list-subheader v-if="!mini">{{
+            $t("navigation.group-label.recent-stories")
+          }}</v-list-subheader>
 
-        <v-list-item
-          v-for="story in recentStories"
-          :key="story.id"
-          :to="story.path"
-          :title.attr="`${story.testTargetName} ${story.viewPointName}`"
-          exact
-          prepend-icon="assignment"
-        >
-          <v-list-item-title>{{ story.testTargetName }}</v-list-item-title>
-          <v-list-item-subtitle v-if="!mini">{{ story.viewPointName }}</v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
+          <v-list-item
+            v-for="story in recentStories"
+            :key="story.id"
+            :to="story.path"
+            :title.attr="`${story.testTargetName} ${story.viewPointName}`"
+            exact
+            prepend-icon="assignment"
+          >
+            <v-list-item-title>{{ story.testTargetName }}</v-list-item-title>
+            <v-list-item-subtitle v-if="!mini">{{ story.viewPointName }}</v-list-item-subtitle>
+          </v-list-item>
+        </div>
 
-      <v-divider v-if="recentReviewQuery"></v-divider>
+        <v-divider v-if="recentReviewQuery"></v-divider>
 
-      <v-list density="compact" nav v-if="recentReviewQuery">
-        <v-list-subheader v-if="!mini">{{
-          $t("navigation.group-label.current-review")
-        }}</v-list-subheader>
+        <div v-if="recentReviewQuery">
+          <v-list-subheader v-if="!mini">{{
+            $t("navigation.group-label.current-review")
+          }}</v-list-subheader>
 
-        <v-list-item
-          v-if="currentTestResultName && recentReviewQuery"
-          :to="{ path: '/page/review', query: recentReviewQuery }"
-          :title.attr="currentTestResultName"
-          exact
-          prepend-icon="pageview"
-        >
-          <v-list-item-title>{{ currentTestResultName }}</v-list-item-title>
-        </v-list-item>
-      </v-list>
+          <v-list-item
+            v-if="currentTestResultName && recentReviewQuery"
+            :to="{ path: '/page/review', query: recentReviewQuery }"
+            :title.attr="currentTestResultName"
+            exact
+            prepend-icon="pageview"
+          >
+            <v-list-item-title>{{ currentTestResultName }}</v-list-item-title>
+          </v-list-item>
+        </div>
 
-      <v-divider></v-divider>
+        <v-divider></v-divider>
 
-      <v-list density="compact" nav>
         <v-list-subheader v-if="!mini">{{ $t("navigation.group-label.other") }}</v-list-subheader>
 
         <v-list-item

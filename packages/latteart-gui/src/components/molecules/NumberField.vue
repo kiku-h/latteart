@@ -94,9 +94,9 @@ export default defineComponent({
         const num = internalValue.value;
         if (num === "" && !props.allowBlank) {
           internalValue.value = props.minValue;
-        } else if (props.maxValue !== undefined && num > props.maxValue) {
+        } else if (props.maxValue !== undefined && parseInt(num.toString(), 10) > props.maxValue) {
           internalValue.value = props.maxValue;
-        } else if (props.minValue !== undefined && num < props.minValue) {
+        } else if (props.minValue !== undefined && parseInt(num.toString(), 10) < props.minValue) {
           internalValue.value = props.minValue;
         }
         send();
@@ -116,7 +116,7 @@ export default defineComponent({
     };
 
     const increase = (): void => {
-      if (internalValue.value < props.maxValue) {
+      if (parseInt(internalValue.value.toString(), 10) < props.maxValue) {
         !internalValue.value ? update("1") : update(`${Number(internalValue.value) + 1}`);
       } else if (disabledInternalValue()) {
         update("1");
@@ -125,7 +125,7 @@ export default defineComponent({
     };
 
     const decrease = (): void => {
-      if (internalValue.value > props.minValue) {
+      if (parseInt(internalValue.value.toString(), 10) > props.minValue) {
         !internalValue.value ? update("-1") : update(`${Number(internalValue.value) - 1}`);
       } else if (disabledInternalValue()) {
         update("0");

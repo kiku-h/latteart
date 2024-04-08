@@ -39,15 +39,18 @@
 
 <script lang="ts">
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { TestResultComparisonResult, TestResultSummary } from "@/lib/operationHistory/types";
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
+import {
+  type TestResultComparisonResult,
+  type TestResultSummary
+} from "@/lib/operationHistory/types";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ComparisonResultDialog from "@/components/organisms/dialog/ComparisonResultDialog.vue";
 import ReplayOptionDialog from "@/components/organisms/dialog/ReplayOptionDialog.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
-import { useRouter } from "vue-router/composables";
+import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
   components: {
@@ -56,7 +59,9 @@ export default defineComponent({
     "comparison-result-dialog": ComparisonResultDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
     const router = useRouter();
 
     const errorDialogOpened = ref(false);
@@ -77,25 +82,25 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isResuming;
+      return captureControlStore.isResuming;
     });
 
     const operations = computed((): OperationForGUI[] => {
-      return store.getters["operationHistory/getOperations"]();
+      return operationHistoryStore.getOperations();
     });
 
     const title = computed(() => {
       return isReplaying.value
-        ? store.getters.message("app.stop-replay")
-        : store.getters.message("app.replay");
+        ? rootStore.message("app.stop-replay")
+        : rootStore.message("app.replay");
     });
 
     const replayOption = computed(
@@ -104,7 +109,7 @@ export default defineComponent({
         resultSavingEnabled: boolean;
         comparisonEnabled: boolean;
       } => {
-        return ((store.state as any).captureControl as CaptureControlState).replayOption;
+        return captureControlStore.replayOption;
       }
     );
 
@@ -124,17 +129,17 @@ export default defineComponent({
       goToHistoryView();
       (async () => {
         try {
-          await store.dispatch("captureControl/replayOperations", {
+          await captureControlStore.replayOperations({
             initialUrl: operations.value[0].url
           });
 
           if (replayOption.value.resultSavingEnabled && replayOption.value.comparisonEnabled) {
             await compareHistory();
           } else {
-            store.commit("captureControl/setCompletionDialog", {
-              title: store.getters.message("replay.done-title"),
-              message: store.getters.message("replay.done-run-operations")
-            });
+            captureControlStore.completionDialogData = {
+              title: rootStore.message("replay.done-title"),
+              message: rootStore.message("replay.done-run-operations")
+            };
           }
         } catch (error) {
           if (error instanceof Error) {
@@ -148,26 +153,23 @@ export default defineComponent({
     };
 
     const compareHistory = async () => {
-      store.dispatch("openProgressDialog", {
-        message: store.getters.message("test-result-page.comparing-test-result")
+      rootStore.openProgressDialog({
+        message: rootStore.message("test-result-page.comparing-test-result")
       });
 
       try {
-        const testResults: TestResultSummary[] = await store.dispatch(
-          "operationHistory/getTestResults"
-        );
-
+        const testResults: TestResultSummary[] = await operationHistoryStore.getTestResults();
         if (testResults.length === 0) {
-          throw new Error(store.getters.message("test-result-page.compare-test-result-not-exist"));
+          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
         }
 
         const { actualTestResultId, expectedTestResultId } = findCompareTargets(testResults);
 
         if (!expectedTestResultId) {
-          throw new Error(store.getters.message("test-result-page.compare-test-result-not-exist"));
+          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
         }
 
-        comparisonResult.value = await store.dispatch("operationHistory/compareTestResults", {
+        comparisonResult.value = await operationHistoryStore.compareTestResults({
           actualTestResultId,
           expectedTestResultId
         });
@@ -181,13 +183,12 @@ export default defineComponent({
           throw error;
         }
       } finally {
-        store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
     };
 
     const findCompareTargets = (testResults: TestResultSummary[]) => {
-      const actualTestResultId = ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.id;
+      const actualTestResultId = operationHistoryStore.testResultInfo.id;
 
       const actualTestResult = testResults.find((testResult) => {
         return testResult.id === actualTestResultId;
@@ -203,7 +204,7 @@ export default defineComponent({
     };
 
     const forceQuitReplay = async () => {
-      await store.dispatch("captureControl/forceQuitReplay").catch((error) => {
+      await captureControlStore.forceQuitReplay().catch((error) => {
         console.log(error);
       });
     };
@@ -217,7 +218,6 @@ export default defineComponent({
     };
 
     return {
-      store,
       errorDialogOpened,
       errorDialogMessage,
       replayOptionDialogOpened,

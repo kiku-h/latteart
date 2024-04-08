@@ -32,27 +32,28 @@
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isPaused = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState).isPaused;
+      return captureControlStore.isPaused;
     });
 
     const pauseButtonTooltip = computed((): string => {
       if (!isCapturing.value) {
         return "";
       }
-      return store.getters.message(isPaused.value ? "app.resume-capturing" : "app.pause-capturing");
+      return rootStore.message(isPaused.value ? "app.resume-capturing" : "app.pause-capturing");
     });
 
     const pauseButtonColor = computed(() => {
@@ -61,9 +62,9 @@ export default defineComponent({
 
     const pushPauseButton = () => {
       if (isPaused.value) {
-        store.dispatch("captureControl/resumeCapturing");
+        captureControlStore.resumeCapturing();
       } else {
-        store.dispatch("captureControl/pauseCapturing");
+        captureControlStore.pauseCapturing();
       }
     };
 
