@@ -35,7 +35,7 @@
         <span class="test-purpose-h">
           {{ testResultName(displayedItem.testResultId) }}
         </span>
-        <v-list class="pt-0" v-model:opened="selectedItems">
+        <v-list class="pt-0" v-model:opened="selectedItems" open-strategy="multiple">
           <v-list-group
             v-for="testPurpose in displayedItem.testPurposes"
             :key="testPurpose.id"
@@ -71,6 +71,8 @@
               link
               v-for="(note, i) in testPurpose.notes"
               :key="i"
+              :ripple="false"
+              :active="false"
             >
               <v-list-item-title
                 ><span :title="note.value">{{ note.value }}</span></v-list-item-title
@@ -79,7 +81,7 @@
               <template v-slot:append>
                 <v-list-item-action>
                   <v-btn
-                    @click="
+                    @click.stop="
                       openNoteDetails(
                         note.id,
                         note.value,
@@ -285,7 +287,12 @@ export default defineComponent({
           });
 
           return {
-            testPurpose: { ...testPurpose, value, notes }
+            testPurpose: {
+              ...testPurpose,
+              id: testPurpose.testResultId + "_" + testPurpose.id,
+              value,
+              notes
+            }
           };
         })
         .reduce((acu, cur) => {

@@ -38,36 +38,7 @@
 
       <v-list-item class="mb-2">
         <v-list-item-title>{{ $t("note-details-dialog.tags") }}</v-list-item-title>
-        <v-combobox
-          v-model="newTags"
-          :hide-no-data="!search"
-          :items="tagsItem"
-          item-title="text"
-          v-model:search="search"
-          hide-selected
-          hide-details
-          multiple
-          :readonly="isViewerMode"
-        >
-          <template v-slot:no-data>
-            <v-list-item>
-              <v-list-item-title>
-                No results matching "<strong>{{ search }}</strong
-                >". Press <kbd>enter</kbd> to create a new one
-              </v-list-item-title>
-            </v-list-item>
-          </template>
-          <template v-slot:selection="{ item }">
-            <v-chip
-              v-if="item === Object(item)"
-              :color="item.raw.color"
-              size="small"
-              variant="elevated"
-            >
-              <span>{{ item.raw.text }}</span>
-            </v-chip>
-          </template>
-        </v-combobox>
+        <note-tag-select-box v-model="newTags" :readonly="isViewerMode" />
       </v-list-item>
 
       <media-display-group
@@ -87,12 +58,13 @@
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { type NoteTagItem, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import MediaDisplayGroup from "@/components/organisms/common/MediaDisplayGroup.vue";
 import { defineComponent, ref, toRefs, watch, inject, nextTick, type PropType } from "vue";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { useRootStore } from "@/stores/root";
+import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
 
 export default defineComponent({
   props: {
@@ -112,7 +84,8 @@ export default defineComponent({
   components: {
     "execute-dialog": ExecuteDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "media-display-group": MediaDisplayGroup
+    "media-display-group": MediaDisplayGroup,
+    "note-tag-select-box": NoteTagSelectBox
   },
   setup(props, context) {
     const rootStore = useRootStore();
@@ -122,7 +95,7 @@ export default defineComponent({
     const errorMessage = ref("");
 
     const search = ref(null);
-    const newTags = ref<NoteTagItem[]>([]);
+    const newTags = ref<string[]>([]);
     const tagsItem = ref(noteTagPreset.items);
 
     const isViewerMode: boolean = inject("isViewerMode") ?? false;
@@ -133,38 +106,11 @@ export default defineComponent({
       if (!props.opened) {
         return;
       }
-      newTags.value = props.tags.map((tag) => {
-        const targetTagItem = tagsItem.value.find((item) => item.text === tag);
-        if (targetTagItem) {
-          return targetTagItem;
-        }
-
-        return {
-          text: tag,
-          color: "#E0E0E0"
-        };
-      });
+      newTags.value = props.tags;
 
       isMediaDisplayed.value = false;
       nextTick(() => {
         isMediaDisplayed.value = true;
-      });
-    };
-
-    const changeTags = (val: NoteTagItem[], prev: NoteTagItem[]) => {
-      if (val.length === prev.length) return;
-
-      newTags.value = val.map((v) => {
-        if (typeof v === "string") {
-          v = {
-            text: v,
-            color: "#E0E0E0"
-          };
-
-          newTags.value.push(v);
-        }
-
-        return v;
       });
     };
 
@@ -175,7 +121,7 @@ export default defineComponent({
           noteId: props.noteId,
           value: props.summary,
           details: props.details,
-          tags: newTags.value.map((tag) => tag.text)
+          tags: newTags.value.map((tag) => tag)
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -195,7 +141,6 @@ export default defineComponent({
 
     const { opened } = toRefs(props);
     watch(opened, initialize);
-    watch(newTags, changeTags);
 
     return {
       t: rootStore.message,
