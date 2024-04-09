@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import { defaultNoteTagColor, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
@@ -37,7 +37,7 @@ export default defineComponent({
   },
   setup() {
     const getTagsColor = (tag: string) => {
-      return noteTagPreset.items.find((item) => item.text === tag)?.color ?? "#E0E0E0";
+      return noteTagPreset.items.find((item) => item.text === tag)?.color ?? defaultNoteTagColor;
     };
 
     return {
