@@ -19,6 +19,7 @@ import RootPage from "@/components/pages/RootPage.vue";
 import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
 import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 import StartCapturePage from "@/components/pages/startCapture/StartCapturePage.vue";
+import StoryPage from "@/components/pages/story/StoryPage.vue";
 import TestMatrixPage from "@/components/pages/testMatrix/TestMatrixPage.vue";
 import TestResultPage from "@/components/pages/testResult/TestResultPage.vue";
 import TestResultListPage from "@/components/pages/testResultList/TestResultListPage.vue";
@@ -81,6 +82,12 @@ const defaultRoutes = [
             name: "qualityManagementPage",
             component: QualityManagementPage,
             meta: { title: "quality-management.title" }
+          },
+          {
+            path: "story/:id",
+            name: "storyPage",
+            component: StoryPage,
+            meta: { title: "story-page.title" }
           }
         ]
       }
