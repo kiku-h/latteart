@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid fill-height class="pa-0" style="height: 100%">
+  <v-container fluid class="pa-0 fill-height">
     <splitpanes horizontal @resized="resize('vertical', $event)" class="default-theme">
       <pane
         :size="verticalPaneSize"
@@ -29,6 +29,7 @@
             color="blue"
             :loading="updating"
             :disabled="!canUpdateModels"
+            variant="elevated"
             @click="updateTestResultViewModel"
             >{{ message("test-result-page.update-model-and-coverage") }}</v-btn
           >
